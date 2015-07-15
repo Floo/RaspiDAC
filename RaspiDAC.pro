@@ -18,19 +18,20 @@ QMAKE_CXXFLAGS += -std=c++0x  -DUPPLAY_VERSION=\\\"$$VERSION\\\"
 target.path = /home/pi/RaspiDAC
 
 
-SOURCES += RaspiDAC.cpp\
-        mainwindow.cpp \
+SOURCES += \
+    RaspiDAC.cpp\
+    mainwindow.cpp \
     application.cpp \
     playlist/PlaylistAVT.cpp \
     playlist/Playlist.cpp \
     upadapt/upputils.cpp \
-    upadapt/md5.cxx \
     HelperStructs/Helper.cpp \
     HelperStructs/CSettingsStorage.cpp \
     mpdradio.cpp \
     ticker.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
+    mainwindow.h \
     application.h \
     upqo/renderingcontrol_qo.h \
     upqo/cdirectory_qo.h \
@@ -38,7 +39,6 @@ HEADERS  += mainwindow.h \
     playlist/PlaylistAVT.h \
     playlist/Playlist.h \
     upadapt/upputils.h \
-    upadapt/md5.hxx \
     upadapt/avtadapt.h \
     HelperStructs/Helper.h \
     HelperStructs/MetaData.h \
@@ -50,7 +50,8 @@ HEADERS  += mainwindow.h \
     mpdradio.h \
     ticker.h
 
-FORMS    += mainwindow.ui
+FORMS  += \
+    mainwindow.ui
 
 RESOURCES += \
     RaspiDAC.qrc
@@ -58,3 +59,7 @@ RESOURCES += \
 LIBS += -lupnpp -lmpdclient
 
 DISTFILES +=
+
+UI_DIR = .ui
+MOC_DIR = .moc
+OBJECTS_DIR = .obj

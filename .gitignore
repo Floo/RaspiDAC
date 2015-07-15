@@ -1,8 +1,7 @@
-upplay
+RaspiDAC
 .ui
 .moc
 .obj
-GUI/player/player
 \#*
 *~
 qrc_upplay.cpp
