@@ -1,0 +1,11 @@
+[Desktop Entry]
+Categories=Audio;Player;Qt
+Comment=UPnP audio Control Point
+Exec=RaspiDAC
+GenericName=UPnP audio Control Point
+Icon=upplay
+Name=RaspiDAC
+Terminal=false
+Type=Application
+Keywords=audio;upnp
+
