@@ -39,11 +39,11 @@ signals:
 public slots:
 
 private:
-   bool m_initialized;
-   bool m_hasOHRenderer;
+    bool m_initialized;
+    bool m_hasOHRenderer;
 
-    UPnPDeviceDirectory *superdir;
     QApplication *m_app;
+    UPnPDeviceDirectory *superdir;
     MainWindow *m_gui;
     CSettingsStorage *m_settings;
     AVTPlayer *m_avto;

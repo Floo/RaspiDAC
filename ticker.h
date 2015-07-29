@@ -30,9 +30,9 @@ private:
     QString *m_tickerText;
     QFont *m_font;
     QFontMetrics *m_fontMetrics;
+    int m_interval;
     int m_textPosition;
     int m_textWidth;
-    int m_interval;
 };
 
 #endif // TICKER_H

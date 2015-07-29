@@ -1,14 +1,15 @@
 #include "application.h"
 
 Application::Application(QApplication* qapp, int n_files, QObject *parent)
-    :QObject(parent), m_app(qapp), m_initialized(false), m_settings(0), m_avto(0),
-      m_rdco(0), m_hasOHRenderer(false), m_mpdradio(0)
+    :QObject(parent), m_initialized(false), m_hasOHRenderer(false), m_app(qapp),  m_settings(0), m_avto(0),
+      m_rdco(0), m_mpdradio(0)
 {
     m_gui = new MainWindow();
     m_gui->show();
 
-//    m_initialized = true;
-//    return;
+    //nur GUI
+    m_initialized = true;
+    return;
 
     m_settings = CSettingsStorage::getInstance();
     QString version = getVersion();
