@@ -8,6 +8,12 @@ using namespace std;
 #include <iostream>
 
 #include <QApplication>
+#include <QDebug>
+
+#ifdef __rpi__
+    #include "rpicontrol/rpigpio.h"
+    #include "wiringPi.h"
+#endif
 
 #include <libupnpp/upnpplib.hxx>
 #include <libupnpp/log.hxx>
@@ -24,6 +30,34 @@ static int    op_flags;
 #define OPT_c     0x20
 
 static const char usage [] =  "\n";
+
+//#ifdef __rpi__
+//RPiGPIO *rpiGPIO;
+
+//void cbTaster1()
+//{
+//    qDebug() << "Taster1 gedrückt";
+//    emit rpiGPIO->taster1();;
+//}
+
+//void cbTaster2()
+//{
+//    qDebug() << "Taster2 gedrückt";
+//    emit rpiGPIO->taster2();
+//}
+
+//void cbTaster3()
+//{
+//    qDebug() << "Taster3 gedrückt";
+//    emit rpiGPIO->taster3();
+//}
+
+//void cbTaster4()
+//{
+//    qDebug() << "Taster4 gedrückt";
+//    emit rpiGPIO->taster4();
+//}
+//#endif
 
 static void Usage(void)
 {
@@ -97,6 +131,13 @@ int main(int argc, char *argv[])
             mylib->setLogFileName(cp, LibUPnP::LogLevel(loglevel));
         }
     }
+
+//#ifdef __rpi__
+//    wiringPiISR(GPIO05, INT_EDGE_FALLING, &cbTaster1);
+//    wiringPiISR(GPIO06, INT_EDGE_FALLING, &cbTaster2);
+//    wiringPiISR(GPIO13, INT_EDGE_FALLING, &cbTaster3);
+//    wiringPiISR(GPIO12, INT_EDGE_FALLING, &cbTaster4);
+//#endif
 
     Application application(&a,params.size(), 0);
     if(!application.is_initialized())

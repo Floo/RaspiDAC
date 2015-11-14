@@ -27,6 +27,8 @@ public:
     RenderingControlQO(UPnPClient::RDCH rdc, QObject *parent = 0)
         : QObject(parent), m_srv(rdc)
         {
+            //m_srv = UPnPClient::RDCH(new UPnPClient::RenderingControl(rdc));
+            qDebug() << "!!!getReporter " << m_srv->getReporter();
             m_srv->installReporter(this);
         }
     ~RenderingControlQO() {

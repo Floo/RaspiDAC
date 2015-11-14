@@ -17,10 +17,8 @@ QMAKE_CXXFLAGS += -std=c++0x  -DUPPLAY_VERSION=\\\"$$VERSION\\\" -Wno-psabi
 
 target.path = /home/pi/RaspiDAC
 
-
 SOURCES += \
     RaspiDAC.cpp\
-    mainwindow.cpp \
     application.cpp \
     playlist/PlaylistAVT.cpp \
     playlist/Playlist.cpp \
@@ -28,10 +26,16 @@ SOURCES += \
     HelperStructs/Helper.cpp \
     HelperStructs/CSettingsStorage.cpp \
     mpdradio.cpp \
-    ticker.cpp
+    ticker.cpp \
+    upnpwindow.cpp \
+    standbywindow.cpp \
+    mainwindow.cpp \
+    radiowindow.cpp \
+    spdifwindow.cpp \
+    rpicontrol/netapiserver.cpp \
+    rpicontrol/netapithread.cpp
 
 HEADERS  += \
-    mainwindow.h \
     application.h \
     upqo/renderingcontrol_qo.h \
     upqo/cdirectory_qo.h \
@@ -48,15 +52,39 @@ HEADERS  += \
     upqo/ohtime_qo.h \
     upqo/ohplaylist_qo.h \
     mpdradio.h \
-    ticker.h
+    ticker.h \
+    upnpwindow.h \
+    standbywindow.h \
+    mainwindow.h \
+    radiowindow.h \
+    spdifwindow.h \
+    rpicontrol/netapiserver.h \
+    rpicontrol/netapithread.h
 
 FORMS  += \
-    mainwindow.ui
+    standbywindow.ui \
+    mainwindow.ui \
+    radiowindow.ui \
+    upnpwindow.ui \
+    spdifwindow.ui
 
 RESOURCES += \
     RaspiDAC.qrc
 
 LIBS += -lupnpp -lmpdclient
+
+contains(QT_ARCH,arm):{
+    message("ARM System")
+    DEFINES += __rpi__
+    LIBS += -lwiringPi -L/usr/local/lib
+    HEADERS += rpicontrol/rpigpio.h
+    SOURCES += rpicontrol/rpigpio.cpp
+}
+else{
+    message("x86_64 System")
+}
+
+INCLUDEPATH += /usr/local/include
 
 DISTFILES +=
 
