@@ -26,7 +26,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="RaspiDAC.qrc">:/new/resources/index.jpeg</pixmap>
+    <pixmap resource="RaspiDAC.qrc">:/pics/resources/index.jpeg</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -41,21 +41,13 @@
      <height>16</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Noto Sans [unknown]</family>
+    </font>
+   </property>
    <property name="text">
     <string>Titel</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblMaxTime">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>280</y>
-     <width>59</width>
-     <height>15</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>maxTime</string>
    </property>
   </widget>
   <widget class="QLabel" name="lblCurTime">
@@ -63,9 +55,14 @@
     <rect>
      <x>10</x>
      <y>280</y>
-     <width>59</width>
-     <height>15</height>
+     <width>191</width>
+     <height>16</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Noto Sans [unknown]</family>
+    </font>
    </property>
    <property name="text">
     <string>CurTime</string>
@@ -79,6 +76,11 @@
      <width>121</width>
      <height>16</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Noto Sans [unknown]</family>
+    </font>
    </property>
    <property name="text">
     <string>Album</string>
@@ -122,7 +124,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="RaspiDAC.qrc">:/new/resources/stop.png</pixmap>
+    <pixmap resource="RaspiDAC.qrc">:/pics/resources/stop.png</pixmap>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -137,21 +139,13 @@
      <height>16</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Noto Sans [unknown]</family>
+    </font>
+   </property>
    <property name="text">
     <string>Artist</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>110</x>
-     <y>220</y>
-     <width>261</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>TextLabel</string>
    </property>
   </widget>
  </widget>

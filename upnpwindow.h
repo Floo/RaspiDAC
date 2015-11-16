@@ -10,6 +10,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
+#include <QFontDatabase>
 
 #include "HelperStructs/Helper.h"
 #include "ticker.h"
@@ -57,7 +58,6 @@ private:
     QNetworkAccessManager *m_netmanager;
 
     void fetch_cover(const QString& URI);
-    void total_time_changed(qint64 total_time);
     void no_cover_available();
 };
 

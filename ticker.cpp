@@ -5,7 +5,7 @@ Ticker::Ticker(QWidget *parent) : QWidget(parent),
 {
     m_tickerText = new QString("");
     m_tickerTimer = new QTimer(this);
-    m_font = new QFont("Helvetica", 24);
+    m_font = new QFont("Noto Sans", 14);
     m_fontMetrics = new QFontMetrics(*m_font);
     connect(m_tickerTimer, SIGNAL(timeout()), this, SLOT(updateTicker()));
 
@@ -24,8 +24,9 @@ Ticker::~Ticker()
 void Ticker::paintEvent(QPaintEvent *event)
 {
     QPainter m_painter(this);
-    m_painter.drawRect(0, 0, width()-1, height()-1);
+//    m_painter.drawRect(0, 0, width()-1, height()-1);
     m_painter.setFont(*m_font);
+    m_painter.setPen(QColor("#fff"));
     m_painter.drawText(m_textPosition, 0, 500, 30, Qt::AlignVCenter, *m_tickerText);
 }
 

@@ -20,8 +20,16 @@ Application::Application(QApplication* qapp, int n_files, QObject *parent)
 #ifdef __rpi__
     rpiGPIO = new RPiGPIO();
 #endif
-    m_mainWindow = new MainWindow();
+    if(QFontDatabase::addApplicationFont(":/fonts/resources/fonts/LiberationSans-Regular.ttf") == -1)
+    {
+        qDebug() << "Fehler beim Laden von LiberationSans";
+    }
+    if(QFontDatabase::addApplicationFont(":/fonts/resources/fonts/NotoSans-Regular.ttf") == -1)
+    {
+        qDebug() << "Fehler beim Laden von NotoSans";
+    }
 
+    m_mainWindow = new MainWindow();
     m_standbyWindow = new StandbyWindow();
     m_upnpWindow = new UpnpWindow();
     m_radioWindow = new RadioWindow();

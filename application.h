@@ -8,6 +8,8 @@
 
 #include <QObject>
 #include <QApplication>
+#include <QFile>
+#include <QFontDatabase>
 
 #include "upnpwindow.h"
 #include "mainwindow.h"
@@ -80,6 +82,9 @@ private:
     RenderingControlQO *m_rdco;
     Mpdradio *m_mpdradio;
 //    Playlist *m_playlist;
+
+    QFile *m_res;
+    QFont *m_font;
 #ifdef __rpi__
     RPiGPIO *rpiGPIO;
 #endif

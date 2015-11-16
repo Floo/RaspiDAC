@@ -1,10 +1,20 @@
 <RCC>
-    <qresource prefix="/new">
+    <qresource prefix="/pics">
         <file>resources/index.jpeg</file>
         <file>resources/d_1_b.gif</file>
         <file>resources/stop.png</file>
         <file>resources/play.png</file>
         <file>resources/pause.png</file>
         <file>resources/logo.png</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file>resources/fonts/NotoSans-Bold.ttf</file>
+        <file>resources/fonts/NotoSans-BoldItalic.ttf</file>
+        <file>resources/fonts/NotoSans-Italic.ttf</file>
+        <file>resources/fonts/NotoSans-Regular.ttf</file>
+        <file>resources/fonts/LiberationSans-Bold.ttf</file>
+        <file>resources/fonts/LiberationSans-BoldItalic.ttf</file>
+        <file>resources/fonts/LiberationSans-Italic.ttf</file>
+        <file>resources/fonts/LiberationSans-Regular.ttf</file>
     </qresource>
 </RCC>

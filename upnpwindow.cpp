@@ -9,18 +9,9 @@ UpnpWindow::UpnpWindow(QWidget *parent) :
     m_metadata_available = false;
     ui->setupUi(this);
 
-    QFont f = ui->label->font();
-    f.setPixelSize(10);
-    ui->label->setFont(f);
-
     m_ticker = new Ticker(this);
     m_ticker->setGeometry(0, 0, 240, 30);
     m_ticker->move(10, 210);
-
-
-//    m_label = new QLabel(this);
-//    m_label->setText(QString("TEST"));
-//    m_label->move(10,220);
 
     m_netmanager = new QNetworkAccessManager(this);
     connect(m_netmanager, SIGNAL(finished(QNetworkReply*)),
@@ -36,7 +27,7 @@ UpnpWindow::~UpnpWindow()
 void UpnpWindow::stopped()
 {
         //qDebug() << "void GUI_Player::paused()";
-    ui->lblState->setPixmap(QPixmap(QString(":/new/resources/stop.png")));
+    ui->lblState->setPixmap(QPixmap(QString(":/pics/resources/stop.png")));
 //    ui->btn_play->setIcon(QIcon(Helper::getIconPath() + "stop.png"));
     m_playing = false;
 }
@@ -44,17 +35,18 @@ void UpnpWindow::stopped()
 void UpnpWindow::paused()
 {
     //qDebug() << "void GUI_Player::paused()";
-    ui->lblState->setPixmap(QPixmap(QString(":/new/resources/pause.png")));
+    ui->lblState->setPixmap(QPixmap(QString(":/pics/resources/pause.png")));
     //ui->btn_play->setIcon(QIcon(Helper::getIconPath() + "play.png"));
     m_playing = false;
 }
 
 void UpnpWindow::playing(){
     //qDebug() << "void GUI_Player::playing()";
-    ui->lblState->setPixmap(QPixmap(QString(":/new/resources/play.png")));
+    ui->lblState->setPixmap(QPixmap(QString(":/pics/resources/play.png")));
     //ui->btn_play->setIcon(QIcon(Helper::getIconPath() + "pause.png"));
     m_playing = true;
 }
+
 
 void UpnpWindow::setCurrentPosition(quint32 pos_sec)
 {
@@ -65,7 +57,8 @@ void UpnpWindow::setCurrentPosition(quint32 pos_sec)
         ui->songProgress->setValue(newSliderVal);
     }
     QString curPosString = Helper::cvtMsecs2TitleLengthString(pos_sec * 1000);
-    ui->lblCurTime->setText(curPosString);
+    QString lengthString = Helper::cvtMsecs2TitleLengthString(m_completeLength_ms, true);
+    ui->lblCurTime->setText(QString(curPosString + " / " + lengthString));
 }
 
 void UpnpWindow::update_track(const MetaData& md){
@@ -77,7 +70,6 @@ void UpnpWindow::update_track(const MetaData& md){
     cerr << "Didl " << md.didl.toStdString() << endl;
 
     m_completeLength_ms = md.length_ms;
-    total_time_changed(md.length_ms);
 
 //    QString tmp = QString("<font color=\"#FFAA00\" size=\"+10\">");
 //    if (md.bitrate < 96000) {
@@ -116,13 +108,6 @@ void UpnpWindow::update_track(const MetaData& md){
     m_metadata_available = true;
 
     this->repaint();
-}
-
-void UpnpWindow::total_time_changed(qint64 total_time)
-{
-    QString length_str = Helper::cvtMsecs2TitleLengthString(total_time, true);
-    m_completeLength_ms = total_time;
-    ui->lblMaxTime->setText(length_str);
 }
 
 void UpnpWindow::fetch_cover(const QString& URI)
@@ -181,7 +166,7 @@ void UpnpWindow::sl_cover_fetch_done(QNetworkReply* reply)
 
 void UpnpWindow::no_cover_available()
 {
-    ui->lblAlbumArt->setPixmap(QPixmap(QString(":/new/resources/logo.png")));
+    ui->lblAlbumArt->setPixmap(QPixmap(QString(":/pics/resources/logo.png")));
 }
 
 void UpnpWindow::new_transport_state(int tps, const char *)
