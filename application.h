@@ -25,6 +25,7 @@
 #include "HelperStructs/CSettingsStorage.h"
 #include "mpdradio.h"
 #include "rpicontrol/netapiserver.h"
+#include "settings.h"
 
 #include <libupnpp/upnpplib.hxx>
 #include <libupnpp/control/mediarenderer.hxx>
@@ -60,6 +61,7 @@ public slots:
     void setBacklight(int);
     void setStandby();
     void new_transport_state(int, const char *);
+    void setRadioStation(QString name, QString file, int id);
 
 private:
     bool m_initialized;
@@ -81,6 +83,7 @@ private:
     OHVolumeQO *m_ohvlo;
     RenderingControlQO *m_rdco;
     Mpdradio *m_mpdradio;
+    Settings *m_settings;
 //    Playlist *m_playlist;
 
     QFile *m_res;

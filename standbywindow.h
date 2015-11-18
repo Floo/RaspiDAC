@@ -2,6 +2,8 @@
 #define STANDBYWINDOW_H
 
 #include <QWidget>
+#include <QTimer>
+#include <QTime>
 
 namespace Ui {
 class StandbyWindow;
@@ -17,6 +19,11 @@ public:
 
 private:
     Ui::StandbyWindow *ui;
+    QTimer *m_timer;
+
+private slots:
+    void setCurrentTime();
+
 };
 
 #endif // STANDBYWINDOW_H

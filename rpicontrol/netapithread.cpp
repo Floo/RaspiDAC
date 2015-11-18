@@ -62,7 +62,7 @@ QString NetAPIThread::parser(const QString &command)
     QStringList set_commands;
     QStringList get_commands;
     set_commands << "rc5direct" << "standby" << "dacinput" << "mode" << "pm8000" << "radio" << "backlight"
-                 << "spdifinput" << "play" << "pause" << "next" << "previous" << "stop";
+                 << "spdifinput" << "play" << "pause" << "next" << "previous" << "stop" << "radiostation";
     get_commands << "standby" << "radiolist";
 
     qDebug() << command;
@@ -144,6 +144,9 @@ QString NetAPIThread::parser(const QString &command)
                 break;
             case 12: //stop
                 emit setStop();
+                break;
+            case 13: //radiostation
+                emit setRadioStation(subcommand.at(2), subcommand.at(3), subcommand.at(4).toInt());
                 break;
             }
         }

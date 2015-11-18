@@ -28,6 +28,10 @@ Application::Application(QApplication* qapp, int n_files, QObject *parent)
     {
         qDebug() << "Fehler beim Laden von NotoSans";
     }
+    QFontDatabase::addApplicationFont(":/fonts/resources/fonts/LiberationSans-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/resources/fonts/NotoSans-Bold.ttf");
+
+    m_settings = new Settings();
 
     m_mainWindow = new MainWindow();
     m_standbyWindow = new StandbyWindow();
@@ -357,6 +361,11 @@ void Application::new_transport_state(int tps, const char *)
     case AUDIO_PAUSED:
         break;
     }
+}
+
+void Application::setRadioStation(QString name, QString file, int id)
+{
+    m_settings->setRadioStation(id, name, file);
 }
 
 
