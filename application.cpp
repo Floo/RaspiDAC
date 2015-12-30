@@ -31,8 +31,6 @@ Application::Application(QApplication* qapp, int n_files, QObject *parent)
     QFontDatabase::addApplicationFont(":/fonts/resources/fonts/LiberationSans-Bold.ttf");
     QFontDatabase::addApplicationFont(":/fonts/resources/fonts/NotoSans-Bold.ttf");
 
-    m_settings = new Settings();
-
     m_mainWindow = new MainWindow();
     m_standbyWindow = new StandbyWindow();
     m_upnpWindow = new UpnpWindow();
@@ -242,7 +240,7 @@ void Application::renderer_connections()
 //                m_ohplo, clear());
 //        CONNECT(m_upnpWindow, sig_insert_tracks(const MetaDataList&, int),
 //                m_ohplo, insertTracks(const MetaDataList&, int));
-        connect(m_upnpWindow, SIGNAL(sig_playradio()), m_mpdradio, SLOT(play_radio()));
+
 //        m_app->connect(m_upnpWindow, SIGNAL(sig_insert_tracks(const MetaDataList&,int)),
 //                       m_ohplo, SLOT(insertTracks(const MetaDataList&,int)));
     } else {
@@ -254,6 +252,17 @@ void Application::renderer_connections()
         connect(m_avto, SIGNAL(secsInSongChanged(quint32)), m_upnpWindow, SLOT(setCurrentPosition(quint32)));
         connect(m_upnpWindow, SIGNAL(sig_radio(const MetaData&, int, bool)), m_avto, SLOT(changeTrack(const MetaData&, int, bool)));
     }
+
+    QSignalMapper *signalmapper;
+    signalmapper = new QSignalMapper(this);
+    signalmapper->setMapping(netAPIServer, m->idRadioWindow);
+    connect(netAPIServer, SIGNAL(radio(int)), signalmapper, SLOT(map()));
+    connect(signalmapper, SIGNAL(mapped(int)), this, SLOT(setMode(int)));
+
+    connect(netAPIServer, SIGNAL(radio(int)), m_mpdradio, SLOT(load_radio(int)));
+    connect(m_mpdradio, SIGNAL(station_changed(QString)), m_radioWindow, SLOT(new_station_name(QString)));
+    connect(netAPIServer, SIGNAL(stop()), m_mpdradio, SLOT(stop_radio()));
+    connect(netAPIServer, SIGNAL(pause()), m_mpdradio, SLOT(stop_radio()));
 
     connect(m_avto, SIGNAL(sig_currentMetadata(const MetaData&)), m_upnpWindow, SLOT(update_track(const MetaData&)));
     //TODO: Wird Volume und Mute benötigt?

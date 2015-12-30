@@ -33,8 +33,7 @@ SOURCES += \
     radiowindow.cpp \
     spdifwindow.cpp \
     rpicontrol/netapiserver.cpp \
-    rpicontrol/netapithread.cpp \
-    settings.cpp
+    rpicontrol/netapithread.cpp
 
 HEADERS  += \
     application.h \
@@ -60,8 +59,7 @@ HEADERS  += \
     radiowindow.h \
     spdifwindow.h \
     rpicontrol/netapiserver.h \
-    rpicontrol/netapithread.h \
-    settings.h
+    rpicontrol/netapithread.h
 
 FORMS  += \
     standbywindow.ui \

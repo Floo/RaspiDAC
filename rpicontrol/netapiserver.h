@@ -29,6 +29,7 @@ private slots:
     void setNext();
     void setPrevious();
     void setStop();
+    void setRadio(int);
 
 signals:
     void play();
@@ -36,6 +37,7 @@ signals:
     void next();
     void previous();
     void stop();
+    void radio(int);
 };
 
 #endif // NETAPISERVER_H

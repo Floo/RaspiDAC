@@ -10,6 +10,7 @@
 #include <QApplication>
 #include <QFile>
 #include <QFontDatabase>
+#include <QSignalMapper>
 
 #include "upnpwindow.h"
 #include "mainwindow.h"
@@ -25,7 +26,6 @@
 #include "HelperStructs/CSettingsStorage.h"
 #include "mpdradio.h"
 #include "rpicontrol/netapiserver.h"
-#include "settings.h"
 
 #include <libupnpp/upnpplib.hxx>
 #include <libupnpp/control/mediarenderer.hxx>
@@ -83,7 +83,6 @@ private:
     OHVolumeQO *m_ohvlo;
     RenderingControlQO *m_rdco;
     Mpdradio *m_mpdradio;
-    Settings *m_settings;
 //    Playlist *m_playlist;
 
     QFile *m_res;

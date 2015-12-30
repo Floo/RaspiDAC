@@ -92,3 +92,83 @@ Playlist_Mode CSettingsStorage::getPlaylistMode()
 }
 
 // End special cases 
+
+// RaspiDAC functions
+
+void CSettingsStorage::setRadioStation(int id, QString name, QString file)
+{
+    if(id < 1 || id > 10)
+        return;
+    beginWriteArray("RadioStation");
+    setArrayIndex(id);
+    setValue("Name", name);
+    setValue("File", file);
+    endArray();
+}
+
+QString CSettingsStorage::getRadioStationName(int id)
+{
+    if(id < 1 || id > 10)
+        return "";
+    beginReadArray("RadioStation");
+    setArrayIndex(id);
+    QString ret = value("Name", "").toString();
+    endArray();
+    return ret;
+}
+
+QString CSettingsStorage::getRadioStationFile(int id)
+{
+    if(id < 1 || id > 10)
+        return "";
+    beginReadArray("RadioStation");
+    setArrayIndex(id);
+    QString ret = value("File", "").toString();
+    endArray();
+    return ret;
+}
+
+void CSettingsStorage::setInputName(int id, QString name)
+{
+    if(id < 1 || id > 4)
+        return;
+    beginWriteArray("Input");
+    setArrayIndex(id);
+    setValue("Name", name);
+    endArray();
+}
+
+QString CSettingsStorage::getInputName(int id)
+{
+    if(id < 1 || id > 4)
+        return "";
+    beginReadArray("Input");
+    setArrayIndex(id);
+    QString ret = value("Name").toString();
+    endArray();
+    return ret;
+}
+
+void CSettingsStorage::resetInputName()
+{
+    beginWriteArray("Input");
+    for(int i = 1; i < 5; i++)
+    {
+        setArrayIndex(i);
+        setValue("Name", "Input " + i);
+    }
+    endArray();
+}
+
+void CSettingsStorage::clearRadioStation()
+{
+    beginWriteArray("RadioStation");
+    for(int i = 1; i < 11; i++)
+    {
+        setArrayIndex(i);
+        setValue("Name", "");
+        setValue("File", "");
+    }
+    endArray();
+}
+

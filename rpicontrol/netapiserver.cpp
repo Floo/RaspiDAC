@@ -26,7 +26,8 @@ void NetAPIServer::incomingConnection(qintptr socketDescriptor)
     connect(thread, SIGNAL(setNext()), this, SLOT(setNext()));
     connect(thread, SIGNAL(setPrevious()), this, SLOT(setPrevious()));
     connect(thread, SIGNAL(setStop()), this, SLOT(setStop()));
-    connect(thread, SIGNAL(setRadioStation(QString,QString,int)), app, SLOT(setRadioStation(QString,QString,int));
+    connect(thread, SIGNAL(setRadioStation(QString,QString,int)), app, SLOT(setRadioStation(QString,QString,int)));
+    connect(thread, SIGNAL(setRadio(int)), this, SLOT(setRadio(int)));
 
     thread->start();
 }
@@ -54,4 +55,9 @@ void NetAPIServer::setPrevious()
 void NetAPIServer::setStop()
 {
     emit stop();
+}
+
+void NetAPIServer::setRadio(int id)
+{
+    emit radio(id);
 }

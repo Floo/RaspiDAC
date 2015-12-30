@@ -67,7 +67,20 @@ QString NetAPIThread::parser(const QString &command)
 
     qDebug() << command;
 
-    QStringList subcommand = command.split(" ");
+//    QStringList subcommand = command.split(" ");
+    QStringList subcommand;
+    QStringList tmpList = command.split(QRegExp("\"")); // Split by "
+    bool inside = false;
+//    subcommand.clear();
+    foreach (QString s, tmpList) {
+        if (inside) { // If 's' is inside quotes ...
+            subcommand.append(s); // ... get the whole string
+        } else { // If 's' is outside quotes ...
+            subcommand.append(s.split(QRegExp("\\s+"), QString::SkipEmptyParts)); // ... get the splitted string
+        }
+        inside = !inside;
+    }
+
 
     if(subcommand.size() < 2)
         return reply;
@@ -121,7 +134,7 @@ QString NetAPIThread::parser(const QString &command)
 
                 break;
             case 5: //radio
-
+                emit setRadio(subcommand.at(2).toInt());
                 break;
             case 6: //backlight
                 emit setBacklight(subcommand.at(2).toInt());

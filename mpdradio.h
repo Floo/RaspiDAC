@@ -5,6 +5,10 @@
 #include <iostream>
 #include <string>
 #include <mpd/client.h>
+#include <HelperStructs/CSettingsStorage.h>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
 
 using namespace std;
 
@@ -17,12 +21,23 @@ public:
     bool m_initilised;
 
 signals:
+    void station_changed(QString);
 
 public slots:
-//    void play_radio(QString& uri);
-    void play_radio();
+    void play_radio(const QString &uri);
+    void load_radio(int id);
+    void stop_radio();
+
+private slots:
+    void sl_playlistfetch_done(QNetworkReply* reply);
+
 private:
     mpd_connection *m_mpd_connection;
+    QNetworkAccessManager *m_netmanager;
+    QString filename;
+    QString stationname;
+    QString stream;
+
 };
 
 #endif // MPDRADIO_H

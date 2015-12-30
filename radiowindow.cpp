@@ -12,3 +12,9 @@ RadioWindow::~RadioWindow()
 {
     delete ui;
 }
+
+
+void RadioWindow::new_station_name(QString stationname)
+{
+    ui->lblStationname->setText(stationname);
+}

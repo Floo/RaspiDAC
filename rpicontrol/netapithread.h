@@ -31,6 +31,7 @@ signals:
     void setPrevious();
     void setStop();
     void setRadioStation(QString name, QString file, int id);
+    void setRadio(int id);
 
 private:
     int socketDescriptor;
