@@ -76,10 +76,7 @@ public slots:
     void getCS8416Reg(int);
 
 signals:
-    void taster1();
-    void taster2();
-    void taster3();
-    void taster4();
+    void taster(int);
 
 private:
     class Internal;

@@ -20,7 +20,6 @@ public:
 signals:
     void error(int socketError, const QString &message);
     void setMode(int value);
-    void setStandby();
     void setDACinput(int value);
     void setSPDIFInput(int value);
     void setBacklight(int value);
@@ -32,6 +31,7 @@ signals:
     void setStop();
     void setRadioStation(QString name, QString file, int id);
     void setRadio(int id);
+    void taster(int);
 
 private:
     int socketDescriptor;

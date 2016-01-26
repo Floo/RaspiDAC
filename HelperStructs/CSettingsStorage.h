@@ -85,15 +85,6 @@ public:
     // Special cases
     void setPlaylistMode(const Playlist_Mode&);
     Playlist_Mode getPlaylistMode();
-    // RaspiDAC functions
-    void setRadioStation(int id, QString name, QString file);
-    QString getRadioStationName(int id);
-    QString getRadioStationFile(int id);
-    void setInputName(int id, QString name);
-    QString getInputName(int id);
-    void resetInputName();
-    void clearRadioStation();
-
 
 };
 

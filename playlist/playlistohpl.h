@@ -15,48 +15,46 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef PLAYLISTOH_H_
-#define PLAYLISTOH_H_
+#ifndef PLAYLISTOHPL_H_
+#define PLAYLISTOHPL_H_
 
-#include <iostream>
-
-#include <QObject>
-#include <QList>
-#include <QMap>
-#include <QStringList>
 #include <QDebug>
 
 #include "HelperStructs/MetaData.h"
-#include "HelperStructs/PlaylistMode.h"
-#include "HelperStructs/globals.h"
-#include "HelperStructs/CSettingsStorage.h"
-#include "Playlist.h"
+#include "playlist.h"
+#include "upadapt/ohpladapt.h"
 
-class PlaylistOH : public Playlist {
+class PlaylistOHPL : public Playlist {
     Q_OBJECT
 
 public:
-    PlaylistOH(QObject * parent = 0)
-        : Playlist(parent) {}
+    // We take ownership of the OHPlayer object
+    PlaylistOHPL(OHPlayer *ohpl, QObject * parent = 0);
 
-    virtual ~PlaylistOH() {}
+    virtual ~PlaylistOHPL() {
+        delete m_ohplo;
+    }
 
+    virtual void update_state() {
+        m_ohplo->fetchState();
+    }
+    
 signals:
     // All our signals are connected to the OHPlaylist object
     void sig_clear_playlist();
     void sig_insert_tracks(const MetaDataList&, int);
     void sig_tracks_removed(const QList<int>& rows);
-    void sig_row_activated(int);
 
 public slots:
-    void psl_trackIdChanged(int id);
 
+    // These receives changes from the remote state.
+    void onRemoteCurrentTrackid(int id);
+    void onRemoteTpState_impl(int, const char *);
+    void onRemoteSecsInSong_impl(quint32 s);
+    
     // The following are connected to GUI signals, for responding to
     // user actions.
-    void psl_change_track_impl(int idx) {
-        qDebug() << "psl_change_track: " << idx;
-        emit sig_row_activated(idx);
-    }
+    void psl_change_track_impl(int idx);
     void psl_clear_playlist_impl();
     void psl_play();
     void psl_pause();
@@ -67,8 +65,25 @@ public slots:
     // Insert after idx. Use -1 to insert at start
     void psl_insert_tracks(const MetaDataList&, int);
 
-    // Set from scratch after reading changes from device
-    void psl_new_ohpl(const MetaDataList&);
+    // Process playlist data from device
+    void onRemoteMetaArray(const MetaDataList&);
+
+    void psl_seek(int);
+
+private:
+    // My link to the OpenHome Renderer
+    OHPlayer *m_ohplo;
+    // Position in current song, 0 if unknown
+    quint32 m_cursongsecs;
+    // Current song is last in playlist
+    bool m_lastsong;
+    // Playing the last 5 S of last song
+    bool m_closetoend;
+    
+    void resetPosState() {
+        m_cursongsecs = 0;
+        m_lastsong = m_closetoend = false;
+    }
 };
 
-#endif /* PLAYLISTOH_H_ */
+#endif /* PLAYLISTOHPL_H_ */

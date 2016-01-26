@@ -81,6 +81,7 @@ public:
             m_cursecs = value;
         } else if (!strcmp(nm, "TransportState")) {
             //qDebug() << "AVT: Changed: " << nm << " " << tpstatetostr(value);
+            m_tpstate = AVTransport::TransportState(value);
             emit tpStateChanged(value);
             if (value == UPnPClient::AVTransport::Stopped && m_in_ending) {
                 m_in_ending = false;
@@ -109,7 +110,9 @@ public:
     virtual void changed(const char *nm, const char *value) {
         //qDebug() << "AVT: Changed: " << nm << " (char*): " << value;
         if (!strcmp(nm, "AVTransportURI")) {
-            if (m_cururi.compare(value)) {
+            if (m_cururi.compare(value) &&
+                (m_tpstate == UPnPClient::AVTransport::Playing ||
+                 m_tpstate == UPnPClient::AVTransport::PausedPlayback) ) {
                 //qDebug() << "AVT: ext track change: cur [" << m_cururi.c_str()
                 //         << "] new [" << value << "]";
                 setcururi(value);
@@ -124,7 +127,9 @@ public:
                 meta.dump().c_str();
             // Don't use this if no resources are set. XBMC does this
             // for some reason.
-            if (!meta.m_resources.empty()) {
+            if (!meta.m_resources.empty() &&
+                (m_tpstate == UPnPClient::AVTransport::Playing ||
+                 m_tpstate == UPnPClient::AVTransport::PausedPlayback) ) {
                 emit currentMetadata(meta);
             }
         }
@@ -157,13 +162,10 @@ public slots:
         m_srv->setNextAVTransportURI(uri, md->getDidl());
     }
 
-    // Seek to point. Parameter in percent.
-    virtual void seekPC(int pc) {
-        qDebug() << "AVT: seekPC " << pc << " %" << " m_cursecs " << m_cursecs;
-        if (m_cursecs > 0) {
-            m_srv->seek(UPnPClient::AVTransport::SEEK_REL_TIME, 
-                        (float(pc)/100.0) * m_cursecs); 
-        }
+    // Seek to point. Parameter in seconds
+    virtual void seek(int secs) {
+        qDebug() << "AVT: seek to " << secs << " S. m_cursecs " << m_cursecs;
+        m_srv->seek(UPnPClient::AVTransport::SEEK_REL_TIME, secs);
     }
 
     // Called by timer every sec
@@ -183,13 +185,6 @@ public slots:
         //    info.trackmeta.dump().c_str();
         emit secsInSongChanged(info.reltime);
         m_cursecs = info.trackduration;
-        if (m_cururi.compare(info.trackuri)) {
-            qDebug() << "AVT: update: ext track change: cur [" << 
-                m_cururi.c_str() << "] new [" <<                     
-                info.trackuri.c_str() << "]";
-            setcururi(info.trackuri);
-            emit newTrackPlaying(u8s2qs(info.trackuri));
-        }
         if (m_cursecs > 0) {
             if (info.reltime > m_cursecs - 10) {
                 if (!m_sent_end_of_track_sig) {
@@ -217,6 +212,15 @@ public slots:
         if (tinfo.tpstate != m_tpstate) {
             emit tpStateChanged(tinfo.tpstate);
             m_tpstate = tinfo.tpstate;
+        }
+        if (m_cururi.compare(info.trackuri) &&
+            (m_tpstate == UPnPClient::AVTransport::Playing ||
+             m_tpstate == UPnPClient::AVTransport::PausedPlayback) ) {
+            qDebug() << "AVT: update: ext track change: cur [" << 
+                m_cururi.c_str() << "] new [" <<                     
+                info.trackuri.c_str() << "]";
+            setcururi(info.trackuri);
+            emit newTrackPlaying(u8s2qs(info.trackuri));
         }
         if (tinfo.tpstate == UPnPClient::AVTransport::Stopped && m_in_ending) {
             m_in_ending = false;

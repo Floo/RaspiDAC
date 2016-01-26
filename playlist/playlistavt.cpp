@@ -30,20 +30,20 @@
 
 #include <libupnpp/control/avtransport.hxx>
 
-#include "PlaylistAVT.h"
+#include "playlistavt.h"
 #include "HelperStructs/Helper.h"
 #include "upadapt/upputils.h"
 
 using namespace std;
 
 PlaylistAVT::PlaylistAVT(QObject *parent)
-  : Playlist(parent)
+    : Playlist(parent), m_avto(0)
 {
     QTimer::singleShot(0, this, SLOT(playlist_updated()));
 }
 
-PlaylistAVT::PlaylistAVT(const string& _udn, QObject *parent)
-  : Playlist(parent)
+PlaylistAVT::PlaylistAVT(AVTPlayer *avtp, const string& _udn, QObject *parent)
+    : Playlist(parent), m_avto(avtp)
 {
     string udn(_udn);
     if (udn.find("uuid:") == 0) {
@@ -58,12 +58,29 @@ PlaylistAVT::PlaylistAVT(const string& _udn, QObject *parent)
     string oldsaved = qs2utf8s(Helper::getHomeDataPath()) + "savedQueue";
     if (!udn.empty()) {
         QFile os(QString::fromLocal8Bit(oldsaved.c_str()));
-        if (os.exists() && !QFile::exists(QString::fromLocal8Bit(m_savefile.c_str()))) {
+        if (os.exists() &&
+            !QFile::exists(QString::fromLocal8Bit(m_savefile.c_str()))) {
             os.rename(QString::fromLocal8Bit(m_savefile.c_str()));
         }
     }
 
     m_meta.unSerialize(u8s2qs(m_savefile));
+
+    connect(m_avto, SIGNAL(endOfTrackIsNear()),
+            this, SLOT(psl_prepare_for_end_of_track()));
+    connect(m_avto, SIGNAL(newTrackPlaying(const QString&)),
+            this, SLOT(onExtTrackChange(const QString&)));
+    connect(m_avto, SIGNAL(sig_currentMetadata(const MetaData&)),
+            this, SLOT(onCurrentMetadata(const MetaData&)));
+    connect(m_avto, SIGNAL(audioStateChanged(int, const char*)),
+            this, SLOT(onRemoteTpState(int, const char *)));
+    connect(m_avto, SIGNAL(stoppedAtEOT()), this,  SLOT(psl_forward()));
+    connect(m_avto,  SIGNAL(connectionLost()), this, SIGNAL(connectionLost()));
+
+    connect(this, SIGNAL(sig_stop()),  m_avto, SLOT(stop()));
+    connect(this, SIGNAL(sig_resume_play()), m_avto, SLOT(play()));
+    connect(this, SIGNAL(sig_pause()), m_avto, SLOT(pause()));
+    
     QTimer::singleShot(0, this, SLOT(playlist_updated()));
 }
 
@@ -80,24 +97,25 @@ void PlaylistAVT::set_for_playing(int row)
     m_meta.setCurPlayTrack(row);
     m_meta[row].shuffle_played = true;
 
+    m_avto->changeTrack(m_meta[row], 0, true);
     emit sig_playing_track_changed(row);
-    emit sig_play_now(m_meta[row]);
     emit sig_track_metadata(m_meta[row]);
 }
 
 // Player switched tracks under us. Hopefully the uri matches another
 // track.  We first look ahead, because the normal situation is that
 // the device switched to the nextURI track
-void PlaylistAVT::psl_ext_track_change(const QString& uri)
+void PlaylistAVT::onExtTrackChange(const QString& uri)
 {
-    qDebug() << "PlaylistAVT::psl_ext_track_change " << uri;
+    qDebug() << "PlaylistAVT::onExtTrackChange " << uri;
 
     if (m_play_idx < -1) // ??
         return;
 
+    // Look for the uri in tracks following this one
     for (unsigned int i = m_play_idx + 1; i < m_meta.size(); i++) {
         if (!uri.compare(m_meta[i].filepath)) {
-            qDebug() << "PlaylistAVT::psl_ext_track_change: index now " << i;
+            qDebug() << "PlaylistAVT::onExtTrackChange: index now " << i;
             m_play_idx = i;
             m_meta.setCurPlayTrack(i);
             emit sig_playing_track_changed(i);
@@ -105,9 +123,10 @@ void PlaylistAVT::psl_ext_track_change(const QString& uri)
             return;
         }
     }
+    // Look for the uri in tracks preceding
     for (int i = 0; i <= m_play_idx && i < int(m_meta.size()); i++) {
         if (!uri.compare(m_meta[i].filepath)) {
-            qDebug() << "PlaylistAVT::psl_ext_track_change: index now " << i;
+            qDebug() << "PlaylistAVT::onExtTrackChange: index now " << i;
             m_play_idx = i;
             m_meta.setCurPlayTrack(i);
             emit sig_playing_track_changed(i);
@@ -117,7 +136,12 @@ void PlaylistAVT::psl_ext_track_change(const QString& uri)
     }
 }
 
-void PlaylistAVT::psl_onCurrentMetadata(const MetaData& md)
+void PlaylistAVT::psl_seek(int secs)
+{
+    m_avto->seek(secs);
+}
+
+void PlaylistAVT::onCurrentMetadata(const MetaData& md)
 {
     MetaData *localmeta = 0;
     if (!m_meta.contains(md, true, &localmeta)) {
@@ -139,7 +163,7 @@ void PlaylistAVT::send_next_playing_signal()
         return;
     // Only if there is a track behind the current one
     if (m_play_idx >= 0 && m_play_idx < int(m_meta.size()) - 1)
-        emit sig_next_track_to_play(m_meta[m_play_idx + 1]);
+        m_avto->infoNextTrack(m_meta[m_play_idx + 1]);
 }
 
 void PlaylistAVT::psl_prepare_for_end_of_track()
@@ -149,13 +173,14 @@ void PlaylistAVT::psl_prepare_for_end_of_track()
     send_next_playing_signal();
 }
 
-void PlaylistAVT::psl_next_track()
+// fwd was pressed -> next track
+void PlaylistAVT::psl_forward()
 {
-    qDebug() << "PlaylistAVT::psl_next_track()";
+    qDebug() << "PlaylistAVT::psl_forward()";
 
     int track_num = -1;
     if(m_meta.empty()) {
-        qDebug() << "PlaylistAVT::psl_next_track(): empty playlist";
+        qDebug() << "PlaylistAVT::psl_forward(): empty playlist";
         goto out;
     }
 
@@ -173,13 +198,13 @@ void PlaylistAVT::psl_next_track()
     } else {
         if (m_play_idx >= int(m_meta.size()) -1) {
             // last track
-            qDebug() << "PlaylistAVT::psl_next_track(): was last, stop or loop";
+            qDebug() << "PlaylistAVT::psl_forward(): was last, stop or loop";
             if (CSettingsStorage::getInstance()->getPlaylistMode().repAll) {
                 track_num = 0;
             }
         } else {
             track_num = m_play_idx + 1;
-            qDebug() << "PlaylistAVT::psl_next_track(): new tnum " << track_num;
+            qDebug() << "PlaylistAVT::psl_forward(): new tnum " << track_num;
         }
     }
 
@@ -190,11 +215,12 @@ out:
             set_for_playing(track_num);
         } else {
             remove_row(track_num);
-            psl_next_track();
+            psl_forward();
         }
     } else {
         set_for_playing(-1);
         emit sig_stop();
+        emit sig_playlist_done();
         return;
     }
 }
@@ -203,12 +229,11 @@ void PlaylistAVT::psl_clear_playlist_impl()
 {
     emit sig_stop();
     playlist_updated();
+    emit sig_playlist_done();
 }
 
 void PlaylistAVT::psl_play()
 {
-    m_pause = false;
-
     if (m_meta.empty()) {
         return;
     }
@@ -226,7 +251,6 @@ void PlaylistAVT::psl_play()
 
 void PlaylistAVT::psl_pause()
 {
-    m_pause = true;
     emit sig_pause();
 }
 
@@ -235,12 +259,6 @@ void PlaylistAVT::psl_stop()
     set_for_playing(-1);
     emit sig_stop();
     playlist_updated();
-}
-
-// fwd was pressed -> next track
-void PlaylistAVT::psl_forward()
-{
-    psl_next_track();
 }
 
 // GUI -->

@@ -41,7 +41,9 @@ public:
         return m_meta.size();
     }
     virtual void get_metadata(MetaDataList&);
-
+    virtual Playlist_Mode mode();
+    virtual void update_state() {}
+    
 signals:
     // New playlist (for displaying in ui_playlist)
     void sig_playlist_updated(MetaDataList&, int playidx, int/*unused*/);
@@ -51,7 +53,9 @@ signals:
     void sig_track_metadata(const MetaData&);
     // Make sure we have the latest state of the world
     void sig_sync();
-
+    // Stopped at end of Playlist
+    void sig_playlist_done();
+    
     // These request action from the audio part
     void sig_stop();
     void sig_pause();
@@ -67,8 +71,13 @@ signals:
     void sig_playing();
 
     // Done inserting tracks in the playlist
-    void insertDone();
+    void sig_insert_done();
 
+    void connectionLost();
+
+    // Only ever emitted by the openhome variant
+    void playlistModeChanged(Playlist_Mode);
+                                           
 public slots:
     virtual void psl_insert_tracks(const MetaDataList&, int afteridx) = 0;
     virtual void psl_add_tracks(const MetaDataList&);
@@ -80,9 +89,19 @@ public slots:
         m_insertion_point = -1;
         psl_change_track_impl(num);
     }
+    virtual void psl_seek(int secs) = 0;
+
     virtual void psl_change_track_impl(int) = 0;
 
-    virtual void psl_new_transport_state(int, const char *);
+    // Information from the remote end
+    virtual void onRemoteTpState(int, const char *);
+    // Maybe also tell the subclass about these
+    virtual void onRemoteTpState_impl(int, const char *) {}
+    void onRemoteSecsInSong(quint32 s) {
+        onRemoteSecsInSong_impl(s);
+    }
+    virtual void onRemoteSecsInSong_impl(quint32) {}
+    
     // Mode change requested by UI
     virtual void psl_change_mode(const Playlist_Mode&);
     virtual void psl_clear_playlist();
@@ -117,7 +136,6 @@ protected:
     int m_selection_min_row;
     int m_insertion_point;
     int m_tpstate;
-    bool m_pause;
 
     virtual void remove_row(int row);
     virtual bool valid_row(int row) {

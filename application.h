@@ -1,99 +1,108 @@
+/* application.h */
+
+/* Copyright (C) 2013  Lucio Carreras
+ *
+ * This file is part of sayonara player
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-//#define __rpi__
-
 #include <string>
-#include <iostream>
+#include <memory>
 
 #include <QObject>
 #include <QApplication>
-#include <QFile>
-#include <QFontDatabase>
-#include <QSignalMapper>
 
-#include "upnpwindow.h"
-#include "mainwindow.h"
-#include "radiowindow.h"
-#include "standbywindow.h"
-#include "spdifwindow.h"
-#include "upqo/renderingcontrol_qo.h"
-#include "upqo/ohvolume_qo.h"
-#include "upqo/ohtime_qo.h"
-#include "upadapt/ohpladapt.h"
-#include "playlist/PlaylistAVT.h"
-#include "upadapt/avtadapt.h"
-#include "HelperStructs/CSettingsStorage.h"
-#include "mpdradio.h"
-#include "rpicontrol/netapiserver.h"
+#include "libupnpp/control/mediarenderer.hxx"
+#include "upqo/ohproduct_qo.h"
 
-#include <libupnpp/upnpplib.hxx>
-#include <libupnpp/control/mediarenderer.hxx>
-#include <libupnpp/control/renderingcontrol.hxx>
-#include <libupnpp/control/discovery.hxx>
-
-#ifdef __rpi__
-#include "rpicontrol/rpigpio.h"
-#endif
-
-#define FOO 1
-
-#define CONNECT(a,b,c,d) m_app->connect(a, SIGNAL(b), c, SLOT(d), Qt::UniqueConnection)
-
-using namespace UPnPClient;
-
-class NetAPIServer;
+class AVTPlayer;
+class CSettingsStorage;
+class DirBrowser;
+//class GUI_Player;
+class RaspiDAC;
+//class GUI_Playlist;
+class Rpi_Playlist;
+class MetaData;
+class OHProductQO;
+class OHRadioQO;
+class OHTimeQO;
+class OHVolumeQO;
+class Playlist;
+class RenderingControlQO;
+class SongcastTool;
 
 class Application : public QObject
 {
-    Q_OBJECT
+    Q_OBJECT;
+
 public:
-    explicit Application(QApplication* qapp, int n_files, QObject *parent = 0);
-    ~Application();
+    Application(QApplication* qapp, QObject *parent = 0);
+    virtual ~Application();
+
     bool is_initialized();
-
-signals:
-
+                        
+    void getIdleMeta(MetaData* mdp);
+                        
 public slots:
-    void setMode(int);
-    void setDACInput(int);
-    void setSPDIFInput(int);
-    void setBacklight(int);
-    void setStandby();
-    void new_transport_state(int, const char *);
-    void setRadioStation(QString name, QString file, int id);
-
+    void chooseRenderer();
+    //void chooseSource();
+    void chooseSource(QString);
+    void openSongcast();
+    void reconnectOrChoose();
+    void onSourceTypeChanged(OHProductQO::SourceType);
+    
 private:
-    bool m_initialized;
-    bool m_hasOHRenderer;
-    class Internal;
-    Internal *m;
 
-    QApplication *m_app;
-    UPnPDeviceDirectory *superdir;
-    MainWindow *m_mainWindow;
-    StandbyWindow *m_standbyWindow;
-    RadioWindow *m_radioWindow;
-    UpnpWindow *m_upnpWindow;
-    SpdifWindow *m_spdifWindow;
-    CSettingsStorage *m_settings;
-    AVTPlayer *m_avto;
-    OHPlayer *m_ohplo;
-    OHTimeQO *m_ohtmo;
-    OHVolumeQO *m_ohvlo;
+    //GUI_Player   *m_player;
+    RaspiDAC     *m_player;
+    std::shared_ptr<Playlist> m_playlist;
+    //DirBrowser   *m_cdb;
+
+    UPnPClient::MRDH    m_rdr;
     RenderingControlQO *m_rdco;
-    Mpdradio *m_mpdradio;
-//    Playlist *m_playlist;
+    AVTPlayer    *m_avto;
+    OHTimeQO     *m_ohtmo;
+    OHVolumeQO   *m_ohvlo;
+    OHProductQO  *m_ohpro;
+    
+    //GUI_Playlist *m_ui_playlist;
+    Rpi_Playlist *m_ui_playlist;
+    SongcastTool *m_sctool;
+    
+    CSettingsStorage *m_settings;
+    QApplication     *m_app;
 
-    QFile *m_res;
-    QFont *m_font;
-#ifdef __rpi__
-    RPiGPIO *rpiGPIO;
-#endif
-    NetAPIServer *netAPIServer;
+    bool             m_initialized;
+    // Can we send titles into the playlist (e.g. not OHradio).
+    bool             m_playlistIsPlaylist;
+    OHProductQO::SourceType m_ohsourcetype;
+    QString          m_renderer_friendly_name;
+
+    void init_connections();
     void renderer_connections();
-    void list_renderer();
-    QString getVersion();
+    void playlist_connections();
+    bool setupRenderer(const std::string& uid);
+    void createPlaylistForOpenHomeSource();
+//    void chooseSourceOH();
+//    void chooseSourceAVT();
+    void chooseSourceOH(QString);
+    void chooseSourceAVT(QString);
 };
+
 
 #endif // APPLICATION_H

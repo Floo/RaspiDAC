@@ -1,192 +1,155 @@
+/* Copyright (C) 2013  Lucio Carreras
+ *
+ * This file is part of sayonara player
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "application.h"
 
-//#define __rpi__
+#include <iostream>
+#include <fstream>
+#include <string>
 
-class Application::Internal
-{
-public:
-    int idStandbyWindow;
-    int idUpnpWindow;
-    int idRadioWindow;
-    int idSpdifWindow;
-    int idMenuWindow;
-};
+#include <QApplication>
+#include <QMessageBox>
+#include <QDir>
 
-Application::Application(QApplication* qapp, int n_files, QObject *parent)
-    :QObject(parent), m_initialized(false), m_hasOHRenderer(false), m_app(qapp),  m_settings(0), m_avto(0),
-      m_rdco(0), m_mpdradio(0)
-{
-    m = new Internal;
-#ifdef __rpi__
-    rpiGPIO = new RPiGPIO();
+#include "libupnpp/upnpplib.hxx"
+#include "libupnpp/log.hxx"
+#include "libupnpp/control/discovery.hxx"
+#include "libupnpp/control/mediarenderer.hxx"
+#include "libupnpp/control/renderingcontrol.hxx"
+
+//#include "GUI/mainw/mainw.h"
+#include "raspidac/raspidac.h"
+#include "raspidac/rpi_playlist.h"
+//#include "GUI/playlist/GUI_Playlist.h"
+//#include "GUI/prefs/prefs.h"
+//#include "GUI/renderchoose/renderchoose.h"
+//#include "GUI/sourcechoose/sourcechoose.h"
+#include "GUI/songcast/songcastdlg.h"
+#include "HelperStructs/CSettingsStorage.h"
+#include "HelperStructs/Helper.h"
+#include "HelperStructs/Style.h"
+#include "HelperStructs/globals.h"
+//#include "dirbrowser/dirbrowser.h"
+#include "playlist/playlist.h"
+#include "playlist/playlistavt.h"
+#include "playlist/playlistnull.h"
+#include "playlist/playlistohpl.h"
+#include "playlist/playlistohrcv.h"
+#include "playlist/playlistohrd.h"
+#include "playlist/playlistlocrd.h"
+#include "upadapt/avtadapt.h"
+#include "upadapt/ohpladapt.h"
+#include "upadapt/songcast.h"
+#include "upqo/ohproduct_qo.h"
+#include "upqo/ohradio_qo.h"
+#include "upqo/ohreceiver_qo.h"
+#include "upqo/ohtime_qo.h"
+#include "upqo/ohvolume_qo.h"
+#include "upqo/renderingcontrol_qo.h"
+
+using namespace std;
+using namespace UPnPClient;
+
+#ifndef deleteZ
+#define deleteZ(X) {delete X; X = 0;}
 #endif
-    if(QFontDatabase::addApplicationFont(":/fonts/resources/fonts/LiberationSans-Regular.ttf") == -1)
-    {
-        qDebug() << "Fehler beim Laden von LiberationSans";
-    }
-    if(QFontDatabase::addApplicationFont(":/fonts/resources/fonts/NotoSans-Regular.ttf") == -1)
-    {
-        qDebug() << "Fehler beim Laden von NotoSans";
-    }
-    QFontDatabase::addApplicationFont(":/fonts/resources/fonts/LiberationSans-Bold.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/resources/fonts/NotoSans-Bold.ttf");
 
-    m_mainWindow = new MainWindow();
-    m_standbyWindow = new StandbyWindow();
-    m_upnpWindow = new UpnpWindow();
-    m_radioWindow = new RadioWindow();
-    m_spdifWindow = new SpdifWindow();
+#define CONNECT(a,b,c,d) m_app->connect(a, SIGNAL(b), c, SLOT(d), \
+                                        Qt::UniqueConnection)
 
-    m->idStandbyWindow = m_mainWindow->addWidget(m_standbyWindow);
-    m->idUpnpWindow = m_mainWindow->addWidget(m_upnpWindow);
-    m->idRadioWindow = m_mainWindow->addWidget(m_radioWindow);
-    m->idSpdifWindow = m_mainWindow->addWidget(m_spdifWindow);
+UPnPDeviceDirectory *superdir;
 
-    setStandby();
-    m_mainWindow->show();  
-
-    netAPIServer = new NetAPIServer(this);
-
-    if (!netAPIServer->listen(QHostAddress::Any, 8000)) {
-        qDebug() << "Unable to start the server: " << netAPIServer->errorString();
-    }
-
-    //nur GUI
-//    m_initialized = true;
-//    return;
-
-    m_settings = CSettingsStorage::getInstance();
-    QString version = getVersion();
-    m_settings->setVersion(version);
-
-//    string name = "LinuxUpMpd";
-//    string ohname = "LinuxUpMpd (OpenHome)";
-    string name = "RaspiDAC";
-    string ohname = "RaspiDAC (OpenHome)";
-//    string name = "SoundBridge";
-//    string ohname = "SoundBridge (OpenHome)";
-    m_initialized = true;
-    superdir = UPnPDeviceDirectory::getTheDir();
+static MRDH getRenderer(const string& name, bool isfriendlyname)
+{
     if (superdir == 0) {
-        cerr << "Can't create UPnP discovery object" << endl;
-        exit(1);
-    }
-
-    m_mpdradio = new Mpdradio();
-
-    list_renderer();
-
-    cerr << "!!! Alle Renderer aufgelistet." << endl;
-
-    UPnPDeviceDesc ohddesc;
-    UPnPDeviceDesc ddesc;
-    MRDH ohrenderer;
-    MRDH renderer;
-
-    if (superdir->getDevByFName(name, ddesc)) {
-        renderer = MRDH(new MediaRenderer(ddesc));
-    } else {
-        cerr << "getDevByFname failed for " << name << endl;
-        renderer = MRDH();
-    }
-
-    if (superdir->getDevByFName(ohname, ohddesc)) {
-        ohrenderer = MRDH(new MediaRenderer(ohddesc));
-    } else {
-        cerr << "getDevByFname failed for " << ohname << endl;
-        ohrenderer = MRDH();
-    }
-
-    cerr << "!!! Alle MRDH erzeugt." << endl;
-
-//    if (superdir->getDevByUDN(uid, ddesc)) {
-//        renderer = MRDH(new MediaRenderer(ddesc));
-//    } else {
-//        cerr << "getDevByUDN failed" << endl;
-//        renderer = MRDH();
-//    }
-    if (!renderer){
-        cerr << "Renderer " << name << " not found" << endl;
-        m_initialized = false;
-        return;
-    }
-
-    if (!ohrenderer){
-        cerr << "Renderer " << ohname << " not found" << endl;
-//        m_initialized = false;
-//        return;
-    }
-
-    cerr << "!!! Start RenderingControlQO." << endl;
-
-//    if (RDCH foo = renderer->rdc()) {;
-    if (renderer->rdc()) {
-//        long foo1 = foo.use_count();
-//        cerr << "!!! std::shared_ptr.use_count() = " << foo1 << endl;
-//        cerr << "!!! std::shared_ptr = " << foo << endl;
-//        foo.reset();
-        m_rdco = new RenderingControlQO(renderer->rdc());
-    } else {
-        cerr << "Device has no RenderingControl" << endl;
-        m_initialized = false;
-        return;
-    }
-
-//    m_rdco = new RenderingControlQO(renderer->rdc());
-
-    cerr << "!!! RenderingControlQO erzeugt." << endl;
-
-    if (ohrenderer->ohvl()) {
-        m_ohvlo =  new OHVolumeQO(ohrenderer->ohvl());
-    } else {
-        cerr << "Device has no OHVolumeControl" << endl;
-        m_initialized = false;
-        return;
-    }
-
-//    m_ohvlo =  new OHVolumeQO(ohrenderer->ohvl());
-
-    cerr << "!!! OHVolumeControl erzeugt." << endl;
-
-    OHPLH ohpl = ohrenderer->ohpl();
-    if (ohpl) {
-        m_ohplo = new OHPlayer(ohpl);
-        OHTMH ohtm = ohrenderer->ohtm();
-        if (ohtm) {
-            m_ohtmo = new OHTimeQO(ohtm);
-            m_hasOHRenderer = true;
+        superdir = UPnPDeviceDirectory::getTheDir();
+        if (superdir == 0) {
+            cerr << "Can't create UPnP discovery object" << endl;
+            exit(1);
         }
     }
 
-    cerr << "!!! OHPlayer erzeugt." << endl;
-
-//    m_playlist = new PlaylistAVT(renderer->desc()->UDN);
-    if (renderer->avt()) {
-        m_avto = new AVTPlayer(renderer->avt());
+    UPnPDeviceDesc ddesc;
+    if (isfriendlyname) {
+        if (superdir->getDevByFName(name, ddesc)) {
+            return MRDH(new MediaRenderer(ddesc));
+        }
+        cerr << "getDevByFname failed" << endl;
     } else {
-        cerr << "Renderer: AVTransport missing but we need it" << endl;
-        m_initialized = false;
-        return;
+        if (superdir->getDevByUDN(name, ddesc)) {
+            return MRDH(new MediaRenderer(ddesc));
+        }
+        cerr << "getDevByFname failed" << endl;
+    }
+    return MRDH();
+}
+
+
+Application::Application(QApplication* qapp, QObject *parent)
+    : QObject(parent), m_player(0), m_rdco(0),
+      m_avto(0), m_ohtmo(0), m_ohvlo(0), m_ohpro(0),
+      m_ui_playlist(0), m_sctool(0), m_settings(0), m_app(qapp),
+      m_initialized(false), m_playlistIsPlaylist(false),
+      m_ohsourcetype(OHProductQO::OHPR_SourceUnknown)
+{
+    m_settings = CSettingsStorage::getInstance();
+
+    QString version = UPPLAY_VERSION;
+    m_settings->setVersion(version);
+
+    //m_player = new GUI_Player(this);
+    m_player = new RaspiDAC(this);
+    m_player->enableSourceSelect(false);
+    
+    //m_ui_playlist = new GUI_Playlist(m_player->getParentOfPlaylist(), 0);
+    m_ui_playlist = new Rpi_Playlist(m_player->getParentOfPlaylist());
+    m_player->setPlaylistWidget(m_ui_playlist);
+
+    //m_cdb = new DirBrowser(m_player->getParentOfLibrary(), 0);
+    //m_player->setLibraryWidget(m_cdb);
+
+    init_connections();
+    string uid = qs2utf8s(m_settings->getPlayerUID());
+    if (uid.empty()) {
+        QTimer::singleShot(0, this, SLOT(chooseRenderer()));
+    } else {
+        if (!setupRenderer(uid)) {
+            cerr << "Can't connect to previous media renderer" << endl;
+            QTimer::singleShot(0, this, SLOT(chooseRenderer()));
+        }
     }
 
-//    m_avto = new AVTPlayer(renderer->avt());
+    m_player->setWindowTitle("Upplay " + version);
+    m_player->setWindowIcon(QIcon(Helper::getIconPath("logo.png")));
+    m_player->setPlaylist(m_ui_playlist);
+    m_player->setStyle(m_settings->getPlayerStyle());
+    m_player->show();
 
-    cerr << "!!! PlaylistAVT erzeugt." << endl;
+    m_ui_playlist->resize(m_player->getParentOfPlaylist()->size());
 
-    //QString fn = QString::fromUtf8(renderer->desc()->friendlyName.c_str());
-    cerr << "Renderer " << renderer->desc()->friendlyName <<  " initialisiert." << endl;
-    if (m_hasOHRenderer) {
-        cerr << "OHRenderer " << ohrenderer->desc()->friendlyName <<  " initialisiert." << endl;
-    } else {
-        cerr << "Could not initialize OHRenderer." << endl;
-    }
+    m_player->ui_loaded();
 
-    renderer_connections();
+    m_initialized = true;
 }
 
 Application::~Application()
 {
-
+    delete m_player;
 }
 
 bool Application::is_initialized()
@@ -194,187 +157,535 @@ bool Application::is_initialized()
     return m_initialized;
 }
 
-QString Application::getVersion()
+void Application::chooseRenderer()
 {
-    return UPPLAY_VERSION;
-}
-
-void Application::list_renderer()
-{
+    MetaData md;
+    getIdleMeta(&md);
     vector<UPnPDeviceDesc> devices;
     if (!MediaRenderer::getDeviceDescs(devices) || devices.empty()) {
-        cerr << "No Media Renderers found." << endl;
+        QMessageBox::warning(0, "Upplay",
+                             tr("No Media Renderers found."));
         return;
     }
-    for (auto it = devices.begin(); it != devices.end(); it++) {
-        cerr << it->friendlyName << endl;
-        cerr << it->UDN << endl;
+//     RenderChooseDLG dlg(m_player);
+//     for (vector<UPnPDeviceDesc>::iterator it = devices.begin(); 
+//          it != devices.end(); it++) {
+//         QString fname = u8s2qs(it->friendlyName);
+//         if (!m_renderer_friendly_name.compare(fname)) {
+//             QListWidgetItem *item = new QListWidgetItem(fname);
+//             QFont font = dlg.rndsLW->font();
+//             font.setBold(true);
+//             item->setFont(font);
+//             dlg.rndsLW->addItem(item);
+//         } else {
+//             dlg.rndsLW->addItem(fname);
+//         }
+//     }
+//     if (!dlg.exec()) {
+//         return;
+//     }
+// 
+//     int row = dlg.rndsLW->currentRow();
+//     if (row < 0 || row >= int(devices.size())) {
+//         cerr << "Internal error: bad row after renderer choose dlg" << endl;
+//         return;
+//     }
+//     MetaDataList curmeta;
+//     if (m_playlist) {
+//         m_playlist->get_metadata(curmeta);
+//     }
+// 
+//     m_renderer_friendly_name = u8s2qs(devices[row].friendlyName);
+//     if (!setupRenderer(devices[row].UDN)) {
+//         QMessageBox::warning(0, "Upplay", tr("Can't connect to ") +
+//                              m_renderer_friendly_name);
+//         m_renderer_friendly_name = "";
+//         return;
+//     }
+//     m_settings->setPlayerUID(u8s2qs(devices[row].UDN));
+// 
+//     if (m_playlist && !dlg.keepRB->isChecked()) {
+//         if (dlg.replRB->isChecked()) {
+//             m_playlist->psl_clear_playlist();
+//         }
+//         m_playlist->psl_add_tracks(curmeta);
+//     }
+    for (vector<UPnPDeviceDesc>::iterator it = devices.begin();
+         it != devices.end(); it++) {
+        QString fname = u8s2qs(it->friendlyName);
+        if(!fname.compare("RaspiDAC")){
+            MetaDataList curmeta;
+            if (m_playlist) {
+                m_playlist->get_metadata(curmeta);
+            }
+
+            m_renderer_friendly_name = u8s2qs(it->friendlyName);
+            if (!setupRenderer(it->UDN)) {
+                QMessageBox::warning(0, "Upplay", tr("Can't connect to ") +
+                                     m_renderer_friendly_name);
+                m_renderer_friendly_name = "";
+                return;
+            }
+            m_settings->setPlayerUID(u8s2qs(it->UDN));
+            m_playlist->psl_add_tracks(curmeta);
+            break;
+        }
     }
+}
+
+// void Application::chooseSource()
+// {
+//     if (m_ohpro) {
+//         chooseSourceOH();
+//     } else {
+//         // Not ready yet
+//         return;
+//         chooseSourceAVT();
+//     }
+// }
+// 
+// void Application::chooseSourceOH()
+// {
+//     vector<UPnPClient::OHProduct::Source> srcs;
+//     if (!m_ohpro->getSources(srcs)) {
+//         return;
+//     }
+//     qDebug() << "Application::chooseSource: got " << srcs.size() << " sources";
+//     int cur = -1;
+//     m_ohpro->sourceIndex(&cur);
+// 
+//     vector<int> rowtoidx;
+//     SourceChooseDLG dlg(m_player);
+//     for (unsigned int i = 0; i < srcs.size(); i++) {
+//         if (!srcs[i].visible)
+//             continue;
+//         QString stype = u8s2qs(srcs[i].type + "\t(" + srcs[i].name + ")");
+//         if (int(i) == cur) {
+//             QListWidgetItem *item = new QListWidgetItem(stype);
+//             QFont font = dlg.rndsLW->font();
+//             font.setBold(true);
+//             item->setFont(font);
+//             dlg.rndsLW->addItem(item);
+//         } else {
+//             dlg.rndsLW->addItem(stype);
+//         }
+//         rowtoidx.push_back(i);
+//     }
+//     if (!dlg.exec()) {
+//         return;
+//     }
+// 
+//     int row = dlg.rndsLW->currentRow();
+//     if (row < 0 || row >= int(rowtoidx.size())) {
+//         qDebug() << "Internal error: bad row after source choose dlg";
+//         return;
+//     }
+//     int idx = rowtoidx[row];
+//     if (idx != cur) {
+//         m_ohpro->setSourceIndex(idx);
+//     }
+// }
+// 
+// 
+// // Avt radio is not ready yet, this is not used for now.
+// void Application::chooseSourceAVT()
+// {
+//     vector<int> rowtoidx;
+//     SourceChooseDLG dlg(m_player);
+//     dlg.rndsLW->addItem("Playlist");
+//     dlg.rndsLW->addItem("Radio");
+//     if (!dlg.exec()) {
+//         return;
+//     }
+//     int row = dlg.rndsLW->currentRow();
+//     if (m_playlist) {
+//         m_playlist->psl_stop();
+//     }
+//     m_player->stopped();
+//     if (row == 1) {
+//         QString fn = QDir(Helper::getSharePath()).filePath("radiolist.xml");
+//         m_playlist = shared_ptr<Playlist>(new PlaylistLOCRD(m_avto,
+//                                                             fn.toLocal8Bit()));
+//         m_playlistIsPlaylist = false;
+//     } else {
+//         m_playlist = shared_ptr<Playlist>(new PlaylistAVT(m_avto,
+//                                                           m_rdr->desc()->UDN));
+//         m_playlistIsPlaylist = true;
+//     }
+//     playlist_connections();
+// }
+
+void Application::openSongcast()
+{
+    SongcastDLG *scdlg;
+    if (!m_sctool) {
+        scdlg = new SongcastDLG(m_player);
+        m_sctool = new SongcastTool(scdlg, this);
+    } else {
+        scdlg = m_sctool->dlg();
+        m_sctool->initControls();
+    }
+    if (scdlg) {
+        scdlg->hide();
+        scdlg->show();
+    }
+}
+
+void Application::reconnectOrChoose()
+{
+    string uid = qs2utf8s(m_settings->getPlayerUID());
+    if (uid.empty() || !setupRenderer(uid)) {
+        if (QMessageBox::warning(0, "Upplay",
+                             tr("Connection to current rendererer lost. "
+                                "Choose again ?"),
+                             QMessageBox::Cancel | QMessageBox::Ok, 
+                                 QMessageBox::Ok) == QMessageBox::Ok) {
+            chooseRenderer();
+        }
+    }
+}
+
+bool Application::setupRenderer(const string& uid)
+{
+    deleteZ(m_rdco);
+    deleteZ(m_avto);
+    deleteZ(m_ohtmo);
+    deleteZ(m_ohvlo);
+    deleteZ(m_ohpro);
+    m_ohsourcetype = OHProductQO::OHPR_SourceUnknown;
+    
+    // The media renderer object is not used directly except for
+    // providing handles to the services. Note that the lib will
+    // return anything implementing either renderingcontrol or
+    // ohproduct
+    m_rdr = getRenderer(uid, false);
+    if (!m_rdr) {
+        cerr << "Renderer " << uid << " not found" << endl;
+        return false;
+    }
+    m_renderer_friendly_name = u8s2qs(m_rdr->desc()->friendlyName);
+
+    bool needavt = true;
+    OHPRH ohpr = m_rdr->ohpr();
+    if (ohpr) {
+        // This is an OpenHome media renderer
+        m_ohpro = new OHProductQO(ohpr);
+        connect(m_ohpro, SIGNAL(sourceTypeChanged(OHProductQO::SourceType)),
+                this, SLOT(onSourceTypeChanged(OHProductQO::SourceType)));
+
+        // Create appropriate Playlist object depending on type of source
+        createPlaylistForOpenHomeSource();
+
+        // Try to use the time service
+        OHTMH ohtm = m_rdr->ohtm();
+        if (ohtm) {
+            qDebug() << "Application::setupRenderer: OHTm ok, no need for avt";
+            m_ohtmo = new OHTimeQO(ohtm);
+            // no need for AVT then
+            needavt = false;
+        }
+        // Move this out of the if when avt radio is ready
+        m_player->enableSourceSelect(true);
+    } else {
+        m_player->enableSourceSelect(false);
+    }
+
+    // It would be possible in theory to be connected to an openhome
+    // playlist without a time service?? and use avt for time updates
+    // instead.
+    if (needavt) {
+        if (!m_rdr->avt()) {
+            qDebug() << "Renderer: AVTransport missing but we need it";
+            return false;
+        }
+        m_avto = new AVTPlayer(m_rdr->avt());
+    }
+
+    // Keep this after avt object creation !
+    if (!m_playlist) {
+        qDebug() <<"Application::setupRenderer: using AVT playlist";
+        m_playlist = shared_ptr<Playlist>(new PlaylistAVT(m_avto,
+                                                         m_rdr->desc()->UDN));
+        m_playlistIsPlaylist = true;
+    }
+
+
+    // Use either renderingControl or ohvolume for volume control.
+    if (m_rdr->rdc()) {
+        qDebug() << "Application::setupRenderer: using Rendering Control";
+        m_rdco = new RenderingControlQO(m_rdr->rdc());
+    } else {
+        if (!m_rdr->ohvl()) {
+            qDebug() << "Device implements neither RenderingControl nor "
+                "OHVolume";
+            return false;
+        }
+        qDebug() << "Application::setupRenderer: using OHVolume";
+        m_ohvlo =  new OHVolumeQO(m_rdr->ohvl());
+    }
+    
+    renderer_connections();
+    playlist_connections();
+
+    return true;
+}
+
+void Application::createPlaylistForOpenHomeSource()
+{
+    m_ohsourcetype = m_ohpro->getSourceType();
+
+    switch (m_ohsourcetype) {
+
+    case OHProductQO::OHPR_SourceRadio:
+    {
+        OHRDH ohrd = m_rdr->ohrd();
+        if (!ohrd) {
+            qDebug() << "Application::createPlaylistForOpenHomeSource: "
+                "radio mode, but can't connect";
+            return;
+        }
+        OHIFH ohif = m_rdr->ohif();
+        m_playlist = shared_ptr<Playlist>(
+            new PlaylistOHRD(new OHRad(ohrd), ohif ? new OHInf(ohif) : 0));
+        m_playlistIsPlaylist = false;
+    }
+    break;
+
+    case OHProductQO::OHPR_SourceReceiver:
+    {
+        OHRCH ohrc = m_rdr->ohrc();
+        if (!ohrc) {
+            qDebug() << "Application::createPlaylistForOpenHomeSource: "
+                "receiver mode, but can't connect";
+            return;
+        }
+        m_playlist = shared_ptr<Playlist>(
+            new PlaylistOHRCV(ohrc, u8s2qs(m_rdr->desc()->friendlyName)));
+        m_playlistIsPlaylist = false;
+    }
+    break;
+
+    case OHProductQO::OHPR_SourcePlaylist:
+    {
+        OHPLH ohpl = m_rdr->ohpl();
+        if (ohpl) {
+            m_playlist = shared_ptr<Playlist>(
+                new PlaylistOHPL(new OHPlayer(ohpl)));
+            m_playlistIsPlaylist = true;
+        }
+    }
+    break;
+
+    default:
+    {
+        m_playlist = shared_ptr<Playlist>(new PlaylistNULL());
+        m_playlistIsPlaylist = false;
+    }
+    break;
+    }
+
+    if (!m_playlist) {
+        qDebug() << "Application::createPlaylistForOpenHomeSource: "
+            "could not create playlist object";
+    }
+}
+
+void Application::onSourceTypeChanged(OHProductQO::SourceType tp)
+{
+    //qDebug() << "Application::onSourceTypeChanged: " << int(tp);
+    if (tp == m_ohsourcetype) {
+        //qDebug() << "Application::onSourceTypeChanged: same type";
+        return;
+    }
+    
+    if (!m_ohpro) {
+        // Not possible cause ohpro is the sender of this signal.. anyway
+        qDebug() <<"Application::onSourceTypeChanged: no OHProduct!!";
+        return;
+    }
+    createPlaylistForOpenHomeSource();
+    playlist_connections();
+}
+
+void Application::getIdleMeta(MetaData* mdp)
+{
+    QString sourcetype;
+    if (m_ohpro) {
+        vector<OHProduct::Source> sources;
+        if (m_ohpro->getSources(sources)) {
+            int idx;
+            if (m_ohpro->sourceIndex(&idx)) {
+                if (idx >= 0 && idx < int(sources.size())) {
+                    sourcetype = u8s2qs(sources[idx].name);
+                }
+            }
+        }
+    }
+
+    mdp->title = QString::fromUtf8("Upplay ") + UPPLAY_VERSION;
+    if (m_renderer_friendly_name.isEmpty()) {
+        mdp->artist = "No renderer connected";
+    } else {
+        mdp->artist = tr("Renderer: ") + m_renderer_friendly_name;
+        if (!sourcetype.isEmpty()) {
+            mdp->artist += QString::fromUtf8(" (") + sourcetype + ")";
+        }
+    }
+}
+
+// We may switch the playlist when an openhome renderer switches sources. So
+// set the playlist connections in a separate function
+void Application::playlist_connections()
+{
+//     if (m_playlistIsPlaylist)
+//         m_cdb->setPlaylist(m_playlist);
+//     else
+//         m_cdb->setPlaylist(shared_ptr<Playlist>());
+
+    // Use either ohtime or avt for time updates
+    if (m_ohtmo) {
+        CONNECT(m_ohtmo, secsInSongChanged(quint32),
+                m_playlist.get(), onRemoteSecsInSong(quint32));
+    } else if (m_avto) {
+        CONNECT(m_avto, secsInSongChanged(quint32),
+                m_playlist.get(), onRemoteSecsInSong(quint32));
+    }
+
+    CONNECT(m_player, play(), m_playlist.get(), psl_play());
+    CONNECT(m_player, pause(), m_playlist.get(), psl_pause());
+    CONNECT(m_player, stop(), m_playlist.get(), psl_stop());
+    CONNECT(m_player, forward(), m_playlist.get(), psl_forward());
+    CONNECT(m_player, backward(), m_playlist.get(), psl_backward());
+    CONNECT(m_player, sig_load_playlist(), m_playlist.get(), psl_load_playlist());
+    CONNECT(m_player, sig_save_playlist(), m_playlist.get(), psl_save_playlist());
+    CONNECT(m_player, sig_seek(int), m_playlist.get(), psl_seek(int));
+
+    CONNECT(m_playlist.get(), connectionLost(), this, reconnectOrChoose());
+    CONNECT(m_playlist.get(), playlistModeChanged(Playlist_Mode),
+            m_ui_playlist, setPlayerMode(Playlist_Mode));
+    CONNECT(m_playlist.get(), sig_track_metadata(const MetaData&),
+            m_player, update_track(const MetaData&));
+    CONNECT(m_playlist.get(), sig_stopped(),  m_player, stopped());
+    CONNECT(m_playlist.get(), sig_paused(),  m_player, paused());
+    CONNECT(m_playlist.get(), sig_playing(),  m_player, playing());
+    CONNECT(m_playlist.get(), sig_playing_track_changed(int),
+            m_ui_playlist, track_changed(int));
+    CONNECT(m_playlist.get(), sig_playlist_updated(MetaDataList&, int, int),
+            m_ui_playlist, fillPlaylist(MetaDataList&, int, int));
+    CONNECT(m_ui_playlist, selection_min_row(int),
+            m_playlist.get(), psl_selection_min_row(int));
+    CONNECT(m_ui_playlist, playlist_mode_changed(const Playlist_Mode&),
+            m_playlist.get(), psl_change_mode(const Playlist_Mode&));
+    CONNECT(m_ui_playlist, dropped_tracks(const MetaDataList&, int),
+            m_playlist.get(), psl_insert_tracks(const MetaDataList&, int));
+    CONNECT(m_ui_playlist, sig_rows_removed(const QList<int>&, bool),
+            m_playlist.get(), psl_remove_rows(const QList<int>&, bool));
+    CONNECT(m_ui_playlist, sig_sort_tno(),
+            m_playlist.get(), psl_sort_by_tno());
+    CONNECT(m_ui_playlist, row_activated(int),
+            m_playlist.get(), psl_change_track(int));
+    CONNECT(m_ui_playlist, clear_playlist(),
+            m_playlist.get(), psl_clear_playlist());
+
+    m_playlist->update_state();
 }
 
 void Application::renderer_connections()
 {
-//    CONNECT(m_playlist, sig_play_now(const MetaData&, int, bool),
-//            m_avto, changeTrack(const MetaData&, int, bool));
-//    CONNECT(m_playlist, sig_next_track_to_play(const MetaData&),
-//            m_avto, infoNextTrack(const MetaData&));
-//    CONNECT(m_avto, endOfTrackIsNear(),
-//            m_playlist, psl_prepare_for_end_of_track());
-//    CONNECT(m_avto, newTrackPlaying(const QString&),
-//            m_playlist, psl_ext_track_change(const QString&));
-//    CONNECT(m_avto, sig_currentMetadata(const MetaData&),
-//            m_playlist, psl_onCurrentMetadata(const MetaData&));
-    // the search (actually seek) param is in percent
-    //CONNECT(m_player, search(int), m_avto, seekPC(int));
-    if (m_hasOHRenderer) {
-        cerr << "Connect OHRenderer." << endl;
-        connect(m_ohplo, SIGNAL(audioStateChanged(int,const char*)), m_upnpWindow, SLOT(new_transport_state(int,const char*)));
-        connect(m_ohplo, SIGNAL(audioStateChanged(int,const char*)), this, SLOT(new_transport_state(int,const char*)));
-        connect(m_ohtmo, SIGNAL(secondsChanged(quint32)), m_upnpWindow, SLOT(setCurrentPosition(quint32)));
-        connect(netAPIServer, SIGNAL(play()), m_ohplo, SLOT(play()));
-        connect(netAPIServer, SIGNAL(pause()), m_ohplo, SLOT(pause()));
-        connect(netAPIServer, SIGNAL(next()), m_ohplo, SLOT(next()));
-        connect(netAPIServer, SIGNAL(previous()), m_ohplo, SLOT(previous()));
-        connect(netAPIServer, SIGNAL(stop()), m_ohplo, SLOT(stop()));
-        //        CONNECT(m_upnpWindow, sig_clear_playlist(),
-//                m_ohplo, clear());
-//        CONNECT(m_upnpWindow, sig_insert_tracks(const MetaDataList&, int),
-//                m_ohplo, insertTracks(const MetaDataList&, int));
-
-//        m_app->connect(m_upnpWindow, SIGNAL(sig_insert_tracks(const MetaDataList&,int)),
-//                       m_ohplo, SLOT(insertTracks(const MetaDataList&,int)));
-    } else {
-        connect(m_avto, SIGNAL(audioStateChanged(int,const char*)), m_upnpWindow, SLOT(new_transport_state(int,const char*)));
-        connect(m_avto, SIGNAL(audioStateChanged(int, const char*)), this, SLOT(new_transport_state(int, const char *)));
-        connect(netAPIServer, SIGNAL(play()), m_avto, SLOT(play()));
-        connect(netAPIServer, SIGNAL(stop()), m_avto, SLOT(stop()));
-        connect(netAPIServer, SIGNAL(pause()), m_avto, SLOT(pause()));
-        connect(m_avto, SIGNAL(secsInSongChanged(quint32)), m_upnpWindow, SLOT(setCurrentPosition(quint32)));
-        connect(m_upnpWindow, SIGNAL(sig_radio(const MetaData&, int, bool)), m_avto, SLOT(changeTrack(const MetaData&, int, bool)));
+    // Use either ohtime or avt for time updates
+    if (m_ohtmo) {
+        CONNECT(m_ohtmo, secsInSongChanged(quint32),
+                m_player, setCurrentPosition(quint32));
+    } else if (m_avto) {
+        CONNECT(m_avto, secsInSongChanged(quint32),
+                m_player, setCurrentPosition(quint32));
     }
-
-    QSignalMapper *signalmapper;
-    signalmapper = new QSignalMapper(this);
-    signalmapper->setMapping(netAPIServer, m->idRadioWindow);
-    connect(netAPIServer, SIGNAL(radio(int)), signalmapper, SLOT(map()));
-    connect(signalmapper, SIGNAL(mapped(int)), this, SLOT(setMode(int)));
-
-    connect(netAPIServer, SIGNAL(radio(int)), m_mpdradio, SLOT(load_radio(int)));
-    connect(m_mpdradio, SIGNAL(station_changed(QString)), m_radioWindow, SLOT(new_station_name(QString)));
-    connect(netAPIServer, SIGNAL(stop()), m_mpdradio, SLOT(stop_radio()));
-    connect(netAPIServer, SIGNAL(pause()), m_mpdradio, SLOT(stop_radio()));
-
-    connect(m_avto, SIGNAL(sig_currentMetadata(const MetaData&)), m_upnpWindow, SLOT(update_track(const MetaData&)));
-    //TODO: Wird Volume und Mute benötigt?
-    //    CONNECT(m_rdco, volumeChanged(int), m_upnpWindow, setVolumeUi(int));
-    //    CONNECT(m_rdco, muteChanged(bool), m_upnpWindow, setMuteUi(bool));
+    if (m_ohvlo) {
+        CONNECT(m_player, sig_volume_changed(int), m_ohvlo, setVolume(int));
+        CONNECT(m_player, sig_mute(bool), m_ohvlo, setMute(bool));
+        CONNECT(m_ohvlo, volumeChanged(int), m_player, setVolumeUi(int));
+        CONNECT(m_ohvlo, muteChanged(bool), m_player, setMuteUi(bool));
         // Set up the initial volume from the renderer value
-    //    m_upnpWindow->setVolumeUi(m_rdco->volume());
-
-
-
-    //CONNECT(m_avto, stoppedAtEOT(), m_playlist, psl_forward());
-
-//    CONNECT(m_playlist, sig_stop(),  m_avto, stop());
-//    CONNECT(m_playlist, sig_resume_play(), m_avto, play());
-//    CONNECT(m_playlist, sig_pause(), m_avto, pause());
-
-
-
-    //TODO: Klasse RC5 und HWButton erzeugen und mit slots verknüpfen
-//    CONNECT(m_upnpWindow, play(), m_playlist, psl_play());
-//    CONNECT(m_upnpWindow, pause(), m_playlist, psl_pause());
-//    CONNECT(m_upnpWindow, stop(), m_playlist, psl_stop());
-//    CONNECT(m_upnpWindow, forward(), m_playlist, psl_forward());
-//    CONNECT(m_upnpWindow, backward(), m_playlist, psl_backward());
-//    CONNECT(m_upnpWindow, sig_load_playlist(), m_playlist, psl_load_playlist());
-//    CONNECT(m_upnpWindow, sig_save_playlist(), m_playlist, psl_save_playlist());
-//    CONNECT(m_upnpWindow, sig_volume_changed(int), m_rdco, setVolume(int));
-//    CONNECT(m_upnpWindow, sig_mute(bool), m_rdco, setMute(bool));
-
-
-
-//    CONNECT(m_playlist, sig_track_metadata(const MetaData&),
-//            m_upnpWindow, update_track(const MetaData&));
-//    CONNECT(m_playlist, sig_stopped(),  m_upnpWindow, stopped());
-//    CONNECT(m_playlist, sig_paused(),  m_upnpWindow, paused());
-//    CONNECT(m_playlist, sig_playing(),  m_upnpWindow, playing());
-
-//    CONNECT(m_playlist, sig_playing_track_changed(int),
-//            m_ui_playlist, track_changed(int));
-//    CONNECT(m_playlist, sig_playlist_updated(MetaDataList&, int, int),
-//            m_ui_playlist, fillPlaylist(MetaDataList&, int, int));
-}
-
-void Application::setMode(int mode)
-{
-    m_mainWindow->setCurrentIndex(mode);
-#ifdef __rpi__
-    if(mode == m->idSpdifWindow)
-        rpiGPIO->setInputSelect(INPUT_DAC);
-    else
-        rpiGPIO->setInputSelect(INPUT_UPNP);
-    rpiGPIO->setRelais(REL_ON);
-    rpiGPIO->setLED(LED_ON);
-    rpiGPIO->setBacklight(BACKLIGHT_MAX);
-#endif
-}
-
-void Application::setDACInput(int value)
-{
-    m_mainWindow->setCurrentIndex(m->idSpdifWindow);
-#ifdef __rpi__
-    rpiGPIO->setInputSelect(value);
-#endif
-}
-
-void Application::setSPDIFInput(int value)
-{
-    m_mainWindow->setCurrentIndex(0);
-#ifdef __rpi__
-    rpiGPIO->setCS8416InputSelect(value);
-#endif
-}
-
-void Application::setStandby()
-{
-    m_mainWindow->setCurrentIndex(0);
-#ifdef __rpi__
-    rpiGPIO->setRelais(REL_OFF);
-    rpiGPIO->setBacklight(BACKLIGHT_DIMM);
-    rpiGPIO->setLED(LED_OFF);
-#endif
-}
-
-void Application::setBacklight(int value)
-{
-    if(value <= 255 && value >= 0)
-    {
-#ifdef __rpi__
-        rpiGPIO->setBacklight(value);
-#endif
+        m_player->setVolumeUi(m_ohvlo->volume());
+    } else if (m_rdco) {
+        CONNECT(m_player, sig_volume_changed(int), m_rdco, setVolume(int));
+        CONNECT(m_player, sig_mute(bool), m_rdco, setMute(bool));
+        CONNECT(m_rdco, volumeChanged(int), m_player, setVolumeUi(int));
+        CONNECT(m_rdco, muteChanged(bool), m_player, setMuteUi(bool));
+        // Set up the initial volume from the renderer value
+        m_player->setVolumeUi(m_rdco->volume());
     }
 }
 
-void Application::new_transport_state(int tps, const char *)
+// Connections which make sense without a renderer.
+void Application::init_connections()
 {
-    //m_tpstate = tps;
-    switch (tps) {
-    case AUDIO_UNKNOWN:
-    case AUDIO_STOPPED:
-    default:
-        break;
-    case AUDIO_PLAYING:
-        setMode(m->idUpnpWindow);
-        break;
-    case AUDIO_PAUSED:
+    CONNECT(m_player, show_small_playlist_items(bool),
+            m_ui_playlist, psl_show_small_playlist_items(bool));
+    CONNECT(m_player, sig_choose_renderer(), this, chooseRenderer());
+    CONNECT(m_player, sig_open_songcast(), this, openSongcast());
+//     CONNECT(m_player, sig_choose_source(), this, chooseSource());
+    CONNECT(m_player, sig_choose_source(QString), this, chooseSource(QString));
+//     CONNECT(m_player, sig_skin_changed(bool), m_cdb, setStyleSheet(bool));
+//     CONNECT(m_player, showSearchPanel(bool), m_cdb, showSearchPanel(bool));
+//     static UPPrefs g_prefs(m_player);
+//     CONNECT(m_player, sig_preferences(), &g_prefs, onShowPrefs());
+//     CONNECT(&g_prefs, sig_prefsChanged(), m_cdb, onSortprefs());
+//     CONNECT(m_cdb, sig_next_group_html(QString),
+//             m_ui_playlist, psl_next_group_html(QString));
+//     CONNECT(m_player, sig_sortprefs(), m_cdb, onSortprefs());
+}
+
+void Application::chooseSource(QString type)
+{
+    if (m_ohpro) {
+        chooseSourceOH(type);
+    } else {
+        // Not ready yet
+        return;
+        chooseSourceAVT(type);
+    }
+}
+
+void Application::chooseSourceOH(QString type)
+{
+    vector<UPnPClient::OHProduct::Source> srcs;
+    if (!m_ohpro->getSources(srcs)) {
+        return;
+    }
+    qDebug() << "Application::chooseSource: got " << srcs.size() << " sources";
+    int cur = -1;
+    m_ohpro->sourceIndex(&cur);
+
+    for (unsigned int i = 0; i < srcs.size(); i++) {
+        if (!srcs[i].visible)
+            continue;
+        QString stype = u8s2qs(srcs[i].type);
+        if (!type.compare(stype, Qt::CaseInsensitive))
+
+
+            if (i != cur) {
+                m_ohpro->setSourceIndex(i);
+            }
         break;
     }
 }
 
-void Application::setRadioStation(QString name, QString file, int id)
+
+// Avt radio is not ready yet, this is not used for now.
+void Application::chooseSourceAVT(QString type)
 {
-    m_settings->setRadioStation(id, name, file);
+    m_playlist->psl_stop();
+    m_player->stopped();
+    if (type.compare("Playlist", Qt::CaseInsensitive)) {
+        QString fn = QDir(Helper::getSharePath()).filePath("radiolist.xml");
+        m_playlist = shared_ptr<Playlist>(new PlaylistLOCRD(m_avto,
+                                                            fn.toLocal8Bit()));
+        m_playlistIsPlaylist = false;
+    } else {
+        m_playlist = shared_ptr<Playlist>(new PlaylistAVT(m_avto,
+                                                          m_rdr->desc()->UDN));
+        m_playlistIsPlaylist = true;
+    }
+    playlist_connections();
 }
-
-

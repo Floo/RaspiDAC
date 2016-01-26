@@ -6,25 +6,25 @@ RPiGPIO *rpiGPIO;
 void cbTaster1()
 {
     qDebug() << "Taster1 gedrückt";
-    emit rpiGPIO->taster1();;
+    emit rpiGPIO->taster(1);;
 }
 
 void cbTaster2()
 {
     qDebug() << "Taster2 gedrückt";
-    emit rpiGPIO->taster2();
+    emit rpiGPIO->taster(2);
 }
 
 void cbTaster3()
 {
     qDebug() << "Taster3 gedrückt";
-    emit rpiGPIO->taster3();
+    emit rpiGPIO->taster(3);
 }
 
 void cbTaster4()
 {
     qDebug() << "Taster4 gedrückt";
-    emit rpiGPIO->taster4();
+    emit rpiGPIO->taster(4);
 }
 #endif
 

@@ -16,7 +16,8 @@ public:
     ~RadioWindow();
 
 public slots:
-    void new_station_name(QString);
+    void newStationName(QString);
+    void newRadioState(QString);
 
 private:
     Ui::RadioWindow *ui;

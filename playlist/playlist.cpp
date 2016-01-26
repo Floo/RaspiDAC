@@ -28,7 +28,7 @@
 #include <QFileDialog>
 
 #include "upadapt/upputils.h"
-#include "Playlist.h"
+#include "playlist.h"
 #include "HelperStructs/Helper.h"
 
 
@@ -36,13 +36,12 @@ using namespace std;
 
 Playlist::Playlist(QObject* parent) 
     : QObject (parent), m_play_idx(-1), m_selection_min_row(-1),
-      m_insertion_point(-1), m_tpstate(AUDIO_UNKNOWN), m_pause(false)
+      m_insertion_point(-1), m_tpstate(AUDIO_UNKNOWN)
 
 {
     m_play_idx = -1;
     m_selection_min_row = -1;
     m_tpstate = AUDIO_UNKNOWN;
-    m_pause = false;
 }
 
 // GUI -->
@@ -64,9 +63,9 @@ void Playlist::remove_row(int row)
     psl_remove_rows(remove_list);
 }
 
-void Playlist::psl_new_transport_state(int tps, const char *)
+void Playlist::onRemoteTpState(int tps, const char *sst)
 {
-//    qDebug() << "Playlist::psl_new_transport_state " << s <<
+//    qDebug() << "Playlist::onRemoteTpState " << s <<
 //        " play_idx " << m_play_idx;
 //    if (m_play_idx >= 0 && m_play_idx < int(m_meta.size())) 
 //        qDebug() << "     meta[idx].pl_playing " << 
@@ -77,15 +76,24 @@ void Playlist::psl_new_transport_state(int tps, const char *)
     case AUDIO_UNKNOWN:
     case AUDIO_STOPPED:
     default:
+        //qDebug() << "Playlist::onRemoteTpState: STOPPED";
         emit sig_stopped();
         break;
     case AUDIO_PLAYING:
+        //qDebug() << "Playlist::onRemoteTpState: PLAYING";
         emit sig_playing();
         break;
     case AUDIO_PAUSED:
+        //qDebug() << "Playlist::onRemoteTpState: PAUSED";
         emit sig_paused();
         break;
     }
+    onRemoteTpState_impl(tps, sst);
+}
+
+Playlist_Mode Playlist::mode()
+{
+    return CSettingsStorage::getInstance()->getPlaylistMode();
 }
 
 // GUI -->
@@ -156,6 +164,8 @@ static void mdsort(const MetaDataList& inlist, MetaDataList& outlist,
 void Playlist::psl_sort_by_tno()
 {
     vector<MetaDataCmp::SortCrit> crits;
+    // Makes no sense to sort by tno independantly of album
+    crits.push_back(MetaDataCmp::SC_ALB);
     crits.push_back(MetaDataCmp::SC_TNO);
     MetaDataList md;
     mdsort(m_meta, md, crits);
@@ -203,7 +213,7 @@ void Playlist::psl_add_tracks(const MetaDataList& v_md)
         psl_play();
     }
 
-    emit insertDone();
+    emit sig_insert_done();
 }
 
 static string maybemakesavedir()
@@ -248,6 +258,6 @@ void Playlist::psl_save_playlist()
 
 void Playlist::psl_selection_min_row(int row)
 {
-    qDebug() << "Playlist::psl_selection_min_row: now: " << row;
+    //qDebug() << "Playlist::psl_selection_min_row: now: " << row;
     m_selection_min_row = row;
 }

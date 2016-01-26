@@ -4,9 +4,9 @@
 #include <QTcpServer>
 
 #include "netapithread.h"
-#include "../application.h"
+#include "../raspidac.h"
 
-class Application;
+class RaspiDAC;
 
 class NetAPIServer : public QTcpServer
 {
@@ -14,30 +14,22 @@ class NetAPIServer : public QTcpServer
     Q_OBJECT
 
 public:
-    NetAPIServer(Application *app_h, QObject *parent = 0);
+    NetAPIServer(RaspiDAC *rpi_h, QObject *parent = 0);
     ~NetAPIServer();
 
 protected:
     void incomingConnection(qintptr socketDescriptor) Q_DECL_OVERRIDE;
 
 private:
-    Application *app;
+    RaspiDAC *m_rpi;
 
 private slots:
-    void setPlay();
-    void setPause();
-    void setNext();
-    void setPrevious();
-    void setStop();
     void setRadio(int);
+    void setTaster(int);
 
 signals:
-    void play();
-    void pause();
-    void next();
-    void previous();
-    void stop();
     void radio(int);
+    void taster(int);
 };
 
 #endif // NETAPISERVER_H
