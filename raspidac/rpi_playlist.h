@@ -18,6 +18,7 @@ public:
     //-----Interface zu upplay
 
     //-----Ende Interface
+    QStringList getRadioList();
 
 signals:
     //-----Interface zu upplay
@@ -50,10 +51,10 @@ public slots:
     //-----Ende Interface
     void setSourceType(OHProductQO::SourceType);
 private:
-        Playlist_Mode _playlist_mode;
-        OHProductQO::SourceType _sourceType;
-        QStringList _radioList;
-        QStringList _playList;
+    Playlist_Mode _playlist_mode;
+    OHProductQO::SourceType _sourceType;
+    QStringList _radioList;
+    QStringList _playList;
 
 };
 

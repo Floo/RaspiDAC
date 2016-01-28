@@ -1,5 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "upnpwindow.h"
+#include "radiowindow.h"
+#include "standbywindow.h"
+#include "spdifwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), ui(new Ui::MainWindow)
@@ -21,11 +25,14 @@ MainWindow::MainWindow(QWidget *parent) :
     m_radioWindow = new RadioWindow();
     m_spdifWindow = new SpdifWindow();
 
-    windowMap["standby"] = addWidget(m_standbyWindow);
-    windowMap["upnp"] = addWidget(m_upnpWindow);
-    windowMap["radio"] = addWidget(m_radioWindow);
-    windowMap["spdif"] = addWidget(m_spdifWindow);
-
+    if (addWidget(m_standbyWindow) != RaspiDAC::RPI_Standby)
+        qDebug() << "Fehler bei Zuordung der GUI-Windows";
+    if (addWidget(m_upnpWindow) != RaspiDAC::RPI_Upnp)
+        qDebug() << "Fehler bei Zuordung der GUI-Windows";
+    if (addWidget(m_radioWindow) != RaspiDAC::RPI_Radio)
+        qDebug() << "Fehler bei Zuordung der GUI-Windows";
+    if (addWidget(m_spdifWindow) != RaspiDAC::RPI_Spdif)
+        qDebug() << "Fehler bei Zuordung der GUI-Windows";
 }
 
 
@@ -47,11 +54,6 @@ void MainWindow::setCurrentIndex(int index)
 int MainWindow::currentIndex()
 {
     return ui->stackedWidget->currentIndex();
-}
-
-int MainWindow::getIndexByName(QString key)
-{
-    return windowMap.value(key);
 }
 
 void MainWindow::upnp_updateTrack(const MetaData &metadata)

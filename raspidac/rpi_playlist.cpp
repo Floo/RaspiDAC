@@ -61,3 +61,8 @@ void Rpi_Playlist::setSourceType(OHProductQO::SourceType st)
 {
     _sourceType = st;
 }
+
+QStringList Rpi_Playlist::getRadioList()
+{
+    return _radioList;
+}

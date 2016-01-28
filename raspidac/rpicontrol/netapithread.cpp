@@ -1,4 +1,6 @@
 #include "netapithread.h"
+#include "netapiserver.h"
+
 
 NetAPIThread::NetAPIThread(int socketDescriptor, QObject *parent)
     : QThread(parent), socketDescriptor(socketDescriptor)
@@ -61,9 +63,10 @@ QString NetAPIThread::parser(const QString &command)
 
     QStringList set_commands;
     QStringList get_commands;
-    set_commands << "rc5direct" << "standby" << "dacinput" << "mode" << "pm8000" << "radio" << "backlight"
-                 << "spdifinput" << "play" << "pause" << "next" << "previous" << "stop" << "radiostation" << "taster";
-    get_commands << "standby" << "radiolist";
+    set_commands << "rc5direct" << "standby" << "dacinput" << "mode" << "pm8000"
+                 << "radio" << "backlight" << "spdifinput" << "play" << "pause"
+                 << "next" << "previous" << "stop" << "taster";
+    get_commands << "mode" << "radiolist";
 
     qDebug() << command;
 
@@ -104,7 +107,7 @@ QString NetAPIThread::parser(const QString &command)
                 break;
             case 1: //standby
             {
-                emit setMode(0);
+                emit setMode(RaspiDAC::RPI_Standby);
                 reply = "OK";
             }
                 break;
@@ -120,13 +123,14 @@ QString NetAPIThread::parser(const QString &command)
                 }
                 break;
             case 3: //mode
-                if((value = onoff(subcommand.at(2))) > 3 || onoff(subcommand.at(2)) < 1)
+                RaspiDAC::GUIMode md;
+                if((md = mode(subcommand.at(2))) > 3 || mode(subcommand.at(2)) < 1)
                 {
                     break;
                 }
                 else
                 {
-                    emit setMode(value);
+                    emit setMode(md);
                     reply = "OK";
                 }
                 break;
@@ -135,6 +139,7 @@ QString NetAPIThread::parser(const QString &command)
                 break;
             case 5: //radio
                 emit setRadio(subcommand.at(2).toInt());
+                reply = "OK";
                 break;
             case 6: //backlight
                 emit setBacklight(subcommand.at(2).toInt());
@@ -142,27 +147,31 @@ QString NetAPIThread::parser(const QString &command)
                 break;
             case 7: //spdifinput
                 emit setSPDIFInput(subcommand.at(2).toInt());
+                reply = "OK";
                 break;
             case 8: //play
                 emit setPlay();
+                reply = "OK";
                 break;
             case 9: //pause
                 emit setPause();
+                reply = "OK";
                 break;
             case 10: //next
                 emit setNext();
+                reply = "OK";
                 break;
             case 11: //previous
                 emit setPrevious();
+                reply = "OK";
                 break;
             case 12: //stop
                 emit setStop();
+                reply = "OK";
                 break;
-            case 13: //radiostation
-                emit setRadioStation(subcommand.at(2), subcommand.at(3), subcommand.at(4).toInt());
-                break;
-            case 14: //taster
+            case 13: //taster
                 emit taster(subcommand.at(2).toInt());
+                reply = "OK";
                 break;
             }
         }
@@ -173,11 +182,11 @@ QString NetAPIThread::parser(const QString &command)
         {
             switch (index)
             {
-                case 0: //standby
-
-                    break;
+                case 0: //mode (GUI-Mode)
+                    reply  = static_cast<NetAPIServer*>(parent())->getGUIMode();
+                break;
                 case 1: //radiolist
-
+                    reply = static_cast<NetAPIServer*>(parent())->getRadioList();
                     break;
             }
         }
@@ -195,20 +204,32 @@ int NetAPIThread::onoff(const QString &cmd, bool invers)
     {
         return invers?1:0;
     }
-    else if (cmd.compare("upnp", Qt::CaseInsensitive) == 0)
-    {
-        return 1;
-    }
-    else if (cmd.compare("radio", Qt::CaseInsensitive) == 0)
-    {
-        return 2;
-    }
-    else if (cmd.compare("spdif", Qt::CaseInsensitive) == 0)
-    {
-        return 3;
-    }
     else
     {
         return -1;
     }
 }
+
+RaspiDAC::GUIMode NetAPIThread::mode(const QString &cmd)
+{
+    if (cmd.compare("standby", Qt::CaseInsensitive) == 0)
+    {
+        return RaspiDAC::RPI_Standby;
+    }
+    else if (cmd.compare("upnp", Qt::CaseInsensitive) == 0)
+    {
+        return RaspiDAC::RPI_Upnp;
+    }
+    else if (cmd.compare("radio", Qt::CaseInsensitive) == 0)
+    {
+        return RaspiDAC::RPI_Radio;
+    }
+    else if (cmd.compare("spdif", Qt::CaseInsensitive) == 0)
+    {
+        return RaspiDAC::RPI_Spdif;
+    }
+}
+
+
+
+

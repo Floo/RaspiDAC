@@ -12,7 +12,7 @@ TEMPLATE = app
 LANGUAGE = C++
 INSTALLS += target
 
-QMAKE_CXXFLAGS += -std=c++0x  -DUPPLAY_VERSION=\\\"$$VERSION\\\" -Wno-psabi -j4
+QMAKE_CXXFLAGS += -std=c++0x  -DUPPLAY_VERSION=\\\"$$VERSION\\\" -Wno-psabi
 #QMAKE_CXXFLAGS += -DUSING_WEBENGINE
 
 target.path = /home/pi/RaspiDAC

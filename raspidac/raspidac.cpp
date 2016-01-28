@@ -1,4 +1,8 @@
 #include "raspidac.h"
+#include "GUI/mainwindow.h"
+#include "application.h"
+#include "rpicontrol/netapiserver.h"
+#include "rpi_playlist.h"
 
 RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     QWidget(parent), m_upapp(upapp)
@@ -7,6 +11,8 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     rpiGPIO = new RPiGPIO();
 #endif
     m_window = new MainWindow();
+    m_window->setCurrentIndex(RPI_Standby);
+    emit GUIModeChanged(RPI_Standby);
     netAPIServer = new NetAPIServer(this);
 
     if (!netAPIServer->listen(QHostAddress::Any, 8000)) {
@@ -45,7 +51,7 @@ void RaspiDAC::onPrevious()
 
 void RaspiDAC::setDACInput(int value)
 {
-    setMode(m_window->getIndexByName("spdif"));
+    setGUIMode(RPI_Spdif);
 #ifdef __rpi__
     rpiGPIO->setInputSelect(value);
 #endif
@@ -69,15 +75,33 @@ void RaspiDAC::setBacklight(int value)
     }
 }
 
-void RaspiDAC::setMode(int mode)
+void RaspiDAC::setRadio(int row)
+{
+    setGUIMode(RPI_Radio);
+    emit m_playlist->row_activated(row);
+}
+
+void RaspiDAC::onTaster(int taster)
+{
+
+}
+
+QString RaspiDAC::getRadioListString()
+{
+    return m_playlist->getRadioList().join(";");
+}
+
+
+
+void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 {
     if(mode == m_window->currentIndex())
     {
         return;
     }
 
-    if((mode != m_window->getIndexByName("standby")) &&
-            (m_window->currentIndex() == m_window->getIndexByName("standby")))
+    if((mode != RPI_Standby) &&
+            (m_window->currentIndex() == RPI_Standby))
     {
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_ON);
@@ -86,38 +110,40 @@ void RaspiDAC::setMode(int mode)
 #endif
     }
 
-    if(m_window->currentIndex() == m_window->getIndexByName("radio"))
+    if(m_window->currentIndex() == RPI_Radio)
     {
 
     }
 
-    if(m_window->currentIndex() == m_window->getIndexByName("upnp"))
+    if(m_window->currentIndex() == RPI_Upnp)
     {
         emit pause();
     }
 
-    if(mode == m_window->getIndexByName("radio"))
+    if(mode == RPI_Radio)
     {
 #ifdef __rpi__
         rpiGPIO->setInputSelect(INPUT_UPNP);
 #endif
+        emit sig_choose_source(QString("Radio"));
     }
 
-    if(mode == m_window->getIndexByName("upnp"))
+    if(mode == RPI_Upnp)
     {
 #ifdef __rpi__
         rpiGPIO->setInputSelect(INPUT_UPNP);
 #endif
+        emit sig_choose_source(QString("Playlist"));
     }
 
-    if(mode == m_window->getIndexByName("spdif"))
+    if(mode == RPI_Spdif)
     {
 #ifdef __rpi__
         rpiGPIO->setInputSelect(INPUT_DAC);
 #endif
     }
 
-    if(mode == m_window->getIndexByName("standby"))
+    if(mode == RPI_Standby)
     {
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_OFF);
@@ -125,13 +151,8 @@ void RaspiDAC::setMode(int mode)
         rpiGPIO->setLED(LED_OFF);
 #endif
     }
-
-    if(mode == m_window->getIndexByName("menu"))
-    {
-
-    }
-
     m_window->setCurrentIndex(mode);
+    emit GUIModeChanged(mode);
 }
 
 void RaspiDAC::really_close(bool value)
@@ -161,7 +182,7 @@ void RaspiDAC::stopped()
 
 void RaspiDAC::playing()
 {
-    setMode(m_window->getIndexByName("upnp"));
+    setGUIMode(RPI_Upnp);
     m_window->playing();
 }
 
@@ -224,3 +245,4 @@ void RaspiDAC::show()
 {
     m_window->show();
 }
+

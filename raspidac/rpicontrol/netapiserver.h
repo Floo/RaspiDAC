@@ -3,7 +3,6 @@
 
 #include <QTcpServer>
 
-#include "netapithread.h"
 #include "../raspidac.h"
 
 class RaspiDAC;
@@ -16,20 +15,25 @@ class NetAPIServer : public QTcpServer
 public:
     NetAPIServer(RaspiDAC *rpi_h, QObject *parent = 0);
     ~NetAPIServer();
+    QString getGUIMode();
+    QString getRadioList();
+
 
 protected:
     void incomingConnection(qintptr socketDescriptor) Q_DECL_OVERRIDE;
 
 private:
     RaspiDAC *m_rpi;
+    RaspiDAC::GUIMode m_GUIMode;
+    QString m_RadioList;
 
 private slots:
-    void setRadio(int);
-    void setTaster(int);
+    void GUIMode(RaspiDAC::GUIMode);
+    void radioList(const QString &list);
+
 
 signals:
-    void radio(int);
-    void taster(int);
+
 };
 
 #endif // NETAPISERVER_H

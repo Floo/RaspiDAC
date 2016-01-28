@@ -2,13 +2,13 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QMap>
 
-#include "upnpwindow.h"
-#include "mainwindow.h"
-#include "radiowindow.h"
-#include "standbywindow.h"
-#include "spdifwindow.h"
+#include "../raspidac.h"
+
+class StandbyWindow;
+class RadioWindow;
+class UpnpWindow;
+class SpdifWindow;
 
 namespace Ui {
 class MainWindow;
@@ -23,7 +23,6 @@ public:
     ~MainWindow();
 
     int currentIndex();
-    int getIndexByName(QString key);
     void upnp_updateTrack(const MetaData &in);
     void upnp_setCurrentPosition(quint32 sec);
     void playing();
@@ -43,11 +42,9 @@ private:
     UpnpWindow *m_upnpWindow;
     SpdifWindow *m_spdifWindow;
     int addWidget(QWidget *widget);
-    QMap<QString, int> windowMap;
 
     QFile *m_res;
     QFont *m_font;
-
 
 };
 
