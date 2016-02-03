@@ -14,6 +14,7 @@ class SpdifWindow : public QWidget
 public:
     explicit SpdifWindow(QWidget *parent = 0);
     ~SpdifWindow();
+    void setInput(QString);
 
 private:
     Ui::SpdifWindow *ui;

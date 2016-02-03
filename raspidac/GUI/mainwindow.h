@@ -23,11 +23,12 @@ public:
     ~MainWindow();
 
     int currentIndex();
-    void upnp_updateTrack(const MetaData &in);
+    void updateTrack(const MetaData &in);
     void upnp_setCurrentPosition(quint32 sec);
     void playing();
     void paused();
     void stopped();
+    void input(QString);
 
 signals:
 

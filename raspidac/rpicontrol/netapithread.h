@@ -6,13 +6,15 @@
 
 #include "../raspidac.h"
 
+class NetAPIServer;
+
 class NetAPIThread : public QThread
 {
 
     Q_OBJECT
 
 public:
-    NetAPIThread(int socketDescriptor, QObject *parent);
+    NetAPIThread(int socketDescriptor, NetAPIServer *parent);
     ~NetAPIThread();
 
 public:
@@ -42,6 +44,7 @@ private:
     int onoff(const QString &cmd, bool invers = false);
     RaspiDAC::GUIMode mode(const QString &cmd);
     QString parser(const QString &command);
+    NetAPIServer *m_netapiserver;
 
 };
 

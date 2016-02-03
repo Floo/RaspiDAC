@@ -2,6 +2,7 @@
 #define RADIOWINDOW_H
 
 #include <QWidget>
+#include "HelperStructs/MetaData.h"
 
 namespace Ui {
 class RadioWindow;
@@ -14,6 +15,8 @@ class RadioWindow : public QWidget
 public:
     explicit RadioWindow(QWidget *parent = 0);
     ~RadioWindow();
+
+    void update_track(const MetaData& metadata);
 
 public slots:
     void newStationName(QString);

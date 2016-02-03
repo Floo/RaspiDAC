@@ -28,3 +28,10 @@ void RadioWindow::newRadioState(QString state)
         ui->lblState->setPixmap(QPixmap(QString(":/pics/resources/pause.png")));
     }
 }
+
+void RadioWindow::update_track(const MetaData& md)
+{
+    ui->lblStationname->setText(md.album);
+    ui->lblStationtext->setText(md.artist);
+    ui->lblNowPlaying->setText(md.title);
+}

@@ -4,6 +4,7 @@
 #include "radiowindow.h"
 #include "standbywindow.h"
 #include "spdifwindow.h"
+#include "../raspidac.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent), ui(new Ui::MainWindow)
@@ -56,9 +57,12 @@ int MainWindow::currentIndex()
     return ui->stackedWidget->currentIndex();
 }
 
-void MainWindow::upnp_updateTrack(const MetaData &metadata)
+void MainWindow::updateTrack(const MetaData &metadata)
 {
-    m_upnpWindow->update_track(metadata);
+    if (currentIndex() == RaspiDAC::RPI_Upnp)
+        m_upnpWindow->update_track(metadata);
+    else if (currentIndex() == RaspiDAC::RPI_Radio)
+        m_radioWindow->update_track(metadata);
 }
 
 void MainWindow::upnp_setCurrentPosition(quint32 sec)
@@ -82,4 +86,9 @@ void MainWindow::paused()
 {
     m_upnpWindow->paused();
     m_radioWindow->newRadioState("pause");
+}
+
+void MainWindow::input(QString txt)
+{
+    m_spdifWindow->setInput(txt);
 }

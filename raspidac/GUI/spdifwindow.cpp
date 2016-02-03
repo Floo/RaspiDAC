@@ -12,3 +12,8 @@ SpdifWindow::~SpdifWindow()
 {
     delete ui;
 }
+
+void SpdifWindow::setInput(QString txt)
+{
+    ui->lblInput->setText(txt);
+}

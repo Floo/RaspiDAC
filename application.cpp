@@ -372,7 +372,8 @@ bool Application::setupRenderer(const string& uid)
         m_ohpro = new OHProductQO(ohpr);
         connect(m_ohpro, SIGNAL(sourceTypeChanged(OHProductQO::SourceType)),
                 this, SLOT(onSourceTypeChanged(OHProductQO::SourceType)));
-
+        connect(m_ohpro, SIGNAL(sourceTypeChanged(OHProductQO::SourceType)),
+                m_ui_playlist, SLOT(sourceTypeChanged(OHProductQO::SourceType)));
         // Create appropriate Playlist object depending on type of source
         createPlaylistForOpenHomeSource();
 
@@ -662,12 +663,13 @@ void Application::chooseSourceOH(QString type)
             continue;
         QString stype = u8s2qs(srcs[i].type);
         if (!type.compare(stype, Qt::CaseInsensitive))
-
-
+        {
             if (i != cur) {
+                qDebug() << "Application::chooseSource: set to " << u8s2qs(srcs[i].type);
                 m_ohpro->setSourceIndex(i);
             }
         break;
+        }
     }
 }
 

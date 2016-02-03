@@ -3,7 +3,7 @@
 Rpi_Playlist::Rpi_Playlist(QWidget *parent) :
     QWidget(parent), _sourceType(OHProductQO::OHPR_SourceUnknown)
 {
-
+    m_playRowPending = -1;
 }
 
 Rpi_Playlist::~Rpi_Playlist()
@@ -11,21 +11,11 @@ Rpi_Playlist::~Rpi_Playlist()
 
 }
 
-// SLOT: fill all tracks in v_metadata into playlist
+
 void Rpi_Playlist::fillPlaylist(MetaDataList& v_metadata, int cur_play_idx, int)
 {
-    if (_sourceType == OHProductQO::OHPR_SourceRadio) {
-        _radioList.clear();
-        foreach(MetaData md, v_metadata) {
-            _radioList.append(md.title);
-        }
+    _mdl = v_metadata;
 
-    } else if (_sourceType == OHProductQO::OHPR_SourcePlaylist) {
-        _playList.clear();
-        foreach (MetaData md, v_metadata) {
-            _playList.append(md.artist);
-        }
-    }
 }
 
 void Rpi_Playlist::track_changed(int row)
@@ -57,9 +47,27 @@ void Rpi_Playlist::psl_next_group_html(QString html)
 
 }
 
-void Rpi_Playlist::setSourceType(OHProductQO::SourceType st)
+void Rpi_Playlist::sourceTypeChanged(OHProductQO::SourceType st)
 {
+    qDebug() << "Rpi_Playlist::sourceTypeChanged: " << st;
+
+    if (m_playRowPending > -1){
+        emit row_activated(m_playRowPending);
+        m_playRowPending = -1;
+    }
+
+    if(st == _sourceType)
+        return;
+
     _sourceType = st;
+
+    if (_sourceType == OHProductQO::OHPR_SourceRadio) {
+        _radioList.clear();
+        foreach(MetaData md, _mdl) {
+            _radioList.append(md.title);
+        }
+        emit radioListChanged(_radioList);
+    }
 }
 
 QStringList Rpi_Playlist::getRadioList()

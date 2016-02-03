@@ -2,8 +2,8 @@
 #include "netapiserver.h"
 
 
-NetAPIThread::NetAPIThread(int socketDescriptor, QObject *parent)
-    : QThread(parent), socketDescriptor(socketDescriptor)
+NetAPIThread::NetAPIThread(int socketDescriptor, NetAPIServer *parent)
+    : QThread(parent), socketDescriptor(socketDescriptor), m_netapiserver(parent)
 {
 }
 
@@ -186,7 +186,9 @@ QString NetAPIThread::parser(const QString &command)
                     reply  = static_cast<NetAPIServer*>(parent())->getGUIMode();
                 break;
                 case 1: //radiolist
-                    reply = static_cast<NetAPIServer*>(parent())->getRadioList();
+                    //reply = static_cast<NetAPIServer*>(parent())->getRadioList();
+                    reply = "[radioList]";
+                    reply.append(m_netapiserver->getRadioList());
                     break;
             }
         }

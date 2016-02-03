@@ -8,7 +8,6 @@ NetAPIServer::NetAPIServer(RaspiDAC *rpi_h, QObject *parent)
     qRegisterMetaType<RaspiDAC::GUIMode>("RaspiDAC::GUIMode");
     connect(m_rpi, SIGNAL(GUIModeChanged(RaspiDAC::GUIMode)),
             this, SLOT(GUIMode(RaspiDAC::GUIMode)));
-    connect(m_rpi, SIGNAL(radioListChanged(QString)), this, SLOT(radioList(QString)));
 
 }
 
@@ -26,11 +25,11 @@ void NetAPIServer::incomingConnection(qintptr socketDescriptor)
     connect(thread, SIGNAL(setMode(RaspiDAC::GUIMode)),
             m_rpi, SLOT(setGUIMode(RaspiDAC::GUIMode)));
     connect(thread, SIGNAL(setBacklight(int)), m_rpi, SLOT(setBacklight(int)));
-    connect(thread, SIGNAL(setPlay()), m_rpi, SLOT(onPlay()));
-    connect(thread, SIGNAL(setPause()), m_rpi, SLOT(onPaused()));
-    connect(thread, SIGNAL(setNext()), m_rpi, SLOT(onNext()));
-    connect(thread, SIGNAL(setPrevious()), m_rpi, SLOT(onPrevious()));
-    connect(thread, SIGNAL(setStop()), m_rpi, SLOT(onStopped()));
+    connect(thread, SIGNAL(setPlay()), m_rpi, SIGNAL(play()));
+    connect(thread, SIGNAL(setPause()), m_rpi, SIGNAL(pause()));
+    connect(thread, SIGNAL(setNext()), m_rpi, SIGNAL(forward()));
+    connect(thread, SIGNAL(setPrevious()), m_rpi, SIGNAL(backward()));
+    connect(thread, SIGNAL(setStop()), m_rpi, SIGNAL(stop()));
     connect(thread, SIGNAL(setRadio(int)), m_rpi, SLOT(setRadio(int)));
     connect(thread, SIGNAL(taster(int)), m_rpi, SLOT(onTaster(int)));
 
@@ -42,9 +41,9 @@ void NetAPIServer::GUIMode(RaspiDAC::GUIMode h_mode)
     m_GUIMode = h_mode;
 }
 
-void NetAPIServer::radioList(const QString &h_list)
+void NetAPIServer::radioList(const QStringList& h_list)
 {
-    m_RadioList = h_list;
+    m_RadioList = h_list.join(";");
 }
 
 QString NetAPIServer::getGUIMode()

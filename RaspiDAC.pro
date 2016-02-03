@@ -73,7 +73,10 @@ SOURCES += \
     raspidac/rpicontrol/netapiserver.cpp \
     raspidac/rpicontrol/netapithread.cpp \
     raspidac/raspidac.cpp \
-    raspidac/rpi_playlist.cpp
+    raspidac/rpi_playlist.cpp \
+    raspidac/GUI/menuitem.cpp \
+    raspidac/GUI/mainmenu.cpp \
+    raspidac/GUI/menu.cpp
 
 HEADERS  += \
 #    GUI/mainw/mainw.h \
@@ -148,7 +151,10 @@ HEADERS  += \
     raspidac/rpicontrol/netapiserver.h \
     raspidac/rpicontrol/netapithread.h \    
     raspidac/raspidac.h \
-    raspidac/rpi_playlist.h
+    raspidac/rpi_playlist.h \
+    raspidac/GUI/menuitem.h \
+    raspidac/GUI/mainmenu.h \
+    raspidac/GUI/menu.h
 
 FORMS  += \
     raspidac/GUI/mainwindow.ui \

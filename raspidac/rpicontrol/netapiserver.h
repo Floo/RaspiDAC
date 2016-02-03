@@ -29,7 +29,7 @@ private:
 
 private slots:
     void GUIMode(RaspiDAC::GUIMode);
-    void radioList(const QString &list);
+    void radioList(const QStringList& list);
 
 
 signals:

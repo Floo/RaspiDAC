@@ -13,11 +13,12 @@ class NetAPIServer;
 class MainWindow;
 class Rpi_Playlist;
 class Application;
+class Menu;
 
 class RaspiDAC : public QWidget
 {
     Q_OBJECT
-    Q_ENUMS(GUIMode)
+
 public:
     explicit RaspiDAC(Application *upapp, QWidget *parent = 0);
     ~RaspiDAC();
@@ -34,8 +35,10 @@ public:
     //-----Ende Interface
 
     void show();
-    QString getRadioListString();
     enum GUIMode{RPI_Standby, RPI_Upnp, RPI_Radio, RPI_Spdif};
+    Q_ENUMS(GUIMode)
+    enum PlayMode{RPI_Play, RPI_Pause, RPI_Stop};
+    Q_ENUMS(PlayMode)
     GUIMode getGUIMode();
 
 signals:
@@ -67,7 +70,6 @@ signals:
     //-----Ende Interface
 
     void GUIModeChanged(RaspiDAC::GUIMode);
-    void radioListChanged(const QString &);
 
 public slots:
     //-----Interface zu upplay
@@ -87,11 +89,7 @@ public slots:
 
     void enableSourceSelect(bool);
     //-----Ende Interface
-    void onPlay();
-    void onPaused();
-    void onStopped();
-    void onNext();
-    void onPrevious();
+
     void setDACInput(int);
     void setSPDIFInput(int);
     void setGUIMode(RaspiDAC::GUIMode mode);
@@ -104,6 +102,10 @@ private:
     QWidget *m_librarywidget;
     Application *m_upapp;
     MainWindow *m_window;
+    Menu *m_menu;
+    PlayMode m_playmode;
+    GUIMode m_lastMode;
+
 #ifdef __rpi__
     RPiGPIO *rpiGPIO;
 #endif
@@ -114,6 +116,6 @@ private slots:
 
 };
 
-Q_DECLARE_METATYPE(RaspiDAC::GUIMode);
+Q_DECLARE_METATYPE(RaspiDAC::GUIMode)
 
 #endif // RASPIDAC_H

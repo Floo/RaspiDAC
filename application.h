@@ -57,6 +57,7 @@ public:
     bool is_initialized();
                         
     void getIdleMeta(MetaData* mdp);
+
                         
 public slots:
     void chooseRenderer();
