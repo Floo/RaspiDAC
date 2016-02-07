@@ -154,7 +154,9 @@ HEADERS  += \
     raspidac/rpi_playlist.h \
     raspidac/GUI/menuitem.h \
     raspidac/GUI/mainmenu.h \
-    raspidac/GUI/menu.h
+    raspidac/GUI/menu.h \
+    HelperStructs/MetaData.h \
+    raspidac/rpicontrol/helper.h
 
 FORMS  += \
     raspidac/GUI/mainwindow.ui \

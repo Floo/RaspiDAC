@@ -24,6 +24,7 @@ public:
 
     int currentIndex();
     void updateTrack(const MetaData &in);
+    void clearTrack();
     void upnp_setCurrentPosition(quint32 sec);
     void playing();
     void paused();

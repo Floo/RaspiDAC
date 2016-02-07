@@ -68,6 +68,7 @@ void Rpi_Playlist::sourceTypeChanged(OHProductQO::SourceType st)
         }
         emit radioListChanged(_radioList);
     }
+    emit sig_source_type_changed(_sourceType);
 }
 
 QStringList Rpi_Playlist::getRadioList()

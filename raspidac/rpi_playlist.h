@@ -47,6 +47,7 @@ signals:
     //-----Ende Interface
 
     void radioListChanged(const QStringList&);
+    void sig_source_type_changed(OHProductQO::SourceType);
 
 public slots:
     //-----Interface zu upplay

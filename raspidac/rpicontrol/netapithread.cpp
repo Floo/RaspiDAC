@@ -66,9 +66,9 @@ QString NetAPIThread::parser(const QString &command)
     set_commands << "rc5direct" << "standby" << "dacinput" << "mode" << "pm8000"
                  << "radio" << "backlight" << "spdifinput" << "play" << "pause"
                  << "next" << "previous" << "stop" << "taster";
-    get_commands << "mode" << "radiolist";
+    get_commands << "status" << "radiolist" << "metadata";
 
-    qDebug() << command;
+    qDebug() << "NetAPIThread::parser: " << command;
 
 //    QStringList subcommand = command.split(" ");
     QStringList subcommand;
@@ -182,14 +182,20 @@ QString NetAPIThread::parser(const QString &command)
         {
             switch (index)
             {
-                case 0: //mode (GUI-Mode)
-                    reply  = static_cast<NetAPIServer*>(parent())->getGUIMode();
+                case 0: //status (struct UDPDatagram, für Initialisierung der Clienten)
+                    //reply  = static_cast<NetAPIServer*>(parent())->getGUIMode();
+                    reply = "[RaspiDAC]";
+                    reply.append(static_cast<NetAPIServer*>(parent())->getDatagram());
                 break;
                 case 1: //radiolist
                     //reply = static_cast<NetAPIServer*>(parent())->getRadioList();
                     reply = "[radioList]";
                     reply.append(m_netapiserver->getRadioList());
                     break;
+            case 2: //metadata
+                    reply = "[MetaData]";
+                    reply.append(m_netapiserver->getMetaData());
+                break;
             }
         }
     }

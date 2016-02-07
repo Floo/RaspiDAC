@@ -31,7 +31,17 @@ void RadioWindow::newRadioState(QString state)
 
 void RadioWindow::update_track(const MetaData& md)
 {
-    ui->lblStationname->setText(md.album);
-    ui->lblStationtext->setText(md.artist);
-    ui->lblNowPlaying->setText(md.title);
+    if (md.length_ms < 1)
+    {
+        ui->lblStationname->setText(md.album);
+        ui->lblStationtext->setText(md.artist);
+        ui->lblNowPlaying->setText(md.title);
+    }
+}
+
+void RadioWindow::clear_track()
+{
+    ui->lblStationname->setText("");
+    ui->lblStationtext->setText("");
+    ui->lblNowPlaying->setText("");
 }

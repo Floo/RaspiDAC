@@ -5,6 +5,8 @@
 #include <QWidget>
 
 #include "../HelperStructs/MetaData.h"
+#include "rpicontrol/helper.h"
+#include "../upqo/ohproduct_qo.h"
 #ifdef __rpi__
     #include "rpicontrol/rpigpio.h"
 #endif
@@ -40,6 +42,7 @@ public:
     enum PlayMode{RPI_Play, RPI_Pause, RPI_Stop};
     Q_ENUMS(PlayMode)
     GUIMode getGUIMode();
+    MetaData &getMetaData();
 
 signals:
     //-----Interface zu upplay
@@ -69,7 +72,7 @@ signals:
     void sig_preferences();
     //-----Ende Interface
 
-    void GUIModeChanged(RaspiDAC::GUIMode);
+    void datagramm(UDPDatagram&);
 
 public slots:
     //-----Interface zu upplay
@@ -96,6 +99,7 @@ public slots:
     void setBacklight(int);
     void onTaster(int);
     void setRadio(int);
+    void onChangedSourceType(OHProductQO::SourceType);
 private:
     Rpi_Playlist *m_playlist;
     QWidget *m_playlistwidget;
@@ -104,7 +108,11 @@ private:
     MainWindow *m_window;
     Menu *m_menu;
     PlayMode m_playmode;
+    MetaData m_MetaData;
     GUIMode m_lastMode;
+    int m_spdifInput;
+    void prepareDatagram(bool metadatahaschanged = false);
+    void applySavedMetaData();
 
 #ifdef __rpi__
     RPiGPIO *rpiGPIO;

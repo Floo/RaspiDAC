@@ -6,7 +6,7 @@
 #include "GUI/menu.h"
 
 RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
-    QWidget(parent), m_upapp(upapp)
+    QWidget(parent), m_upapp(upapp), m_playlist(0)
 {
 #ifdef __rpi__
     rpiGPIO = new RPiGPIO();
@@ -14,13 +14,15 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     m_playmode = RPI_Stop;
     m_window = new MainWindow();
     m_window->setCurrentIndex(RPI_Standby);
+    m_window->clearTrack();
 
     m_lastMode = RPI_Upnp;
 
     m_menu = new Menu(m_window);
     m_menu->setInputList();
 
-    emit GUIModeChanged(RPI_Standby);
+    m_spdifInput = 0;
+
     netAPIServer = new NetAPIServer(this);
 
     if (!netAPIServer->listen(QHostAddress::Any, 8000)) {
@@ -32,6 +34,8 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
             this, SLOT(setSPDIFInput(int)));
     connect(m_menu, SIGNAL(radioRowSelected(int)),
             this, SLOT(setRadio(int)));
+    connect(this, SIGNAL(datagramm(UDPDatagram&)),
+            netAPIServer, SLOT(sendDatagramm(UDPDatagram&)));
 }
 
 RaspiDAC::~RaspiDAC()
@@ -48,11 +52,13 @@ void RaspiDAC::setDACInput(int value)
 
 void RaspiDAC::setSPDIFInput(int value)
 {
+    m_spdifInput = value;
     setGUIMode(RPI_Spdif);
-    m_window->input(QString("Input %1").arg(value + 1));
+
 #ifdef __rpi__
     rpiGPIO->setCS8416InputSelect(value);
 #endif
+    prepareDatagram();
 }
 
 void RaspiDAC::setBacklight(int value)
@@ -124,6 +130,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
         rpiGPIO->setRelais(REL_ON);
         rpiGPIO->setLED(LED_ON);
         rpiGPIO->setBacklight(BACKLIGHT_MAX);
+        rpiGPIO->setCS8416InputSelect(m_spdifInput);
 #endif
     }
 
@@ -143,6 +150,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
         rpiGPIO->setInputSelect(INPUT_UPNP);
 #endif
         emit sig_choose_source(QString("Radio"));
+        //m_window->clearTrack();
     }
 
     if(mode == RPI_Upnp)
@@ -151,6 +159,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
         rpiGPIO->setInputSelect(INPUT_UPNP);
 #endif
         emit sig_choose_source(QString("Playlist"));
+        //m_window->clearTrack();
     }
 
     if(mode == RPI_Spdif)
@@ -158,6 +167,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 #ifdef __rpi__
         rpiGPIO->setInputSelect(INPUT_DAC);
 #endif
+        m_window->input(QString("Input %1").arg(m_spdifInput + 1));
     }
 
     if(mode == RPI_Standby)
@@ -169,7 +179,6 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 #endif
     }
     m_window->setCurrentIndex(mode);
-    emit GUIModeChanged(mode);
 }
 
 void RaspiDAC::really_close(bool value)
@@ -184,7 +193,15 @@ void RaspiDAC::setVolume(int vol)
 
 void RaspiDAC::update_track(const MetaData &in)
 {
+    qDebug() << "RaspiDAC::update_track: MetaData geändert: " << in.title;
     m_window->updateTrack(in);
+    m_MetaData = in;
+    prepareDatagram(true);
+}
+
+void RaspiDAC::applySavedMetaData()
+{
+    m_window->updateTrack(m_MetaData);
 }
 
 void RaspiDAC::setCurrentPosition(quint32 pos_sec)
@@ -196,18 +213,39 @@ void RaspiDAC::stopped()
 {
     m_playmode = RPI_Stop;
     m_window->stopped();
+    prepareDatagram();
 }
 
 void RaspiDAC::playing()
 {
+    if (getGUIMode() == RPI_Standby)
+    {
+        if (m_playlist) //Playlist bereits initialisiert
+        {
+        if (m_playlist->sourceType() == OHProductQO::OHPR_SourceRadio)
+            setGUIMode(RPI_Radio);
+        if (m_playlist->sourceType() == OHProductQO::OHPR_SourcePlaylist)
+            setGUIMode(RPI_Upnp);
+        }
+        else //versuche aus MetaData zu erkennen, ob Radio oder Playlist
+        {
+            if (m_MetaData.length_ms > 0)
+                setGUIMode(RPI_Upnp);
+            else
+                setGUIMode(RPI_Radio);
+        }
+        applySavedMetaData();
+    }
     m_playmode = RPI_Play;
     m_window->playing();
+    prepareDatagram();
 }
 
 void RaspiDAC::paused()
 {
     m_playmode = RPI_Pause;
     m_window->paused();
+    prepareDatagram();
 }
 
 void RaspiDAC::setVolumeUi(int volume_percent)
@@ -232,6 +270,9 @@ void RaspiDAC::setPlaylist(Rpi_Playlist *playlist)
             netAPIServer, SLOT(radioList(const QStringList&)));
     connect(m_playlist, SIGNAL(radioListChanged(const QStringList&)),
             m_menu, SLOT(setRadioList(const QStringList&)));
+    connect(m_playlist, SIGNAL(sig_source_type_changed(OHProductQO::SourceType)),
+            this, SLOT(onChangedSourceType(OHProductQO::SourceType)));
+    qDebug() << "RaspiDAC::setPlaylist";
 }
 
 void RaspiDAC::setLibraryWidget(QWidget *w)
@@ -267,5 +308,34 @@ void RaspiDAC::setStyle(int value)
 void RaspiDAC::show()
 {
     m_window->show();
+}
+
+void RaspiDAC::prepareDatagram(bool metadatahaschanged)
+{
+    UDPDatagram dtg;
+    dtg.playMode = m_playmode;
+    dtg.guiMode = getGUIMode();
+    dtg.metaDataHasChanged = metadatahaschanged;
+    dtg.spdifInput = m_spdifInput;
+
+    emit datagramm(dtg);
+}
+
+RaspiDAC::GUIMode RaspiDAC::getGUIMode()
+{
+    return (GUIMode)m_window->currentIndex();
+}
+
+MetaData& RaspiDAC::getMetaData()
+{
+    return m_MetaData;
+}
+
+void RaspiDAC::onChangedSourceType(OHProductQO::SourceType st)
+{
+    if (st == OHProductQO::OHPR_SourcePlaylist)
+        setGUIMode(RaspiDAC::RPI_Upnp);
+    if (st == OHProductQO::OHPR_SourceRadio)
+        setGUIMode(RaspiDAC::RPI_Radio);
 }
 

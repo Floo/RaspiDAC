@@ -26,7 +26,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="RaspiDAC.qrc">:/pics/resources/index.jpeg</pixmap>
+    <pixmap resource="../raspidac.qrc">:/pics/resources/index.jpeg</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -124,7 +124,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="RaspiDAC.qrc">:/pics/resources/stop.png</pixmap>
+    <pixmap resource="../raspidac.qrc">:/pics/resources/stop.png</pixmap>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -150,7 +150,7 @@
   </widget>
  </widget>
  <resources>
-  <include location="RaspiDAC.qrc"/>
+  <include location="../raspidac.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -38,6 +38,7 @@ public slots:
     void playing();
     void setCurrentPosition(quint32);
     void update_track(const MetaData& md);
+    void clear_track();
     void new_transport_state(int tps, const char *);
 
 private slots:

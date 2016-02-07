@@ -17,6 +17,7 @@ public:
     ~RadioWindow();
 
     void update_track(const MetaData& metadata);
+    void clear_track();
 
 public slots:
     void newStationName(QString);

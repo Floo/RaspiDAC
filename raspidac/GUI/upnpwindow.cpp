@@ -11,7 +11,7 @@ UpnpWindow::UpnpWindow(QWidget *parent) :
 
     m_ticker = new Ticker(this);
     m_ticker->setGeometry(0, 0, 240, 30);
-    m_ticker->move(10, 210);
+    m_ticker->move(20, 0);
 
     m_netmanager = new QNetworkAccessManager(this);
     connect(m_netmanager, SIGNAL(finished(QNetworkReply*)),
@@ -108,6 +108,19 @@ void UpnpWindow::update_track(const MetaData& md){
     m_metadata_available = true;
 
     this->repaint();
+}
+
+void UpnpWindow::clear_track()
+{
+    ui->lblAlbum->setText("");
+    ui->lblArtist->setText("Musicplayer");
+    ui->lblTitel->setText("");
+    ui->lblCurTime->setText("0:00");
+
+    m_ticker->stop();
+    m_ticker->setText("");
+
+    no_cover_available();
 }
 
 void UpnpWindow::fetch_cover(const QString& URI)

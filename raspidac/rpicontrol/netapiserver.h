@@ -2,8 +2,10 @@
 #define NETAPISERVER_H
 
 #include <QTcpServer>
+#include <QUdpSocket>
 
 #include "../raspidac.h"
+#include "helper.h"
 
 class RaspiDAC;
 
@@ -17,6 +19,9 @@ public:
     ~NetAPIServer();
     QString getGUIMode();
     QString getRadioList();
+    QString getMetaData();
+    QString getDatagram();
+    void setMetaData(MetaData &md);
 
 
 protected:
@@ -24,12 +29,12 @@ protected:
 
 private:
     RaspiDAC *m_rpi;
-    RaspiDAC::GUIMode m_GUIMode;
     QString m_RadioList;
+    UDPDatagram m_datagram;
 
 private slots:
-    void GUIMode(RaspiDAC::GUIMode);
     void radioList(const QStringList& list);
+    void sendDatagramm(UDPDatagram&);
 
 
 signals:

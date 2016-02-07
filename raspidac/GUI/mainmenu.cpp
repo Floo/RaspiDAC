@@ -97,6 +97,7 @@ void MainMenu::clear()
     foreach (MenuItem *lbl, lst)
     {
         m_vlayout->removeWidget(lbl);
+        delete lbl;
     }
 }
 

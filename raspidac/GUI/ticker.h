@@ -14,6 +14,7 @@ public:
     void setText(QString);
     void start();
     void stop();
+    void setPos(int x, int y);
 
 signals:
 
@@ -33,6 +34,7 @@ private:
     int m_interval;
     int m_textPosition;
     int m_textWidth;
+
 };
 
 #endif // TICKER_H

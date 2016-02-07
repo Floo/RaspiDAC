@@ -6,9 +6,6 @@ NetAPIServer::NetAPIServer(RaspiDAC *rpi_h, QObject *parent)
     : QTcpServer(parent), m_rpi(rpi_h)
 {
     qRegisterMetaType<RaspiDAC::GUIMode>("RaspiDAC::GUIMode");
-    connect(m_rpi, SIGNAL(GUIModeChanged(RaspiDAC::GUIMode)),
-            this, SLOT(GUIMode(RaspiDAC::GUIMode)));
-
 }
 
 NetAPIServer::~NetAPIServer()
@@ -17,7 +14,7 @@ NetAPIServer::~NetAPIServer()
 
 void NetAPIServer::incomingConnection(qintptr socketDescriptor)
 {
-    qDebug() << "Eingehende Verbindung";
+    qDebug() << "NetAPIServer::incomingConnection: Eingehende Verbindung";
     NetAPIThread *thread = new NetAPIThread(socketDescriptor, this); 
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     connect(thread, SIGNAL(setDACinput(int)), m_rpi , SLOT(setDACInput(int)));
@@ -36,10 +33,6 @@ void NetAPIServer::incomingConnection(qintptr socketDescriptor)
     thread->start();
 }
 
-void NetAPIServer::GUIMode(RaspiDAC::GUIMode h_mode)
-{
-    m_GUIMode = h_mode;
-}
 
 void NetAPIServer::radioList(const QStringList& h_list)
 {
@@ -48,7 +41,9 @@ void NetAPIServer::radioList(const QStringList& h_list)
 
 QString NetAPIServer::getGUIMode()
 {
-    switch (m_GUIMode) {
+    RaspiDAC::GUIMode guimode = m_rpi->getGUIMode();
+
+    switch (guimode) {
     case RaspiDAC::RPI_Standby:
         return "standby";
         break;
@@ -68,5 +63,33 @@ QString NetAPIServer::getRadioList()
 {
     return m_RadioList;
 }
+
+void NetAPIServer::sendDatagramm(UDPDatagram &dtg)
+{
+    qDebug() << "NetAPIServer::sendDatagramm";
+    m_datagram = dtg;
+    QUdpSocket *socket = new QUdpSocket();
+    QByteArray bytearray = QString("[RaspiDAC]").toUtf8();
+    bytearray.append(dtg.toDatagram().toUtf8());
+    socket->writeDatagram(bytearray, QHostAddress::Broadcast, 8001);
+    delete socket;
+}
+
+QString NetAPIServer::getMetaData()
+{
+    MetaData& md = m_rpi->getMetaData();
+    QString mdStr = md.album + ";"
+            + md.artist + ";"
+            + md.title + ";"
+            + md.albumArtURI + ";";
+    return mdStr;
+}
+
+QString NetAPIServer::getDatagram()
+{
+    return m_datagram.toDatagram();
+}
+
+
 
 

@@ -65,6 +65,12 @@ void MainWindow::updateTrack(const MetaData &metadata)
         m_radioWindow->update_track(metadata);
 }
 
+void MainWindow::clearTrack()
+{
+    m_upnpWindow->clear_track();
+    m_radioWindow->clear_track();
+}
+
 void MainWindow::upnp_setCurrentPosition(quint32 sec)
 {
     m_upnpWindow->setCurrentPosition(sec);

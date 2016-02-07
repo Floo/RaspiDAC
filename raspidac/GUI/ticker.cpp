@@ -66,6 +66,7 @@ void Ticker::stop()
 
 
 
+
 //void FontRunner::init()
 //{
 //    m_pTimerRunningText = new QTimer(this);
