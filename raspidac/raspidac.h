@@ -43,6 +43,9 @@ public:
     Q_ENUMS(PlayMode)
     GUIMode getGUIMode();
     MetaData &getMetaData();
+    OHProductQO::SourceType getSourceType();
+    QStringList* getRadioList();
+    void prepareDatagram(bool metadatahaschanged = false, bool radiolisthaschanged = false);
 
 signals:
     //-----Interface zu upplay
@@ -99,7 +102,7 @@ public slots:
     void setBacklight(int);
     void onTaster(int);
     void setRadio(int);
-    void onChangedSourceType(OHProductQO::SourceType);
+
 private:
     Rpi_Playlist *m_playlist;
     QWidget *m_playlistwidget;
@@ -111,7 +114,6 @@ private:
     MetaData m_MetaData;
     GUIMode m_lastMode;
     int m_spdifInput;
-    void prepareDatagram(bool metadatahaschanged = false);
     void applySavedMetaData();
 
 #ifdef __rpi__

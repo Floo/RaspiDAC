@@ -34,11 +34,6 @@ void NetAPIServer::incomingConnection(qintptr socketDescriptor)
 }
 
 
-void NetAPIServer::radioList(const QStringList& h_list)
-{
-    m_RadioList = h_list.join(";");
-}
-
 QString NetAPIServer::getGUIMode()
 {
     RaspiDAC::GUIMode guimode = m_rpi->getGUIMode();
@@ -61,7 +56,9 @@ QString NetAPIServer::getGUIMode()
 
 QString NetAPIServer::getRadioList()
 {
-    return m_RadioList;
+    QStringList *strlist = 0;
+    strlist = m_rpi->getRadioList();
+    return strlist->join(";");
 }
 
 void NetAPIServer::sendDatagramm(UDPDatagram &dtg)

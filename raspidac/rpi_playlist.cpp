@@ -1,7 +1,8 @@
 #include "rpi_playlist.h"
+#include "raspidac.h"
 
 Rpi_Playlist::Rpi_Playlist(QWidget *parent) :
-    QWidget(parent), _sourceType(OHProductQO::OHPR_SourceUnknown)
+    QWidget(parent)
 {
     m_playRowPending = -1;
 }
@@ -14,8 +15,20 @@ Rpi_Playlist::~Rpi_Playlist()
 
 void Rpi_Playlist::fillPlaylist(MetaDataList& v_metadata, int cur_play_idx, int)
 {
-    _mdl = v_metadata;
-
+    RaspiDAC *rpi = static_cast<RaspiDAC*>(parent());
+    OHProductQO::SourceType st = rpi->getSourceType();
+    qDebug() << "Rpi_Playlist::fillPlaylist: SourceType = " << st << " cur_play_idx = " << cur_play_idx;
+    if (st == OHProductQO::OHPR_SourceRadio)
+    {
+        if (st== OHProductQO::OHPR_SourceRadio) {
+            _radioList.clear();
+            foreach(MetaData md, v_metadata) {
+                _radioList.append(md.title);
+            }
+            emit radioListChanged(_radioList);
+            rpi->prepareDatagram(false, true);
+        }
+    }
 }
 
 void Rpi_Playlist::track_changed(int row)
@@ -47,31 +60,7 @@ void Rpi_Playlist::psl_next_group_html(QString html)
 
 }
 
-void Rpi_Playlist::sourceTypeChanged(OHProductQO::SourceType st)
+QStringList* Rpi_Playlist::getRadioList()
 {
-    qDebug() << "Rpi_Playlist::sourceTypeChanged: " << st;
-
-    if (m_playRowPending > -1){
-        emit row_activated(m_playRowPending);
-        m_playRowPending = -1;
-    }
-
-    if(st == _sourceType)
-        return;
-
-    _sourceType = st;
-
-    if (_sourceType == OHProductQO::OHPR_SourceRadio) {
-        _radioList.clear();
-        foreach(MetaData md, _mdl) {
-            _radioList.append(md.title);
-        }
-        emit radioListChanged(_radioList);
-    }
-    emit sig_source_type_changed(_sourceType);
-}
-
-QStringList Rpi_Playlist::getRadioList()
-{
-    return _radioList;
+    return &_radioList;
 }

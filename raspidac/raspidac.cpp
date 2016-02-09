@@ -74,7 +74,7 @@ void RaspiDAC::setBacklight(int value)
 void RaspiDAC::setRadio(int row)
 {
     setGUIMode(RPI_Radio);
-    if (m_playlist->sourceType() == OHProductQO::OHPR_SourceRadio) {
+    if (getSourceType() == OHProductQO::OHPR_SourceRadio) {
         emit m_playlist->row_activated(row);
     }
     else {
@@ -194,9 +194,13 @@ void RaspiDAC::setVolume(int vol)
 void RaspiDAC::update_track(const MetaData &in)
 {
     qDebug() << "RaspiDAC::update_track: MetaData geändert: " << in.title;
-    m_window->updateTrack(in);
-    m_MetaData = in;
-    prepareDatagram(true);
+    if ((getSourceType() == OHProductQO::OHPR_SourceRadio && m_playmode == RPI_Play) ||
+            getSourceType() == OHProductQO::OHPR_SourcePlaylist)
+    {
+        m_window->updateTrack(in);
+        m_MetaData = in;
+        prepareDatagram(true);
+    }
 }
 
 void RaspiDAC::applySavedMetaData()
@@ -218,24 +222,14 @@ void RaspiDAC::stopped()
 
 void RaspiDAC::playing()
 {
-    if (getGUIMode() == RPI_Standby)
-    {
-        if (m_playlist) //Playlist bereits initialisiert
-        {
-        if (m_playlist->sourceType() == OHProductQO::OHPR_SourceRadio)
-            setGUIMode(RPI_Radio);
-        if (m_playlist->sourceType() == OHProductQO::OHPR_SourcePlaylist)
-            setGUIMode(RPI_Upnp);
-        }
-        else //versuche aus MetaData zu erkennen, ob Radio oder Playlist
-        {
-            if (m_MetaData.length_ms > 0)
-                setGUIMode(RPI_Upnp);
-            else
-                setGUIMode(RPI_Radio);
-        }
-        applySavedMetaData();
-    }
+    if (getSourceType() == OHProductQO::OHPR_SourceRadio)
+        setGUIMode(RPI_Radio);
+    if (getSourceType() == OHProductQO::OHPR_SourcePlaylist)
+        setGUIMode(RPI_Upnp);
+//    if (getGUIMode() == RPI_Standby)
+//    {
+//        applySavedMetaData();
+//    }
     m_playmode = RPI_Play;
     m_window->playing();
     prepareDatagram();
@@ -260,19 +254,34 @@ void RaspiDAC::setMuteUi(bool value)
 
 void RaspiDAC::enableSourceSelect(bool value)
 {
-
+    qDebug() << "RaspiDAC::enableSourceSelect";
 }
 
 void RaspiDAC::setPlaylist(Rpi_Playlist *playlist)
 {
     m_playlist = playlist;
     connect(m_playlist, SIGNAL(radioListChanged(const QStringList&)),
-            netAPIServer, SLOT(radioList(const QStringList&)));
-    connect(m_playlist, SIGNAL(radioListChanged(const QStringList&)),
             m_menu, SLOT(setRadioList(const QStringList&)));
-    connect(m_playlist, SIGNAL(sig_source_type_changed(OHProductQO::SourceType)),
-            this, SLOT(onChangedSourceType(OHProductQO::SourceType)));
-    qDebug() << "RaspiDAC::setPlaylist";
+
+    MetaData md;
+    m_upapp->getIdleMeta(&md);
+
+    qDebug() << "RaspiDAC::setPlaylist :" << md.artist;
+
+    emit stop();
+    emit sig_choose_source(QString("Radio"));
+}
+
+OHProductQO::SourceType RaspiDAC::getSourceType()
+{
+    MetaData md;
+    m_upapp->getIdleMeta(&md);
+    if (md.artist.contains("(Radio)"))
+        return OHProductQO::OHPR_SourceRadio;
+    if (md.artist.contains("(Playlist)"))
+        return OHProductQO::OHPR_SourcePlaylist;
+
+    return OHProductQO::OHPR_SourceUnknown;
 }
 
 void RaspiDAC::setLibraryWidget(QWidget *w)
@@ -292,7 +301,7 @@ QWidget* RaspiDAC::getParentOfLibrary()
 
 QWidget* RaspiDAC::getParentOfPlaylist()
 {
-    return m_window;
+    return this;
 }
 
 void RaspiDAC::ui_loaded()
@@ -310,13 +319,14 @@ void RaspiDAC::show()
     m_window->show();
 }
 
-void RaspiDAC::prepareDatagram(bool metadatahaschanged)
+void RaspiDAC::prepareDatagram(bool metadatahaschanged, bool radiolisthaschanged)
 {
     UDPDatagram dtg;
     dtg.playMode = m_playmode;
     dtg.guiMode = getGUIMode();
     dtg.metaDataHasChanged = metadatahaschanged;
     dtg.spdifInput = m_spdifInput;
+    dtg.radioListHasChanged = radiolisthaschanged;
 
     emit datagramm(dtg);
 }
@@ -331,11 +341,8 @@ MetaData& RaspiDAC::getMetaData()
     return m_MetaData;
 }
 
-void RaspiDAC::onChangedSourceType(OHProductQO::SourceType st)
+QStringList* RaspiDAC::getRadioList()
 {
-    if (st == OHProductQO::OHPR_SourcePlaylist)
-        setGUIMode(RaspiDAC::RPI_Upnp);
-    if (st == OHProductQO::OHPR_SourceRadio)
-        setGUIMode(RaspiDAC::RPI_Radio);
+    return m_playlist->getRadioList();
 }
 

@@ -18,12 +18,9 @@ public:
     //-----Interface zu upplay
 
     //-----Ende Interface
-    QStringList getRadioList();
+    QStringList* getRadioList();
     void setPlayRowPending(int row) {
         m_playRowPending = row;
-    }
-    OHProductQO::SourceType sourceType() {
-        return _sourceType;
     }
 
 signals:
@@ -47,7 +44,6 @@ signals:
     //-----Ende Interface
 
     void radioListChanged(const QStringList&);
-    void sig_source_type_changed(OHProductQO::SourceType);
 
 public slots:
     //-----Interface zu upplay
@@ -58,13 +54,9 @@ public slots:
     void psl_show_small_playlist_items(bool small_items);
     void psl_next_group_html(QString html);
     //-----Ende Interface
-    void sourceTypeChanged(OHProductQO::SourceType);
 private:
     Playlist_Mode _playlist_mode;
-    OHProductQO::SourceType _sourceType;
     QStringList _radioList;
-    QStringList _playList;
-    MetaDataList _mdl;
     int m_playRowPending;
 
 };

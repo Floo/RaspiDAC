@@ -372,8 +372,6 @@ bool Application::setupRenderer(const string& uid)
         m_ohpro = new OHProductQO(ohpr);
         connect(m_ohpro, SIGNAL(sourceTypeChanged(OHProductQO::SourceType)),
                 this, SLOT(onSourceTypeChanged(OHProductQO::SourceType)));
-        connect(m_ohpro, SIGNAL(sourceTypeChanged(OHProductQO::SourceType)),
-                m_ui_playlist, SLOT(sourceTypeChanged(OHProductQO::SourceType)));
         // Create appropriate Playlist object depending on type of source
         createPlaylistForOpenHomeSource();
 

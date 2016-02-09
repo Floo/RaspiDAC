@@ -33,7 +33,6 @@ private:
     UDPDatagram m_datagram;
 
 private slots:
-    void radioList(const QStringList& list);
     void sendDatagramm(UDPDatagram&);
 
 
