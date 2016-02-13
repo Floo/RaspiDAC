@@ -135,6 +135,7 @@ int MainMenu::getActivatedRow()
         }
         i++;
     }
+    return 0;
 }
 
 void MainMenu::hideMenu()

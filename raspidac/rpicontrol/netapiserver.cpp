@@ -52,6 +52,7 @@ QString NetAPIServer::getGUIMode()
         return "radio";
         break;
     }
+    return "";
 }
 
 QString NetAPIServer::getRadioList()

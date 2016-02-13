@@ -4,13 +4,19 @@
 #
 #-------------------------------------------------
 
-QT       += core gui script webkit network xml
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets
+#QT       += core gui script webkit network xml
+#greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets
+
+QT       += core gui script network xml
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = RaspiDAC
 TEMPLATE = app
 LANGUAGE = C++
 INSTALLS += target
+
+
+VERSION = 1.0.0
 
 QMAKE_CXXFLAGS += -std=c++0x  -DUPPLAY_VERSION=\\\"$$VERSION\\\" -Wno-psabi
 #QMAKE_CXXFLAGS += -DUSING_WEBENGINE
@@ -177,12 +183,18 @@ contains(QT_ARCH,arm):{
     LIBS += -lwiringPi -L/usr/local/lib
     HEADERS += raspidac/rpicontrol/rpigpio.h
     SOURCES +=     raspidac/rpicontrol/rpigpio.cpp
+    RENDERER = RaspiDAC
 }
 else{
     message("x86_64 System")
+    RENDERER = LinuxUpMpd
+    #RENDERER = RaspiDAC
 }
 
+QMAKE_CXXFLAGS += -DRENDERER_NAME=\\\"$$RENDERER\\\"
+
 INCLUDEPATH += /usr/local/include
+INCLUDEPATH += /usr/include
 
 DISTFILES +=
 

@@ -44,6 +44,7 @@ public:
     GUIMode getGUIMode();
     MetaData &getMetaData();
     OHProductQO::SourceType getSourceType();
+    QString getRendererByName();
     QStringList* getRadioList();
     void prepareDatagram(bool metadatahaschanged = false, bool radiolisthaschanged = false);
 
@@ -104,10 +105,10 @@ public slots:
     void setRadio(int);
 
 private:
+    Application *m_upapp;
     Rpi_Playlist *m_playlist;
     QWidget *m_playlistwidget;
     QWidget *m_librarywidget;
-    Application *m_upapp;
     MainWindow *m_window;
     Menu *m_menu;
     PlayMode m_playmode;
@@ -115,6 +116,7 @@ private:
     GUIMode m_lastMode;
     int m_spdifInput;
     void applySavedMetaData();
+    QString m_rendererName;
 
 #ifdef __rpi__
     RPiGPIO *rpiGPIO;

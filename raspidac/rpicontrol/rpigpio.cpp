@@ -57,7 +57,7 @@ RPiGPIO::RPiGPIO()
     setRelais(REL_OFF);
     setRC5direct(RC5_DIRECT_OFF);
 
-    connect(this, &RPiGPIO::taster1, this, &RPiGPIO::toggleLED);
+    //connect(this, &RPiGPIO::taster1, this, &RPiGPIO::toggleLED);
 
     pca9530Setup();
     cs8416Setup();

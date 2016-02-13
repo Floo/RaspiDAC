@@ -213,7 +213,7 @@ void Application::chooseRenderer()
     for (vector<UPnPDeviceDesc>::iterator it = devices.begin();
          it != devices.end(); it++) {
         QString fname = u8s2qs(it->friendlyName);
-        if(!fname.compare("RaspiDAC")){
+        if(!fname.compare(RENDERER_NAME)){
             MetaDataList curmeta;
             if (m_playlist) {
                 m_playlist->get_metadata(curmeta);

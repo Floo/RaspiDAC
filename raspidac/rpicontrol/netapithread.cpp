@@ -236,6 +236,7 @@ RaspiDAC::GUIMode NetAPIThread::mode(const QString &cmd)
     {
         return RaspiDAC::RPI_Spdif;
     }
+    return RaspiDAC::RPI_Standby;
 }
 
 

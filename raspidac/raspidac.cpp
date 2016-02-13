@@ -11,6 +11,7 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
 #ifdef __rpi__
     rpiGPIO = new RPiGPIO();
 #endif
+    m_rendererName = RENDERER_NAME;
     m_playmode = RPI_Stop;
     m_window = new MainWindow();
     m_window->setCurrentIndex(RPI_Standby);
@@ -36,6 +37,9 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
             this, SLOT(setRadio(int)));
     connect(this, SIGNAL(datagramm(UDPDatagram&)),
             netAPIServer, SLOT(sendDatagramm(UDPDatagram&)));
+#ifdef __rpi__
+    connect(rpiGPIO, SIGNAL(taster(int)), this, SLOT(onTaster(int)));
+#endif
 }
 
 RaspiDAC::~RaspiDAC()
@@ -58,6 +62,7 @@ void RaspiDAC::setSPDIFInput(int value)
 #ifdef __rpi__
     rpiGPIO->setCS8416InputSelect(value);
 #endif
+    m_window->input(QString("Input %1").arg(m_spdifInput + 1));
     prepareDatagram();
 }
 
@@ -179,14 +184,15 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 #endif
     }
     m_window->setCurrentIndex(mode);
+    prepareDatagram();
 }
 
-void RaspiDAC::really_close(bool value)
+void RaspiDAC::really_close(bool)
 {
 
 }
 
-void RaspiDAC::setVolume(int vol)
+void RaspiDAC::setVolume(int)
 {
 
 }
@@ -242,17 +248,17 @@ void RaspiDAC::paused()
     prepareDatagram();
 }
 
-void RaspiDAC::setVolumeUi(int volume_percent)
+void RaspiDAC::setVolumeUi(int)
 {
 
 }
 
-void RaspiDAC::setMuteUi(bool value)
+void RaspiDAC::setMuteUi(bool)
 {
 
 }
 
-void RaspiDAC::enableSourceSelect(bool value)
+void RaspiDAC::enableSourceSelect(bool)
 {
     qDebug() << "RaspiDAC::enableSourceSelect";
 }
@@ -284,6 +290,31 @@ OHProductQO::SourceType RaspiDAC::getSourceType()
     return OHProductQO::OHPR_SourceUnknown;
 }
 
+QString RaspiDAC::getRendererByName()
+{
+    MetaData md;
+    m_upapp->getIdleMeta(&md);
+    if (md.artist.contains("No renderer connected"))
+    {
+        return QString("");
+    }
+    else
+    {
+        QString name = md.artist;
+        name.remove("Renderer: ");
+       int end = name.indexOf("(");
+       if (end == -1)
+       {
+           return name;
+       }
+       else
+       {
+           name.chop(name.size() - end);
+           return name;
+       }
+    }
+}
+
 void RaspiDAC::setLibraryWidget(QWidget *w)
 {
      m_librarywidget = w;
@@ -306,10 +337,14 @@ QWidget* RaspiDAC::getParentOfPlaylist()
 
 void RaspiDAC::ui_loaded()
 {
-
+    if (!getRendererByName().contains(m_rendererName))
+    {
+        qDebug() << "RaspiDAC::ui_loaded: chooseRenderer";
+        m_upapp->chooseRenderer();
+    }
 }
 
-void RaspiDAC::setStyle(int value)
+void RaspiDAC::setStyle(int)
 {
 
 }

@@ -2,8 +2,8 @@
 #include "mainmenu.h"
 
 Menu::Menu(QWidget *parent) :
-    QObject(parent), m_parent(parent), m_radioLevel(0), m_inputLevel(0),
-    m_setupLevel(0)
+    QObject(parent),  m_radioLevel(0), m_inputLevel(0),
+    m_setupLevel(0), m_parent(parent)
 {
     m_timer = new QTimer();
     m_timer->setSingleShot(true);
@@ -81,8 +81,8 @@ void Menu::btnMenuPressed()
     if (m_firstLevel->isHidden()) {
         m_firstLevel->showMenu(1);
     }
-    else if ((m_radioLevel && m_radioLevel->isHidden()) &&
-             (m_inputLevel && m_inputLevel->isHidden()) ||
+    else if (((m_radioLevel && m_radioLevel->isHidden()) &&
+             (m_inputLevel && m_inputLevel->isHidden())) ||
              (!m_radioLevel && m_inputLevel && m_inputLevel->isHidden()) ||
              (!m_inputLevel && m_radioLevel && m_radioLevel->isHidden()) ||
              (!m_radioLevel && !m_inputLevel)) {

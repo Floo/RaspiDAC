@@ -31,7 +31,7 @@ void Rpi_Playlist::fillPlaylist(MetaDataList& v_metadata, int cur_play_idx, int)
     }
 }
 
-void Rpi_Playlist::track_changed(int row)
+void Rpi_Playlist::track_changed(int)
 {
 
 }
@@ -50,12 +50,12 @@ void Rpi_Playlist::setPlayerMode(Playlist_Mode mode)
     _playlist_mode.shuffle = mode.shuffle;
 }
 
-void Rpi_Playlist::psl_show_small_playlist_items(bool small_items)
+void Rpi_Playlist::psl_show_small_playlist_items(bool)
 {
 
 }
 
-void Rpi_Playlist::psl_next_group_html(QString html)
+void Rpi_Playlist::psl_next_group_html(QString)
 {
 
 }
