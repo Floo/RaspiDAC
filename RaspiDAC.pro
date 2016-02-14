@@ -194,7 +194,7 @@ else{
 QMAKE_CXXFLAGS += -DRENDERER_NAME=\\\"$$RENDERER\\\"
 
 INCLUDEPATH += /usr/local/include
-INCLUDEPATH += /usr/include
+#INCLUDEPATH += /usr/include
 
 DISTFILES +=
 

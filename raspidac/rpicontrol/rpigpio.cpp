@@ -1,32 +1,57 @@
 #include "rpigpio.h"
 
 #ifdef __rpi__
-RPiGPIO *rpiGPIO;
+RPiTaster *rpiTaster;
 
 void cbTaster1()
 {
     qDebug() << "Taster1 gedrückt";
-    emit rpiGPIO->taster(1);;
+    rpiTaster->taster(1);;
 }
 
 void cbTaster2()
 {
     qDebug() << "Taster2 gedrückt";
-    emit rpiGPIO->taster(2);
+    rpiTaster->taster(2);
 }
 
 void cbTaster3()
 {
     qDebug() << "Taster3 gedrückt";
-    emit rpiGPIO->taster(3);
+    rpiTaster->taster(3);
 }
 
 void cbTaster4()
 {
     qDebug() << "Taster4 gedrückt";
-    emit rpiGPIO->taster(4);
+    rpiTaster->taster(4);
 }
 #endif
+
+RPiTaster::RPiTaster(RPiGPIO *gpio)
+{
+    m_gpio = gpio;
+    wiringPiISR(GPIO05, INT_EDGE_FALLING, &cbTaster1);
+    wiringPiISR(GPIO06, INT_EDGE_FALLING, &cbTaster3);
+    wiringPiISR(GPIO13, INT_EDGE_FALLING, &cbTaster2);
+    wiringPiISR(GPIO12, INT_EDGE_FALLING, &cbTaster4);
+
+    m_debouncetime.start();
+}
+
+RPiTaster::~RPiTaster()
+{
+
+}
+
+void RPiTaster::taster(int ts)
+{
+    if (m_debouncetime.restart() > 100)
+    {
+        emit m_gpio->taster(ts);
+    }
+}
+
 
 class RPiGPIO::Internal
 {
@@ -45,10 +70,8 @@ RPiGPIO::RPiGPIO()
     else
         qDebug() << "Fehler bei Initialsierung von wiringPi. Errorcode: " << ret;
 
-    wiringPiISR(GPIO05, INT_EDGE_FALLING, &cbTaster1);
-    wiringPiISR(GPIO06, INT_EDGE_FALLING, &cbTaster2);
-    wiringPiISR(GPIO13, INT_EDGE_FALLING, &cbTaster3);
-    wiringPiISR(GPIO12, INT_EDGE_FALLING, &cbTaster4);
+
+    rpiTaster = new RPiTaster(this);
 
     m = new Internal();
 
@@ -56,8 +79,6 @@ RPiGPIO::RPiGPIO()
     setInputSelect(INPUT_UPNP);
     setRelais(REL_OFF);
     setRC5direct(RC5_DIRECT_OFF);
-
-    //connect(this, &RPiGPIO::taster1, this, &RPiGPIO::toggleLED);
 
     pca9530Setup();
     cs8416Setup();

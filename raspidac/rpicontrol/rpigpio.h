@@ -5,12 +5,13 @@
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 #include <QDebug>
+#include <QTime>
 
 #define GPIO04 4    //Input-Select
 #define GPIO27 27   //RC5-direct
 #define GPIO05 5    //Taster1
-#define GPIO06 6    //Taster2
-#define GPIO13 13   //Taster3
+#define GPIO06 6    //Taster3
+#define GPIO13 13   //Taster2
 #define GPIO12 12   //Taster4
 #define GPIO23 23   //Relais
 #define GPIO26 26   //LED_Power
@@ -46,6 +47,25 @@
 #define BACKLIGHT_MAX   0
 #define BACKLIGHT_DIMM  200
 #define BACKLIGHT_MIN   255
+
+class RPiGPIO;
+
+class RPiTaster : public QObject
+{
+    Q_OBJECT
+
+public:
+    RPiTaster(RPiGPIO*);
+    ~RPiTaster();
+
+    void taster(int);
+
+private:
+    RPiGPIO *m_gpio;
+    QTime m_debouncetime;
+
+private slots:
+};
 
 
 class RPiGPIO : public QObject
