@@ -48,7 +48,7 @@ void RPiTaster::taster(int ts)
 {
     if (m_debouncetime.restart() > 100)
     {
-        if ((ts == 3) && (digitalRead(GPIO13) == 1))
+        if ((ts == 3) && (digitalRead(GPIO13) == 0))
             //gleichzeitige Tastenbetätigung
             emit m_gpio->taster_shutdown();
         else
