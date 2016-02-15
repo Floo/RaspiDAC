@@ -14,7 +14,6 @@ NetAPIServer::~NetAPIServer()
 
 void NetAPIServer::incomingConnection(qintptr socketDescriptor)
 {
-    qDebug() << "NetAPIServer::incomingConnection: Eingehende Verbindung";
     NetAPIThread *thread = new NetAPIThread(socketDescriptor, this); 
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     connect(thread, SIGNAL(setDACinput(int)), m_rpi , SLOT(setDACInput(int)));

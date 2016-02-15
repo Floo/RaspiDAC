@@ -177,6 +177,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 
     if(mode == RPI_Standby)
     {
+        emit pause();
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_OFF);
         rpiGPIO->setBacklight(BACKLIGHT_DIMM);
@@ -200,11 +201,11 @@ void RaspiDAC::setVolume(int)
 void RaspiDAC::update_track(const MetaData &in)
 {
     qDebug() << "RaspiDAC::update_track: MetaData geändert: " << in.title;
+    m_MetaData = in;
     if ((getSourceType() == OHProductQO::OHPR_SourceRadio && m_playmode == RPI_Play) ||
             getSourceType() == OHProductQO::OHPR_SourcePlaylist)
     {
         m_window->updateTrack(in);
-        m_MetaData = in;
         prepareDatagram(true);
     }
 }
@@ -232,11 +233,9 @@ void RaspiDAC::playing()
         setGUIMode(RPI_Radio);
     if (getSourceType() == OHProductQO::OHPR_SourcePlaylist)
         setGUIMode(RPI_Upnp);
-//    if (getGUIMode() == RPI_Standby)
-//    {
-//        applySavedMetaData();
-//    }
+
     m_playmode = RPI_Play;
+    applySavedMetaData();
     m_window->playing();
     prepareDatagram();
 }
