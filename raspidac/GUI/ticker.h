@@ -12,28 +12,35 @@ public:
     explicit Ticker(QWidget *parent = 0);
     ~Ticker();
     void setText(QString);
-    void start();
     void stop();
-    void setPos(int x, int y);
 
 signals:
 
 private slots:
     void updateTicker();
+    void restart();
 
 public slots:
+    void start();
 
 protected:
     void paintEvent(QPaintEvent *event);
 
 private:
     QTimer *m_tickerTimer;
-    QString *m_tickerText;
+    QTimer *m_pauseTimer;
     QFont *m_font;
     QFontMetrics *m_fontMetrics;
     int m_interval;
+    int m_pauseInterval;
     int m_textPosition;
     int m_textWidth;
+    QString m_tickerText;
+
+    QString m_tickerSpace;
+    int m_spaceWidth;
+    int m_doubleTextWidth;
+
 
 };
 

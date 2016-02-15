@@ -39,7 +39,9 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
             netAPIServer, SLOT(sendDatagramm(UDPDatagram&)));
 #ifdef __rpi__
     connect(rpiGPIO, SIGNAL(taster(int)), this, SLOT(onTaster(int)));
+    connect(rpiGPIO, SIGNAL(taster_shutdown()), this, SLOT(onTasterShutdown()));
 #endif
+
 }
 
 RaspiDAC::~RaspiDAC()
@@ -378,5 +380,11 @@ MetaData& RaspiDAC::getMetaData()
 QStringList* RaspiDAC::getRadioList()
 {
     return m_playlist->getRadioList();
+}
+
+void RaspiDAC::onTasterShutdown()
+{
+    qDebug() << "Shutdown";
+    system("shutdown -h now");
 }
 

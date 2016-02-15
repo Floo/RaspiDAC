@@ -102,6 +102,7 @@ public slots:
     void setGUIMode(RaspiDAC::GUIMode mode);
     void setBacklight(int);
     void onTaster(int);
+    void onTasterShutdown();
     void setRadio(int);
 
 private:

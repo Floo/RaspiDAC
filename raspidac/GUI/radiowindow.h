@@ -8,6 +8,9 @@ namespace Ui {
 class RadioWindow;
 }
 
+class AlbumArtLoader;
+class Ticker;
+
 class RadioWindow : public QWidget
 {
     Q_OBJECT
@@ -25,6 +28,8 @@ public slots:
 
 private:
     Ui::RadioWindow *ui;
+    AlbumArtLoader *m_albumartloader;
+    Ticker *m_stationtext;
 };
 
 #endif // RADIOWINDOW_H

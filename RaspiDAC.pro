@@ -82,7 +82,9 @@ SOURCES += \
     raspidac/rpi_playlist.cpp \
     raspidac/GUI/menuitem.cpp \
     raspidac/GUI/mainmenu.cpp \
-    raspidac/GUI/menu.cpp
+    raspidac/GUI/menu.cpp \
+    raspidac/GUI/progressbar.cpp \
+    raspidac/GUI/albumartloader.cpp
 
 HEADERS  += \
 #    GUI/mainw/mainw.h \
@@ -162,7 +164,9 @@ HEADERS  += \
     raspidac/GUI/mainmenu.h \
     raspidac/GUI/menu.h \
     HelperStructs/MetaData.h \
-    raspidac/rpicontrol/helper.h
+    raspidac/rpicontrol/helper.h \
+    raspidac/GUI/progressbar.h \
+    raspidac/GUI/albumartloader.h
 
 FORMS  += \
     raspidac/GUI/mainwindow.ui \

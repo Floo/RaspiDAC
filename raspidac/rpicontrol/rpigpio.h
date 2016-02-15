@@ -97,6 +97,7 @@ public slots:
 
 signals:
     void taster(int);
+    void taster_shutdown();
 
 private:
     class Internal;
