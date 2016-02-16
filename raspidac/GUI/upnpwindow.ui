@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>210</x>
-     <y>30</y>
+     <y>50</y>
      <width>261</width>
      <height>261</height>
     </rect>
@@ -36,7 +36,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>130</y>
+     <y>100</y>
      <width>171</width>
      <height>16</height>
     </rect>
@@ -54,15 +54,16 @@
   <widget class="QLabel" name="lblCurTime">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>280</y>
-     <width>191</width>
+     <x>20</x>
+     <y>275</y>
+     <width>181</width>
      <height>16</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>Noto Sans [unknown]</family>
+     <pointsize>9</pointsize>
     </font>
    </property>
    <property name="text">
@@ -73,7 +74,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>90</y>
+     <y>80</y>
      <width>171</width>
      <height>16</height>
     </rect>
@@ -92,7 +93,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>210</y>
+     <y>200</y>
      <width>51</width>
      <height>41</height>
     </rect>
@@ -111,7 +112,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>50</y>
+     <y>60</y>
      <width>171</width>
      <height>16</height>
     </rect>
@@ -126,11 +127,11 @@
     <string>Artist</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="lblBitrate">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>35</y>
+     <y>130</y>
      <width>59</width>
      <height>17</height>
     </rect>
@@ -141,43 +142,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Artist:</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>75</y>
-     <width>59</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>8</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Album:</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_3">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>115</y>
-     <width>59</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>8</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Titel:</string>
+    <string>Bitrate</string>
    </property>
   </widget>
  </widget>

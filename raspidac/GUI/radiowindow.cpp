@@ -10,11 +10,21 @@ RadioWindow::RadioWindow(QWidget *parent) :
     ui->setupUi(this);
 
     m_albumartloader = new AlbumArtLoader(this);
-    m_stationtext = new Ticker(this);
-    m_stationtext->setGeometry(ui->lblStationtext->geometry());
-    m_stationtext->move(ui->lblStationtext->pos());
-    ui->lblStationtext->setVisible(false);
 
+    m_stationName = new Ticker(this);
+    m_stationName->setLength(421);
+    m_stationName->setPos(30, 60);
+    m_stationName->setFontSize(20, true);
+
+    m_stationText = new Ticker(this);
+    m_stationText->setLength(421);
+    m_stationText->setPos(30, 110);
+    m_stationText->setFontSize(14, false);
+
+    m_nowPlaying = new Ticker(this);
+    m_nowPlaying->setLength(421);
+    m_nowPlaying->setPos(30, 140);
+    m_nowPlaying->setFontSize(14, false);
 }
 
 RadioWindow::~RadioWindow()
@@ -25,7 +35,7 @@ RadioWindow::~RadioWindow()
 
 void RadioWindow::newStationName(QString stationname)
 {
-    ui->lblStationname->setText(stationname);
+    m_stationName->setText(stationname);
 }
 
 void RadioWindow::newRadioState(QString state)
@@ -42,12 +52,14 @@ void RadioWindow::update_track(const MetaData& md)
 {
     if (md.length_ms < 1)
     {
-        ui->lblStationname->setText(md.album);
-        //ui->lblStationtext->setText(md.artist);
-        m_stationtext->setText(md.artist);
-        m_stationtext->start();
+        m_stationName->setText(md.album);
+        m_stationName->start();
 
-        ui->lblNowPlaying->setText(md.title);
+        m_stationText->setText(md.artist);
+        m_stationText->start();
+
+        m_nowPlaying->setText(md.title);
+        m_nowPlaying->start();
 
         m_albumartloader->fetchAlbumArt(md.albumArtURI, ui->lblAlbumArt);
     }
@@ -55,9 +67,9 @@ void RadioWindow::update_track(const MetaData& md)
 
 void RadioWindow::clear_track()
 {
-    ui->lblStationname->setText("");
-    ui->lblStationtext->setText("");
-    ui->lblNowPlaying->setText("");
+    m_stationName->setText("");
+    m_stationText->setText("");
+    m_nowPlaying->setText("");
 
     ui->lblAlbumArt->setPixmap(QPixmap(QString(":/pics/resources/logo.png")));
 }

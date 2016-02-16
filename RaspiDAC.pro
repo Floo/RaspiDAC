@@ -84,7 +84,8 @@ SOURCES += \
     raspidac/GUI/mainmenu.cpp \
     raspidac/GUI/menu.cpp \
     raspidac/GUI/progressbar.cpp \
-    raspidac/GUI/albumartloader.cpp
+    raspidac/GUI/albumartloader.cpp \
+    raspidac/GUI/messagewindow.cpp
 
 HEADERS  += \
 #    GUI/mainw/mainw.h \
@@ -166,7 +167,8 @@ HEADERS  += \
     HelperStructs/MetaData.h \
     raspidac/rpicontrol/helper.h \
     raspidac/GUI/progressbar.h \
-    raspidac/GUI/albumartloader.h
+    raspidac/GUI/albumartloader.h \
+    raspidac/GUI/messagewindow.h
 
 FORMS  += \
     raspidac/GUI/mainwindow.ui \
@@ -174,7 +176,8 @@ FORMS  += \
     raspidac/GUI/spdifwindow.ui \
     raspidac/GUI/standbywindow.ui \
     raspidac/GUI/upnpwindow.ui \
-    GUI/songcast/songcastdlg.ui
+    GUI/songcast/songcastdlg.ui \
+    raspidac/GUI/messagewindow.ui
 
 RESOURCES += \
     raspidac/raspidac.qrc

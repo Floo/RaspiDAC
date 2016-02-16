@@ -27,7 +27,7 @@ void AlbumArtLoader::fetchAlbumArt(const QString& URI, QLabel *label)
 
 void AlbumArtLoader::sl_cover_fetch_done(QNetworkReply* reply)
 {
-    qDebug() << "GUI_Player::sl_cover_fetch_done";
+    //qDebug() << "GUI_Player::sl_cover_fetch_done";
     if (reply->error() != QNetworkReply::NoError) {
         no_cover_available();
         return;

@@ -65,7 +65,7 @@ QString NetAPIThread::parser(const QString &command)
     QStringList get_commands;
     set_commands << "rc5direct" << "standby" << "dacinput" << "mode" << "pm8000"
                  << "radio" << "backlight" << "spdifinput" << "play" << "pause"
-                 << "next" << "previous" << "stop" << "taster";
+                 << "next" << "previous" << "stop" << "taster" << "shutdown";
     get_commands << "status" << "radiolist" << "metadata";
 
     qDebug() << "NetAPIThread::parser: " << command;
@@ -173,6 +173,10 @@ QString NetAPIThread::parser(const QString &command)
                 emit taster(subcommand.at(2).toInt());
                 reply = "OK";
                 break;
+            case 14: //shutdown
+                emit tasterZweitbelegung(2);
+                reply = "OK";
+                break;
             }
         }
     }
@@ -211,6 +215,14 @@ int NetAPIThread::onoff(const QString &cmd, bool invers)
     else if (cmd.compare("off", Qt::CaseInsensitive) == 0)
     {
         return invers?1:0;
+    }
+    else if (cmd.compare("upnp", Qt::CaseInsensitive) == 0)
+    {
+        return 1;
+    }
+    else if (cmd.compare("spdif", Qt::CaseInsensitive) == 0)
+    {
+        return 0;
     }
     else
     {

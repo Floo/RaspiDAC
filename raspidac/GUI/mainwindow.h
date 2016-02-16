@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 
 #include "../raspidac.h"
 
@@ -9,6 +10,7 @@ class StandbyWindow;
 class RadioWindow;
 class UpnpWindow;
 class SpdifWindow;
+class MessageWindow;
 
 namespace Ui {
 class MainWindow;
@@ -30,12 +32,14 @@ public:
     void paused();
     void stopped();
     void input(QString);
+    void showMessage(QString &msg);
 
 signals:
-
+    void messageWindowClosed();
 
 public slots:
     void setCurrentIndex(int index);
+    void hideMessage();
 
 private:
     Ui::MainWindow *ui;
@@ -43,7 +47,12 @@ private:
     RadioWindow *m_radioWindow;
     UpnpWindow *m_upnpWindow;
     SpdifWindow *m_spdifWindow;
+    MessageWindow *m_messageWindow;
     int addWidget(QWidget *widget);
+    int m_lastWindow;
+    int m_msgwID;
+
+    QTimer *m_msgTimer;
 
     QFile *m_res;
     QFont *m_font;

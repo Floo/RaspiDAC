@@ -4,6 +4,8 @@
 #include "radiowindow.h"
 #include "standbywindow.h"
 #include "spdifwindow.h"
+#include "messagewindow.h"
+
 #include "../raspidac.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -25,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_upnpWindow = new UpnpWindow();
     m_radioWindow = new RadioWindow();
     m_spdifWindow = new SpdifWindow();
+    m_messageWindow = new MessageWindow();
 
     if (addWidget(m_standbyWindow) != RaspiDAC::RPI_Standby)
         qDebug() << "Fehler bei Zuordung der GUI-Windows";
@@ -34,6 +37,12 @@ MainWindow::MainWindow(QWidget *parent) :
         qDebug() << "Fehler bei Zuordung der GUI-Windows";
     if (addWidget(m_spdifWindow) != RaspiDAC::RPI_Spdif)
         qDebug() << "Fehler bei Zuordung der GUI-Windows";
+    m_msgwID = addWidget(m_messageWindow);
+
+    m_msgTimer = new QTimer();
+    m_msgTimer->setSingleShot(true);
+    m_msgTimer->setInterval(5000);
+    connect(m_msgTimer, SIGNAL(timeout()), this, SLOT(hideMessage()));
 }
 
 
@@ -49,11 +58,19 @@ int MainWindow::addWidget(QWidget *widget)
 
 void MainWindow::setCurrentIndex(int index)
 {
+    if (ui->stackedWidget->currentIndex() == m_msgwID)
+    {
+        m_lastWindow = index;
+    }
     ui->stackedWidget->setCurrentIndex(index);
 }
 
 int MainWindow::currentIndex()
 {
+    if (ui->stackedWidget->currentIndex() == m_msgwID)
+    {
+        return m_lastWindow;
+    }
     return ui->stackedWidget->currentIndex();
 }
 
@@ -97,4 +114,26 @@ void MainWindow::paused()
 void MainWindow::input(QString txt)
 {
     m_spdifWindow->setInput(txt);
+}
+
+void MainWindow::showMessage(QString &msg)
+{
+    m_messageWindow->setMessage(msg);
+    m_msgTimer->start();
+    if (ui->stackedWidget->currentIndex() == m_msgwID)
+    {
+        return;
+    }
+    m_lastWindow = ui->stackedWidget->currentIndex();
+    ui->stackedWidget->setCurrentIndex(m_msgwID);
+}
+
+void MainWindow::hideMessage()
+{
+    if (ui->stackedWidget->currentIndex() == m_msgwID)
+    {
+        ui->stackedWidget->setCurrentIndex(m_lastWindow);
+    }
+    m_msgTimer->stop();
+    emit messageWindowClosed();
 }

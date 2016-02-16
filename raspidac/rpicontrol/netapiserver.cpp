@@ -28,6 +28,7 @@ void NetAPIServer::incomingConnection(qintptr socketDescriptor)
     connect(thread, SIGNAL(setStop()), m_rpi, SIGNAL(stop()));
     connect(thread, SIGNAL(setRadio(int)), m_rpi, SLOT(setRadio(int)));
     connect(thread, SIGNAL(taster(int)), m_rpi, SLOT(onTaster(int)));
+    connect(thread, SIGNAL(tasterZweitbelegung(int)), m_rpi, SLOT(onTasterZweitbelegung(int)));
 
     thread->start();
 }
@@ -63,7 +64,7 @@ QString NetAPIServer::getRadioList()
 
 void NetAPIServer::sendDatagramm(UDPDatagram &dtg)
 {
-    qDebug() << "NetAPIServer::sendDatagramm";
+    //qDebug() << "NetAPIServer::sendDatagramm";
     m_datagram = dtg;
     QUdpSocket *socket = new QUdpSocket();
     QByteArray bytearray = QString("[RaspiDAC]").toUtf8();

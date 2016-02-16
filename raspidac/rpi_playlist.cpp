@@ -28,6 +28,12 @@ void Rpi_Playlist::fillPlaylist(MetaDataList& v_metadata, int cur_play_idx, int)
             emit radioListChanged(_radioList);
             rpi->prepareDatagram(false, true);
         }
+        if (m_playRowPending > -1)
+        {
+            qDebug() << "!!!!!Rpi_Playlist::fillPlaylist: PlayPendingRadioSation";
+            row_activated(m_playRowPending);
+            m_playRowPending = -1;
+        }
     }
 }
 

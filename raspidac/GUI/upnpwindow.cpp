@@ -13,12 +13,13 @@ UpnpWindow::UpnpWindow(QWidget *parent) :
     ui->setupUi(this);
 
     m_ticker = new Ticker(this);
-    m_ticker->setGeometry(0, 0, 450, 30);
-    m_ticker->move(20, 0);
+    m_ticker->setLength(450);
+    m_ticker->setPos(18, 5);
+    m_ticker->setFontSize(24, true);
 
     m_progressbar = new ProgressBar(this);
-    m_progressbar->setGeometry(0, 0, 461, 12);
-    m_progressbar->move(10, 300);
+    m_progressbar->setGeometry(0, 0, 180, 11);
+    m_progressbar->move(20, 300);
 
     m_albumartloader = new AlbumArtLoader(this);
 }
@@ -65,30 +66,23 @@ void UpnpWindow::update_track(const MetaData& md){
     }
     m_metadata = md;
 
-    cerr << "Didl " << md.didl.toStdString() << endl;
+    //cerr << "Didl " << md.didl.toStdString() << endl;
 
     m_completeLength_ms = md.length_ms;
 
     m_progressbar->setMaximum(md.length_ms);
 
-//    QString tmp = QString("<font color=\"#FFAA00\" size=\"+10\">");
-//    if (md.bitrate < 96000) {
-//        tmp += "*";
-//    } else if (md.bitrate < 128000) {
-//        tmp += "**";
-//    } else if (md.bitrate < 160000) {
-//        tmp += "***";
-//    } else if (md.bitrate < 256000) {
-//        tmp += "****";
-//    } else {
-//        tmp += "*****";
-//    }
-//    tmp += "</font>";
-
     ui->lblAlbum->setText(md.album);
     ui->lblArtist->setText(md.artist);
     ui->lblTitel->setText(md.title);
-
+    if (md.bitrate > 0)
+    {
+        ui->lblBitrate->setText(QString("%1 kBit/s").arg((8 * md.bitrate) / 1000));
+    }
+    else
+    {
+        ui->lblBitrate->setText("");
+    }
     m_ticker->setText(md.artist + QString(" - ") + md.title);
     m_ticker->start();
 
@@ -104,8 +98,8 @@ void UpnpWindow::clear_track()
     ui->lblArtist->setText("Musicplayer");
     ui->lblTitel->setText("");
     ui->lblCurTime->setText("0:00");
+    ui->lblBitrate->setText("");
 
-    m_ticker->stop();
     m_ticker->setText("");
 
     ui->lblAlbumArt->setPixmap(QPixmap(QString(":/pics/resources/logo.png")));
@@ -115,7 +109,6 @@ void UpnpWindow::clear_track()
 
 void UpnpWindow::new_transport_state(int tps, const char *)
 {
-    //m_tpstate = tps;
     switch (tps) {
     case AUDIO_UNKNOWN:
     case AUDIO_STOPPED:

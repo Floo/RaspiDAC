@@ -1,6 +1,9 @@
 #ifndef HELPER_H
 #define HELPER_H
 
+#include <QTime>
+#include <QCoreApplication>
+
 
 struct UDPDatagram {
 
@@ -29,6 +32,19 @@ struct UDPDatagram {
         return lst.join(";");
     }
 
+};
+
+class Delay
+{
+public:
+    static void msleep( int millisecondsToWait )
+    {
+        QTime dieTime = QTime::currentTime().addMSecs( millisecondsToWait );
+        while( QTime::currentTime() < dieTime )
+        {
+            QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+        }
+    }
 };
 
 

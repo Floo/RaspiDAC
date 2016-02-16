@@ -38,6 +38,7 @@ signals:
     void setStop();
     void setRadio(int id);
     void taster(int);
+    void tasterZweitbelegung(int);
 
 private:
     int socketDescriptor;

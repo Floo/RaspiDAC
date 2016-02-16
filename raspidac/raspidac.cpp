@@ -6,7 +6,7 @@
 #include "GUI/menu.h"
 
 RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
-    QWidget(parent), m_upapp(upapp), m_playlist(0)
+    QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false)
 {
 #ifdef __rpi__
     rpiGPIO = new RPiGPIO();
@@ -23,6 +23,7 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     m_menu->setInputList();
 
     m_spdifInput = 0;
+    m_shutdownPending = false;
 
     netAPIServer = new NetAPIServer(this);
 
@@ -37,9 +38,12 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
             this, SLOT(setRadio(int)));
     connect(this, SIGNAL(datagramm(UDPDatagram&)),
             netAPIServer, SLOT(sendDatagramm(UDPDatagram&)));
+    connect(m_window, SIGNAL(messageWindowClosed()),
+            this, SLOT(onMsgWinClosed()));
 #ifdef __rpi__
     connect(rpiGPIO, SIGNAL(taster(int)), this, SLOT(onTaster(int)));
-    connect(rpiGPIO, SIGNAL(taster_shutdown()), this, SLOT(onTasterShutdown()));
+    connect(rpiGPIO, SIGNAL(tasterZweitbelegung(int)),
+            this, SLOT(onTasterZweitbelegung(int)));
 #endif
 
 }
@@ -80,17 +84,24 @@ void RaspiDAC::setBacklight(int value)
 
 void RaspiDAC::setRadio(int row)
 {
+    qDebug() << "RaspiDAC::setRadio: SourceType" << getSourceType();
     setGUIMode(RPI_Radio);
     if (getSourceType() == OHProductQO::OHPR_SourceRadio) {
         emit m_playlist->row_activated(row);
     }
     else {
         m_playlist->setPlayRowPending(row);
+        emit sig_choose_source(QString("Radio"));
     }
 }
 
 void RaspiDAC::onTaster(int taster)
 {
+    if ((taster == 1) && m_shutdownPending)
+    {
+        shutdownDevice();
+        return;
+    }
     if (taster == 2 && m_window->currentIndex() != RPI_Standby) //MENU
     {
         m_menu->btnMenuPressed();
@@ -106,8 +117,17 @@ void RaspiDAC::onTaster(int taster)
         else {
             m_menu->btnSelectPressed();
         }
-    } else if (taster == 3) //POWER
+    }
+    else if (taster == 3) //POWER
     {
+        if (!m_initialized)
+        {
+            QString msg = QString("Initialisierung fehlgeschlagen.\n\n"
+                                  "Keine Verbindung zum Renderer: %1.")
+                    .arg(m_rendererName);
+            m_window->showMessage(msg);
+            return;
+        }
         if (m_window->currentIndex() == RPI_Standby)
         {
             setGUIMode(m_lastMode);
@@ -118,6 +138,22 @@ void RaspiDAC::onTaster(int taster)
             m_lastMode = (GUIMode)m_window->currentIndex();
             setGUIMode(RPI_Standby);
         }
+    }
+}
+
+void RaspiDAC::onTasterZweitbelegung(int taster)
+{
+    if (taster == 1) //PLAY/PAUSE/SELECT
+    {
+
+    }
+    else if (taster == 2) //MENU
+    {       
+        QString msg = QString("Soll die Software beendet\n"
+                              "und das Gerät runtergefahren werden?\n"
+                              "Dann bitte PLAY/PAUSE/SEL drücken!");
+        m_window->showMessage(msg);
+        m_shutdownPending = true;
     }
 }
 
@@ -261,7 +297,11 @@ void RaspiDAC::setMuteUi(bool)
 
 void RaspiDAC::enableSourceSelect(bool)
 {
-    qDebug() << "RaspiDAC::enableSourceSelect";
+    qDebug() << "RaspiDAC::enableSourceSelect: Connected to " << getRendererByName();
+    if (getRendererByName().contains(m_rendererName))
+    {
+        m_initialized = true;
+    }
 }
 
 void RaspiDAC::setPlaylist(Rpi_Playlist *playlist)
@@ -273,7 +313,7 @@ void RaspiDAC::setPlaylist(Rpi_Playlist *playlist)
     MetaData md;
     m_upapp->getIdleMeta(&md);
 
-    qDebug() << "RaspiDAC::setPlaylist :" << md.artist;
+    //qDebug() << "RaspiDAC::setPlaylist :" << md.artist;
 
     emit stop();
     emit sig_choose_source(QString("Radio"));
@@ -382,9 +422,21 @@ QStringList* RaspiDAC::getRadioList()
     return m_playlist->getRadioList();
 }
 
-void RaspiDAC::onTasterShutdown()
+void RaspiDAC::onMsgWinClosed()
 {
-    qDebug() << "Shutdown";
-    system("shutdown -h now");
+    m_shutdownPending = false;
 }
+
+void RaspiDAC::shutdownDevice()
+{
+    setGUIMode(RaspiDAC::RPI_Standby);
+    QString msg = QString("System shutdown!");
+    m_window->showMessage(msg);
+    Delay::msleep(3000);
+#ifdef __rpi__
+    system("shutdown -h now");
+#endif
+}
+
+
 

@@ -41,8 +41,8 @@
 #define REL_OFF    0
 #define RC5_DIRECT_ON  1
 #define RC5_DIRECT_OFF 0
-#define INPUT_UPNP   0
-#define INPUT_DAC    1
+#define INPUT_UPNP   1
+#define INPUT_DAC    0
 
 #define BACKLIGHT_MAX   0
 #define BACKLIGHT_DIMM  200
@@ -97,7 +97,7 @@ public slots:
 
 signals:
     void taster(int);
-    void taster_shutdown();
+    void tasterZweitbelegung(int);
 
 private:
     class Internal;

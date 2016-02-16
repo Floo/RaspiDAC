@@ -31,9 +31,9 @@ void cbTaster4()
 RPiTaster::RPiTaster(RPiGPIO *gpio)
 {
     m_gpio = gpio;
-    wiringPiISR(GPIO05, INT_EDGE_FALLING, &cbTaster1);
-    wiringPiISR(GPIO06, INT_EDGE_FALLING, &cbTaster3);
-    wiringPiISR(GPIO13, INT_EDGE_FALLING, &cbTaster2);
+    wiringPiISR(GPIO05, INT_EDGE_FALLING, &cbTaster1); //SEL/PLAY/PAUSE
+    wiringPiISR(GPIO06, INT_EDGE_FALLING, &cbTaster3); //POWER
+    wiringPiISR(GPIO13, INT_EDGE_FALLING, &cbTaster2); //MENU
     wiringPiISR(GPIO12, INT_EDGE_FALLING, &cbTaster4);
 
     m_debouncetime.start();
@@ -46,13 +46,18 @@ RPiTaster::~RPiTaster()
 
 void RPiTaster::taster(int ts)
 {
-    if (m_debouncetime.restart() > 100)
+    if (m_debouncetime.restart() > 25)
     {
         if ((ts == 3) && (digitalRead(GPIO13) == 0))
+        {
             //gleichzeitige Tastenbetätigung
-            emit m_gpio->taster_shutdown();
-        else
-            emit m_gpio->taster(ts);
+            emit m_gpio->tasterZweitbelegung(2);
+        }
+        else if ((ts == 3) && (digitalRead(GPIO05) == 0))
+        {
+            emit m_gpio->tasterZweitbelegung(1);
+        }
+        emit m_gpio->taster(ts);
     }
 }
 
@@ -139,7 +144,7 @@ int RPiGPIO::getRelais()
 
 void RPiGPIO::toggleLED()
 {
-    qDebug() << "Slot ausgelöst.";
+    //qDebug() << "Slot ausgelöst.";
     setLED(!m->LED);
 }
 

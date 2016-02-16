@@ -29,7 +29,9 @@ public slots:
 private:
     Ui::RadioWindow *ui;
     AlbumArtLoader *m_albumartloader;
-    Ticker *m_stationtext;
+    Ticker *m_stationText;
+    Ticker *m_stationName;
+    Ticker *m_nowPlaying;
 };
 
 #endif // RADIOWINDOW_H

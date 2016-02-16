@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QWidget>
+#include <QTime>
 
 #include "../HelperStructs/MetaData.h"
 #include "rpicontrol/helper.h"
@@ -102,7 +103,7 @@ public slots:
     void setGUIMode(RaspiDAC::GUIMode mode);
     void setBacklight(int);
     void onTaster(int);
-    void onTasterShutdown();
+    void onTasterZweitbelegung(int);
     void setRadio(int);
 
 private:
@@ -116,16 +117,21 @@ private:
     MetaData m_MetaData;
     GUIMode m_lastMode;
     int m_spdifInput;
-    void applySavedMetaData();
+    NetAPIServer *netAPIServer;
     QString m_rendererName;
+    bool m_shutdownPending;
+    bool m_initialized;
+
+    void applySavedMetaData();
+    void shutdownDevice();
 
 #ifdef __rpi__
     RPiGPIO *rpiGPIO;
 #endif
-    NetAPIServer *netAPIServer;
+
 
 private slots:
-
+    void onMsgWinClosed();
 
 };
 
