@@ -12,6 +12,7 @@ struct UDPDatagram {
     int playMode;
     int spdifInput;
     bool radioListHasChanged;
+    int port;
 
     UDPDatagram () {
         metaDataHasChanged = false;
@@ -19,6 +20,7 @@ struct UDPDatagram {
         playMode = 0;
         spdifInput = 0;
         radioListHasChanged = false;
+        port = 0;
     }
 
     QString toDatagram() {
@@ -29,6 +31,7 @@ struct UDPDatagram {
         lst.append(QString::number(playMode));
         lst.append(QString::number(spdifInput));
         lst.append(radioListHasChanged?"true":"false");
+        lst.append(QString::number(port));
         return lst.join(";");
     }
 

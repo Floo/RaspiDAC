@@ -6,7 +6,7 @@
 #include "GUI/menu.h"
 
 RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
-    QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false)
+    QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false), m_port(8000)
 {
 #ifdef __rpi__
     rpiGPIO = new RPiGPIO();
@@ -27,7 +27,7 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
 
     netAPIServer = new NetAPIServer(this);
 
-    if (!netAPIServer->listen(QHostAddress::Any, 8000)) {
+    if (!netAPIServer->listen(QHostAddress::Any, m_port)) {
         qDebug() << "Unable to start the server: " << netAPIServer->errorString();
     }
     connect(m_menu, SIGNAL(guiSelected(RaspiDAC::GUIMode)),
@@ -85,14 +85,20 @@ void RaspiDAC::setBacklight(int value)
 void RaspiDAC::setRadio(int row)
 {
     qDebug() << "RaspiDAC::setRadio: SourceType" << getSourceType();
-    setGUIMode(RPI_Radio);
+
     if (getSourceType() == OHProductQO::OHPR_SourceRadio) {
+        qDebug() << "***RaspiDAC::setRadio: emit m_playlist->row_activated(row)";
         emit m_playlist->row_activated(row);
     }
     else {
-        m_playlist->setPlayRowPending(row);
-        emit sig_choose_source(QString("Radio"));
+        m_playlist->setPlayRowPending(row);        
+        if (getGUIMode() == RaspiDAC::RPI_Radio)
+        {
+            qDebug() << "***RaspiDAC::setRadio: emit sig_choose_source(QString(\"Radio\"))";
+            emit sig_choose_source(QString("Radio"));
+        }
     }
+    setGUIMode(RPI_Radio);
 }
 
 void RaspiDAC::onTaster(int taster)
@@ -102,17 +108,23 @@ void RaspiDAC::onTaster(int taster)
         shutdownDevice();
         return;
     }
-    if (taster == 2 && m_window->currentIndex() != RPI_Standby) //MENU
+    if (taster == 2 && getGUIMode() != RPI_Standby) //MENU
     {
         m_menu->btnMenuPressed();
     }
-    else if (taster == 1 && m_window->currentIndex() != RPI_Standby) //PLAY/PAUSE/SELECT
+    else if (taster == 1 && getGUIMode() != RPI_Standby) //PLAY/PAUSE/SELECT
     {
         if (m_menu->isHidden()) {
             if (m_playmode == RPI_Play)
+            {
+                qDebug() << "***RaspiDAC::onTaster: emit pause()";
                 emit pause();
+            }
             else
+            {
+                qDebug() << "***RaspiDAC::onTaster: emit play()";
                 emit play();
+            }
         }
         else {
             m_menu->btnSelectPressed();
@@ -128,13 +140,12 @@ void RaspiDAC::onTaster(int taster)
             m_window->showMessage(msg);
             return;
         }
-        if (m_window->currentIndex() == RPI_Standby)
+        if (getGUIMode() == RPI_Standby)
         {
             setGUIMode(m_lastMode);
         }
         else
         {
-            emit stop();
             m_lastMode = (GUIMode)m_window->currentIndex();
             setGUIMode(RPI_Standby);
         }
@@ -160,7 +171,7 @@ void RaspiDAC::onTasterZweitbelegung(int taster)
 
 void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 {
-    qDebug() << "RaspiDAC::setGUIMode: Set to Mode " << mode;
+    qDebug() << "***RaspiDAC::setGUIMode: Set to Mode " << mode;
     if(mode == m_window->currentIndex())
     {
         return;
@@ -179,12 +190,14 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 
     if(m_window->currentIndex() == RPI_Radio)
     {
-
+//        qDebug() << "***RaspiDAC::setGUIMode: emit pause()";
+//        emit pause();
     }
 
     if(m_window->currentIndex() == RPI_Upnp)
     {
-        emit pause();
+//        qDebug() << "***RaspiDAC::setGUIMode: emit pause()";
+//        emit pause();
     }
 
     if(mode == RPI_Radio)
@@ -192,6 +205,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 #ifdef __rpi__
         rpiGPIO->setInputSelect(INPUT_UPNP);
 #endif
+        qDebug() << "***RaspiDAC::setGUIMode: emit sig_choose_source(QString(\"Radio\"))";
         emit sig_choose_source(QString("Radio"));
         //m_window->clearTrack();
     }
@@ -201,12 +215,16 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 #ifdef __rpi__
         rpiGPIO->setInputSelect(INPUT_UPNP);
 #endif
+        qDebug() << "***RaspiDAC::setGUIMode: emit sig_choose_source(QString(\"Playlist\"))";
         emit sig_choose_source(QString("Playlist"));
         //m_window->clearTrack();
+        //m_window->forceUpdateTrackUpnp(m_MetaData);
     }
 
     if(mode == RPI_Spdif)
     {
+        qDebug() << "***RaspiDAC::setGUIMode: emit pause()";
+        emit pause();
 #ifdef __rpi__
         rpiGPIO->setInputSelect(INPUT_DAC);
 #endif
@@ -215,6 +233,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 
     if(mode == RPI_Standby)
     {
+        qDebug() << "***RaspiDAC::setGUIMode: emit pause()";
         emit pause();
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_OFF);
@@ -238,7 +257,7 @@ void RaspiDAC::setVolume(int)
 
 void RaspiDAC::update_track(const MetaData &in)
 {
-    qDebug() << "RaspiDAC::update_track: MetaData geändert: " << in.title;
+    qDebug() << "RaspiDAC::update_track: MetaData geändert: " << in.title << " " << in.artist;
     m_MetaData = in;
     if ((getSourceType() == OHProductQO::OHPR_SourceRadio && m_playmode == RPI_Play) ||
             getSourceType() == OHProductQO::OHPR_SourcePlaylist)
@@ -260,6 +279,7 @@ void RaspiDAC::setCurrentPosition(quint32 pos_sec)
 
 void RaspiDAC::stopped()
 {
+    qDebug() << "+++RaspiDAC::stopped()";
     m_playmode = RPI_Stop;
     m_window->stopped();
     prepareDatagram();
@@ -267,6 +287,7 @@ void RaspiDAC::stopped()
 
 void RaspiDAC::playing()
 {
+    qDebug() << "+++RaspiDAC::playing()";
     if (getSourceType() == OHProductQO::OHPR_SourceRadio)
         setGUIMode(RPI_Radio);
     if (getSourceType() == OHProductQO::OHPR_SourcePlaylist)
@@ -280,6 +301,7 @@ void RaspiDAC::playing()
 
 void RaspiDAC::paused()
 {
+    qDebug() << "+++RaspiDAC::paused()";
     m_playmode = RPI_Pause;
     m_window->paused();
     prepareDatagram();
@@ -314,8 +336,9 @@ void RaspiDAC::setPlaylist(Rpi_Playlist *playlist)
     m_upapp->getIdleMeta(&md);
 
     //qDebug() << "RaspiDAC::setPlaylist :" << md.artist;
-
+    qDebug() << "***RaspiDAC::setPlaylist: emit stop()";
     emit stop();
+    qDebug() << "***RaspiDAC::setPlaylist: emit sig_choose_source(QString(\"Radio\"))";
     emit sig_choose_source(QString("Radio"));
 }
 
@@ -380,7 +403,7 @@ void RaspiDAC::ui_loaded()
 {
     if (!getRendererByName().contains(m_rendererName))
     {
-        qDebug() << "RaspiDAC::ui_loaded: chooseRenderer";
+        qDebug() << "***RaspiDAC::ui_loaded: chooseRenderer";
         m_upapp->chooseRenderer();
     }
 }
@@ -403,6 +426,7 @@ void RaspiDAC::prepareDatagram(bool metadatahaschanged, bool radiolisthaschanged
     dtg.metaDataHasChanged = metadatahaschanged;
     dtg.spdifInput = m_spdifInput;
     dtg.radioListHasChanged = radiolisthaschanged;
+    dtg.port = (int)m_port;
 
     emit datagramm(dtg);
 }
@@ -430,8 +454,10 @@ void RaspiDAC::onMsgWinClosed()
 void RaspiDAC::shutdownDevice()
 {
     setGUIMode(RaspiDAC::RPI_Standby);
-    QString msg = QString("System shutdown!");
-    m_window->showMessage(msg);
+    QString msg = QString("System shutdown!\n\n"
+                          "Bitte den Netzstecker erst ziehen,\n"
+                          "wenn POWER-LED wieder leuchtet.");
+    m_window->showMessage(msg, 0);
     Delay::msleep(3000);
 #ifdef __rpi__
     system("shutdown -h now");

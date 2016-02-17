@@ -31,9 +31,11 @@ private:
     RaspiDAC *m_rpi;
     QString m_RadioList;
     UDPDatagram m_datagram;
+    QUdpSocket *m_udpSocket;
 
 private slots:
     void sendDatagramm(UDPDatagram&);
+    void pendingUDPDatagram();
 
 
 signals:

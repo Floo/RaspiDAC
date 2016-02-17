@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_msgTimer = new QTimer();
     m_msgTimer->setSingleShot(true);
-    m_msgTimer->setInterval(5000);
+
     connect(m_msgTimer, SIGNAL(timeout()), this, SLOT(hideMessage()));
 }
 
@@ -78,8 +78,13 @@ void MainWindow::updateTrack(const MetaData &metadata)
 {
     if (currentIndex() == RaspiDAC::RPI_Upnp)
         m_upnpWindow->update_track(metadata);
-    else if (currentIndex() == RaspiDAC::RPI_Radio)
+    else if ((currentIndex() == RaspiDAC::RPI_Radio) && (metadata.length_ms == 0))
         m_radioWindow->update_track(metadata);
+}
+
+void MainWindow::forceUpdateTrackUpnp(const MetaData &md)
+{
+    m_upnpWindow->update_track(md);
 }
 
 void MainWindow::clearTrack()
@@ -116,10 +121,13 @@ void MainWindow::input(QString txt)
     m_spdifWindow->setInput(txt);
 }
 
-void MainWindow::showMessage(QString &msg)
+void MainWindow::showMessage(QString &msg, int msec)
 {
     m_messageWindow->setMessage(msg);
-    m_msgTimer->start();
+    if (msec > 0)
+    {
+        m_msgTimer->start(msec);
+    }
     if (ui->stackedWidget->currentIndex() == m_msgwID)
     {
         return;

@@ -187,7 +187,6 @@ QString NetAPIThread::parser(const QString &command)
             switch (index)
             {
                 case 0: //status (struct UDPDatagram, für Initialisierung der Clienten)
-                    //reply  = static_cast<NetAPIServer*>(parent())->getGUIMode();
                     reply = "[RaspiDAC]";
                     reply.append(static_cast<NetAPIServer*>(parent())->getDatagram());
                 break;

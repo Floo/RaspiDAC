@@ -6,10 +6,15 @@ NetAPIServer::NetAPIServer(RaspiDAC *rpi_h, QObject *parent)
     : QTcpServer(parent), m_rpi(rpi_h)
 {
     qRegisterMetaType<RaspiDAC::GUIMode>("RaspiDAC::GUIMode");
+    m_udpSocket = new QUdpSocket();
+    m_udpSocket->bind(8002);
+
+    connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(pendingUDPDatagram()));
 }
 
 NetAPIServer::~NetAPIServer()
 {
+    delete m_udpSocket;
 }
 
 void NetAPIServer::incomingConnection(qintptr socketDescriptor)
@@ -66,11 +71,9 @@ void NetAPIServer::sendDatagramm(UDPDatagram &dtg)
 {
     //qDebug() << "NetAPIServer::sendDatagramm";
     m_datagram = dtg;
-    QUdpSocket *socket = new QUdpSocket();
     QByteArray bytearray = QString("[RaspiDAC]").toUtf8();
     bytearray.append(dtg.toDatagram().toUtf8());
-    socket->writeDatagram(bytearray, QHostAddress::Broadcast, 8001);
-    delete socket;
+    m_udpSocket->writeDatagram(bytearray, QHostAddress::Broadcast, 8001);
 }
 
 QString NetAPIServer::getMetaData()
@@ -86,6 +89,26 @@ QString NetAPIServer::getMetaData()
 QString NetAPIServer::getDatagram()
 {
     return m_datagram.toDatagram();
+}
+
+void NetAPIServer::pendingUDPDatagram()
+{
+    while (m_udpSocket->hasPendingDatagrams())
+    {
+        QByteArray datagram;
+        QHostAddress hostSender;
+        quint16 portSender;
+        datagram.resize(m_udpSocket->pendingDatagramSize());
+        m_udpSocket->readDatagram(datagram.data(), datagram.size(), &hostSender, &portSender);
+        QString str = QString(datagram);
+        if (str.contains("[RendererBitteMelden!]"))
+        {
+            m_datagram.radioListHasChanged = true;
+            m_datagram.metaDataHasChanged = true;
+            sendDatagramm(m_datagram);
+        }
+
+    }
 }
 
 

@@ -6,6 +6,7 @@
 #include <wiringPiI2C.h>
 #include <QDebug>
 #include <QTime>
+#include <QMutex>
 
 #define GPIO04 4    //Input-Select
 #define GPIO27 27   //RC5-direct
@@ -48,6 +49,8 @@
 #define BACKLIGHT_DIMM  200
 #define BACKLIGHT_MIN   255
 
+#define DEBOUNCE_TIME 25 //ms
+
 class RPiGPIO;
 
 class RPiTaster : public QObject
@@ -58,11 +61,14 @@ public:
     RPiTaster(RPiGPIO*);
     ~RPiTaster();
 
-    void taster(int);
+    void tasterFE(int);
+    void tasterRE(int);
 
 private:
     RPiGPIO *m_gpio;
     QTime m_debouncetime;
+    bool m_ts_state[3];
+    QMutex mutex;
 
 private slots:
 };

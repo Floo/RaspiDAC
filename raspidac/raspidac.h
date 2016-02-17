@@ -121,6 +121,7 @@ private:
     QString m_rendererName;
     bool m_shutdownPending;
     bool m_initialized;
+    quint16 m_port;
 
     void applySavedMetaData();
     void shutdownDevice();

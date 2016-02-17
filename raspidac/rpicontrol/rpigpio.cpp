@@ -3,38 +3,55 @@
 #ifdef __rpi__
 RPiTaster *rpiTaster;
 
-void cbTaster1()
+void cbTaster1FE()
 {
     qDebug() << "Taster1 gedrückt";
-    rpiTaster->taster(1);;
+    rpiTaster->tasterFE(1);;
 }
 
-void cbTaster2()
+void cbTaster2FE()
 {
     qDebug() << "Taster2 gedrückt";
-    rpiTaster->taster(2);
+    rpiTaster->tasterFE(2);
 }
 
-void cbTaster3()
+void cbTaster3FE()
 {
     qDebug() << "Taster3 gedrückt";
-    rpiTaster->taster(3);
+    rpiTaster->tasterFE(3);
 }
 
-void cbTaster4()
+void cbTaster1RE()
 {
-    qDebug() << "Taster4 gedrückt";
-    rpiTaster->taster(4);
+    qDebug() << "Taster1 losgelassen";
+    rpiTaster->tasterRE(1);;
+}
+
+void cbTaster2RE()
+{
+    qDebug() << "Taster2 losgelassen";
+    rpiTaster->tasterRE(2);
+}
+
+void cbTaster3RE()
+{
+    qDebug() << "Taster3 losgelassen";
+    rpiTaster->tasterRE(3);
 }
 #endif
 
 RPiTaster::RPiTaster(RPiGPIO *gpio)
 {
     m_gpio = gpio;
-    wiringPiISR(GPIO05, INT_EDGE_FALLING, &cbTaster1); //SEL/PLAY/PAUSE
-    wiringPiISR(GPIO06, INT_EDGE_FALLING, &cbTaster3); //POWER
-    wiringPiISR(GPIO13, INT_EDGE_FALLING, &cbTaster2); //MENU
-    wiringPiISR(GPIO12, INT_EDGE_FALLING, &cbTaster4);
+    m_ts_state = {true, true, true};
+
+    wiringPiISR(GPIO05, INT_EDGE_FALLING, &cbTaster1FE); //SEL/PLAY/PAUSE
+    wiringPiISR(GPIO06, INT_EDGE_FALLING, &cbTaster3FE); //POWER
+    wiringPiISR(GPIO13, INT_EDGE_FALLING, &cbTaster2FE); //MENU
+
+    wiringPiISR(GPIO05, INT_EDGE_RISING, &cbTaster1RE); //SEL/PLAY/PAUSE
+    wiringPiISR(GPIO06, INT_EDGE_RISING, &cbTaster3RE); //POWER
+    wiringPiISR(GPIO13, INT_EDGE_RISING, &cbTaster2RE); //MENU
 
     m_debouncetime.start();
 }
@@ -44,10 +61,12 @@ RPiTaster::~RPiTaster()
 
 }
 
-void RPiTaster::taster(int ts)
+void RPiTaster::tasterFE(int ts)
 {
-    if (m_debouncetime.restart() > 25)
+    mutex.lock();
+    if ((m_debouncetime.restart() > DEBOUNCE_TIME) && m_ts_state[ts - 1])
     {
+        m_ts_state[ts - 1] = false;
         if ((ts == 3) && (digitalRead(GPIO13) == 0))
         {
             //gleichzeitige Tastenbetätigung
@@ -59,6 +78,17 @@ void RPiTaster::taster(int ts)
         }
         emit m_gpio->taster(ts);
     }
+    mutex.unlock();
+}
+
+void RPiTaster::tasterRE(int ts)
+{
+    mutex.lock();
+    if ((m_debouncetime.restart() > DEBOUNCE_TIME) && !m_ts_state[ts - 1])
+    {
+        m_ts_state[ts - 1] = true;
+    }
+    mutex.unlock();
 }
 
 

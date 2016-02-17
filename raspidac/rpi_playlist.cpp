@@ -18,7 +18,7 @@ void Rpi_Playlist::fillPlaylist(MetaDataList& v_metadata, int cur_play_idx, int)
     RaspiDAC *rpi = static_cast<RaspiDAC*>(parent());
     OHProductQO::SourceType st = rpi->getSourceType();
     qDebug() << "Rpi_Playlist::fillPlaylist: SourceType = " << st << " cur_play_idx = " << cur_play_idx;
-    if (st == OHProductQO::OHPR_SourceRadio)
+    if (st == OHProductQO::OHPR_SourceRadio && v_metadata.size() > 0)
     {
         if (st== OHProductQO::OHPR_SourceRadio) {
             _radioList.clear();
@@ -30,7 +30,7 @@ void Rpi_Playlist::fillPlaylist(MetaDataList& v_metadata, int cur_play_idx, int)
         }
         if (m_playRowPending > -1)
         {
-            qDebug() << "!!!!!Rpi_Playlist::fillPlaylist: PlayPendingRadioSation";
+            qDebug() << "***Rpi_Playlist::fillPlaylist: row_activated(m_playRowPending)";
             row_activated(m_playRowPending);
             m_playRowPending = -1;
         }

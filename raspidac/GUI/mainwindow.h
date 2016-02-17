@@ -26,13 +26,14 @@ public:
 
     int currentIndex();
     void updateTrack(const MetaData &in);
+    void forceUpdateTrackUpnp(const MetaData &in);
     void clearTrack();
     void upnp_setCurrentPosition(quint32 sec);
     void playing();
     void paused();
     void stopped();
     void input(QString);
-    void showMessage(QString &msg);
+    void showMessage(QString &msg, int msec = 5000);
 
 signals:
     void messageWindowClosed();
