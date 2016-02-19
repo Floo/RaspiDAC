@@ -3,55 +3,36 @@
 #ifdef __rpi__
 RPiTaster *rpiTaster;
 
-void cbTaster1FE()
+void cbTaster1()
 {
-    qDebug() << "Taster1 gedrückt";
-    rpiTaster->tasterFE(1);;
+    //qDebug() << "Taster1 gedrückt";
+    rpiTaster->taster(1);;
 }
 
-void cbTaster2FE()
+void cbTaster2()
 {
-    qDebug() << "Taster2 gedrückt";
-    rpiTaster->tasterFE(2);
+    //qDebug() << "Taster2 gedrückt";
+    rpiTaster->taster(2);
 }
 
-void cbTaster3FE()
+void cbTaster3()
 {
-    qDebug() << "Taster3 gedrückt";
-    rpiTaster->tasterFE(3);
+    //qDebug() << "Taster3 gedrückt";
+    rpiTaster->tasterPower();
 }
 
-void cbTaster1RE()
-{
-    qDebug() << "Taster1 losgelassen";
-    rpiTaster->tasterRE(1);;
-}
-
-void cbTaster2RE()
-{
-    qDebug() << "Taster2 losgelassen";
-    rpiTaster->tasterRE(2);
-}
-
-void cbTaster3RE()
-{
-    qDebug() << "Taster3 losgelassen";
-    rpiTaster->tasterRE(3);
-}
 #endif
 
 RPiTaster::RPiTaster(RPiGPIO *gpio)
 {
     m_gpio = gpio;
-    m_ts_state = {true, true, true};
+    m_ts_state[0] = true;
+    m_ts_state[1] = true;
+    m_ts_state[2] = true;
 
-    wiringPiISR(GPIO05, INT_EDGE_FALLING, &cbTaster1FE); //SEL/PLAY/PAUSE
-    wiringPiISR(GPIO06, INT_EDGE_FALLING, &cbTaster3FE); //POWER
-    wiringPiISR(GPIO13, INT_EDGE_FALLING, &cbTaster2FE); //MENU
-
-    wiringPiISR(GPIO05, INT_EDGE_RISING, &cbTaster1RE); //SEL/PLAY/PAUSE
-    wiringPiISR(GPIO06, INT_EDGE_RISING, &cbTaster3RE); //POWER
-    wiringPiISR(GPIO13, INT_EDGE_RISING, &cbTaster2RE); //MENU
+    wiringPiISR(GPIO05, INT_EDGE_BOTH, &cbTaster1); //SEL/PLAY/PAUSE
+    wiringPiISR(GPIO06, INT_EDGE_BOTH, &cbTaster3); //POWER
+    wiringPiISR(GPIO13, INT_EDGE_BOTH, &cbTaster2); //MENU
 
     m_debouncetime.start();
 }
@@ -61,34 +42,48 @@ RPiTaster::~RPiTaster()
 
 }
 
-void RPiTaster::tasterFE(int ts)
+void RPiTaster::taster(int ts)
 {
     mutex.lock();
-    if ((m_debouncetime.restart() > DEBOUNCE_TIME) && m_ts_state[ts - 1])
+    int timestamp = m_debouncetime.restart();
+    if ((timestamp > DEBOUNCE_TIME) && m_ts_state[ts - 1])
     {
         m_ts_state[ts - 1] = false;
-        if ((ts == 3) && (digitalRead(GPIO13) == 0))
-        {
-            //gleichzeitige Tastenbetätigung
-            emit m_gpio->tasterZweitbelegung(2);
-        }
-        else if ((ts == 3) && (digitalRead(GPIO05) == 0))
-        {
-            emit m_gpio->tasterZweitbelegung(1);
-        }
         emit m_gpio->taster(ts);
     }
-    mutex.unlock();
-}
-
-void RPiTaster::tasterRE(int ts)
-{
-    mutex.lock();
-    if ((m_debouncetime.restart() > DEBOUNCE_TIME) && !m_ts_state[ts - 1])
+    else if ((timestamp > DEBOUNCE_TIME) && !m_ts_state[ts - 1])
     {
         m_ts_state[ts - 1] = true;
     }
     mutex.unlock();
+}
+
+void RPiTaster::tasterPower()
+{
+    mutexPower.lock();
+    int timestamp = m_debouncetime.restart();
+    if ((timestamp > DEBOUNCE_TIME) && m_ts_state[2])
+    {
+        m_ts_state[2] = false;
+        if (digitalRead(GPIO13) == 0)
+        {
+            //gleichzeitige Tastenbetätigung
+            emit m_gpio->tasterZweitbelegung(2);
+        }
+        else if (digitalRead(GPIO05) == 0)
+        {
+            emit m_gpio->tasterZweitbelegung(1);
+        }
+        else
+        {
+            emit m_gpio->taster(3);
+        }
+    }
+    else if ((timestamp > DEBOUNCE_TIME) && !m_ts_state[2])
+    {
+        m_ts_state[2] = true;
+    }
+    mutexPower.unlock();
 }
 
 

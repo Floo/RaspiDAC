@@ -61,14 +61,14 @@ public:
     RPiTaster(RPiGPIO*);
     ~RPiTaster();
 
-    void tasterFE(int);
-    void tasterRE(int);
+    void taster(int);
+    void tasterPower();
 
 private:
     RPiGPIO *m_gpio;
     QTime m_debouncetime;
     bool m_ts_state[3];
-    QMutex mutex;
+    QMutex mutex, mutexPower;
 
 private slots:
 };

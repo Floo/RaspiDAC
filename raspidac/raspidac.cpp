@@ -159,7 +159,8 @@ void RaspiDAC::onTasterZweitbelegung(int taster)
 
     }
     else if (taster == 2) //MENU
-    {       
+    {
+        m_menu->hideMenu();
         QString msg = QString("Soll die Software beendet\n"
                               "und das Gerät runtergefahren werden?\n"
                               "Dann bitte PLAY/PAUSE/SEL drücken!");

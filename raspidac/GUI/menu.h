@@ -29,6 +29,7 @@ public slots:
     void btnSelectPressed();
     void setRadioList(const QStringList& lst);
     void setInputList(QStringList& lst);
+    void hideMenu();
 
 private:
     MainMenu *m_firstLevel;

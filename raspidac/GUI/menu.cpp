@@ -137,3 +137,7 @@ bool Menu::isHidden()
 {
     return m_firstLevel->isHidden();
 }
+
+void Menu::hideMenu(){
+    hideall();
+}
