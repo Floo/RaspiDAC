@@ -45,24 +45,15 @@ PlaylistAVT::PlaylistAVT(QObject *parent)
 PlaylistAVT::PlaylistAVT(AVTPlayer *avtp, const string& _udn, QObject *parent)
     : Playlist(parent), m_avto(avtp)
 {
-    string udn(_udn);
-    if (udn.find("uuid:") == 0) {
-        udn = udn.substr(5);
+    string sqid(_udn);
+    if (sqid.find("uuid:") == 0) {
+        sqid = sqid.substr(5);
     }
-
-    m_savefile = qs2utf8s(Helper::getHomeDataPath()) + string("sq-") +
-        (udn.empty() ? "savedQueue" : udn);
-
-    // We used to call these "savedQueue". Rename on first use. This
-    // can go away in a few releases.
-    string oldsaved = qs2utf8s(Helper::getHomeDataPath()) + "savedQueue";
-    if (!udn.empty()) {
-        QFile os(QString::fromLocal8Bit(oldsaved.c_str()));
-        if (os.exists() &&
-            !QFile::exists(QString::fromLocal8Bit(m_savefile.c_str()))) {
-            os.rename(QString::fromLocal8Bit(m_savefile.c_str()));
-        }
-    }
+    if (sqid.empty())
+        sqid = "savedQueue";
+    sqid = sqid.insert(0, "sq-");
+    m_savefile = qs2utf8s(QDir(Helper::getHomeDataPath()).
+                          filePath(u8s2qs(sqid)));
 
     m_meta.unSerialize(u8s2qs(m_savefile));
 
@@ -80,7 +71,8 @@ PlaylistAVT::PlaylistAVT(AVTPlayer *avtp, const string& _udn, QObject *parent)
     connect(this, SIGNAL(sig_stop()),  m_avto, SLOT(stop()));
     connect(this, SIGNAL(sig_resume_play()), m_avto, SLOT(play()));
     connect(this, SIGNAL(sig_pause()), m_avto, SLOT(pause()));
-    
+
+    QTimer::singleShot(0, m_avto, SLOT(fetchState()));
     QTimer::singleShot(0, this, SLOT(playlist_updated()));
 }
 
@@ -143,9 +135,11 @@ void PlaylistAVT::psl_seek(int secs)
 
 void PlaylistAVT::onCurrentMetadata(const MetaData& md)
 {
+    qDebug() << "PlaylistAVT::onCurrentMetadata";
     MetaData *localmeta = 0;
     if (!m_meta.contains(md, true, &localmeta)) {
         m_meta.push_back(md);
+        m_play_idx = m_meta.size() -1;
         playlist_updated();
     }
     bool preferlocal = true;

@@ -1,0 +1,11 @@
+upplay
+.ui
+.moc
+.obj
+GUI/player/player
+\#*
+*~
+qrc_upplay.cpp
+doc/upplay-releases.html
+GeneratedFiles
+Makefile

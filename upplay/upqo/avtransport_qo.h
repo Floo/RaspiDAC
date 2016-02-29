@@ -125,8 +125,14 @@ public:
         if (!strcmp(nm, "AVTransportURIMetaData")) {
             qDebug() << "AVT: Changed: " << nm << " (dirc): " << 
                 meta.dump().c_str();
-            // Don't use this if no resources are set. XBMC does this
-            // for some reason.
+            // Don't use this if no resources are set. XBMC/Kodi does
+            // this for some reason. Else we'd end-up with
+            // resource-less unplayable entries in the
+            // playlist. Scheduling a state update is not useful
+            // either because the data will have the same
+            // problem. Kodi only emits useful metadata when
+            // explicitely told to switch tracks (not even at regular
+            // track changes).
             if (!meta.m_resources.empty() &&
                 (m_tpstate == UPnPClient::AVTransport::Playing ||
                  m_tpstate == UPnPClient::AVTransport::PausedPlayback) ) {
@@ -168,8 +174,12 @@ public slots:
         m_srv->seek(UPnPClient::AVTransport::SEEK_REL_TIME, secs);
     }
 
+    virtual void fetchState() {
+        update(true);
+    }
+
     // Called by timer every sec
-    virtual void update() {
+    virtual void update(bool force = false) {
         UPnPClient::AVTransport::PositionInfo info;
         int error;
         if ((error = m_srv->getPositionInfo(info)) != 0) {
@@ -209,17 +219,24 @@ public slots:
             qDebug() << "getTransportInfo failed with error " << error;
             return;
         }
-        if (tinfo.tpstate != m_tpstate) {
+        if (force || tinfo.tpstate != m_tpstate) {
             emit tpStateChanged(tinfo.tpstate);
             m_tpstate = tinfo.tpstate;
         }
-        if (m_cururi.compare(info.trackuri) &&
+        if (force || (m_cururi.compare(info.trackuri) &&
             (m_tpstate == UPnPClient::AVTransport::Playing ||
-             m_tpstate == UPnPClient::AVTransport::PausedPlayback) ) {
+             m_tpstate == UPnPClient::AVTransport::PausedPlayback)) ) {
             qDebug() << "AVT: update: ext track change: cur [" << 
                 m_cururi.c_str() << "] new [" <<                     
                 info.trackuri.c_str() << "]";
             setcururi(info.trackuri);
+            if (!info.trackmeta.m_resources.empty()) {
+                // Don't emit bogus meta which would unplayable
+                // entries in the playlist. The only moment when Kodi
+                // will emit usable metadata is when told to change
+                // tracks. MediaInfo returns the same data.
+                emit currentMetadata(info.trackmeta);
+            }
             emit newTrackPlaying(u8s2qs(info.trackuri));
         }
         if (tinfo.tpstate == UPnPClient::AVTransport::Stopped && m_in_ending) {
