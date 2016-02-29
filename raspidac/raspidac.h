@@ -17,6 +17,7 @@ class MainWindow;
 class Rpi_Playlist;
 class Application;
 class Menu;
+class LircControl;
 
 class RaspiDAC : public QWidget
 {
@@ -31,7 +32,7 @@ public:
     QWidget* getParentOfPlaylist();
     QWidget* getParentOfLibrary();
     void setLibraryWidget(QWidget* );
-    void setPlaylistWidget(QWidget* );
+    void setPlaylistWidget(Rpi_Playlist*);
 
     void ui_loaded();
     void setStyle(int);
@@ -122,9 +123,11 @@ private:
     bool m_shutdownPending;
     bool m_initialized;
     quint16 m_port;
+    LircControl *m_lirc;
 
     void applySavedMetaData();
     void shutdownDevice();
+    void restartDevice();
 
 #ifdef __rpi__
     RPiGPIO *rpiGPIO;

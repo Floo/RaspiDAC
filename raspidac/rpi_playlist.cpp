@@ -25,6 +25,7 @@ void Rpi_Playlist::fillPlaylist(MetaDataList& v_metadata, int cur_play_idx, int)
             foreach(MetaData md, v_metadata) {
                 _radioList.append(md.title);
             }
+            qDebug() << "Rpi_Playlist::fillPlaylist: Radiolist mit " << _radioList.size() << " Einträgen.";
             emit radioListChanged(_radioList);
             rpi->prepareDatagram(false, true);
         }

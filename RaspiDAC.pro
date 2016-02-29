@@ -85,7 +85,10 @@ SOURCES += \
     raspidac/GUI/menu.cpp \
     raspidac/GUI/progressbar.cpp \
     raspidac/GUI/albumartloader.cpp \
-    raspidac/GUI/messagewindow.cpp
+    raspidac/GUI/messagewindow.cpp \
+    raspidac/rpicontrol/lircreceiver.cpp \
+    raspidac/rpicontrol/lircsender.cpp \
+    raspidac/rpicontrol/lirccontrol.cpp
 
 HEADERS  += \
 #    GUI/mainw/mainw.h \
@@ -168,7 +171,10 @@ HEADERS  += \
     raspidac/rpicontrol/helper.h \
     raspidac/GUI/progressbar.h \
     raspidac/GUI/albumartloader.h \
-    raspidac/GUI/messagewindow.h
+    raspidac/GUI/messagewindow.h \
+    raspidac/rpicontrol/lircreceiver.h \
+    raspidac/rpicontrol/lircsender.h \
+    raspidac/rpicontrol/lirccontrol.h
 
 FORMS  += \
     raspidac/GUI/mainwindow.ui \
@@ -182,7 +188,7 @@ FORMS  += \
 RESOURCES += \
     raspidac/raspidac.qrc
 
-LIBS += -lupnpp -lmpdclient
+LIBS += -lupnpp -lmpdclient -llirc_client
 
 contains(QT_ARCH,arm):{
     message("ARM System")

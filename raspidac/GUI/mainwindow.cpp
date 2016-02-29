@@ -123,6 +123,7 @@ void MainWindow::input(QString txt)
 
 void MainWindow::showMessage(QString &msg, int msec)
 {
+    m_msgTimer->stop();
     m_messageWindow->setMessage(msg);
     if (msec > 0)
     {

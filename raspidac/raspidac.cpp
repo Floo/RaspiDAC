@@ -4,6 +4,7 @@
 #include "rpicontrol/netapiserver.h"
 #include "rpi_playlist.h"
 #include "GUI/menu.h"
+#include "rpicontrol/lirccontrol.h"
 
 RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false), m_port(8000)
@@ -17,10 +18,12 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     m_window->setCurrentIndex(RPI_Standby);
     m_window->clearTrack();
 
-    m_lastMode = RPI_Upnp;
+    m_lastMode = RPI_Radio;
 
     m_menu = new Menu(m_window);
     m_menu->setInputList();
+
+    m_lirc = new LircControl();
 
     m_spdifInput = 0;
     m_shutdownPending = false;
@@ -45,7 +48,9 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     connect(rpiGPIO, SIGNAL(tasterZweitbelegung(int)),
             this, SLOT(onTasterZweitbelegung(int)));
 #endif
-
+    connect(m_lirc, SIGNAL(play()), this, SIGNAL(play()));
+    connect(m_lirc, SIGNAL(pause()), this, SIGNAL(pause()));
+    connect(m_lirc, SIGNAL(stop()), this, SIGNAL(stop()));
 }
 
 RaspiDAC::~RaspiDAC()
@@ -108,7 +113,12 @@ void RaspiDAC::onTaster(int taster)
         shutdownDevice();
         return;
     }
-    if (taster == 2 && getGUIMode() != RPI_Standby) //MENU
+    else if ((taster == 2) && m_shutdownPending)
+    {
+        restartDevice();
+        return;
+    }
+    else if (taster == 2 && getGUIMode() != RPI_Standby) //MENU
     {
         m_menu->btnMenuPressed();
     }
@@ -162,8 +172,9 @@ void RaspiDAC::onTasterZweitbelegung(int taster)
     {
         m_menu->hideMenu();
         QString msg = QString("Soll die Software beendet\n"
-                              "und das Gerät runtergefahren werden?\n"
-                              "Dann bitte PLAY/PAUSE/SEL drücken!");
+                              "und das Gerät runtergefahren werden?\n\n"
+                              "Für Shutdown bitte PLAY/PAUSE/SEL drücken!\n\n"
+                              "Für Neustart bitte MENU drücken!");
         m_window->showMessage(msg);
         m_shutdownPending = true;
     }
@@ -327,12 +338,8 @@ void RaspiDAC::enableSourceSelect(bool)
     }
 }
 
-void RaspiDAC::setPlaylist(Rpi_Playlist *playlist)
+void RaspiDAC::setPlaylist(Rpi_Playlist *)
 {
-    m_playlist = playlist;
-    connect(m_playlist, SIGNAL(radioListChanged(const QStringList&)),
-            m_menu, SLOT(setRadioList(const QStringList&)));
-
     MetaData md;
     m_upapp->getIdleMeta(&md);
 
@@ -385,9 +392,11 @@ void RaspiDAC::setLibraryWidget(QWidget *w)
      m_librarywidget = w;
 }
 
-void RaspiDAC::setPlaylistWidget(QWidget *w)
+void RaspiDAC::setPlaylistWidget(Rpi_Playlist *playlist)
 {
-    m_playlistwidget = w;
+    m_playlist = playlist;
+    connect(m_playlist, SIGNAL(radioListChanged(const QStringList&)),
+            m_menu, SLOT(setRadioList(const QStringList&)));
 }
 
 QWidget* RaspiDAC::getParentOfLibrary()
@@ -462,6 +471,17 @@ void RaspiDAC::shutdownDevice()
     Delay::msleep(3000);
 #ifdef __rpi__
     system("shutdown -h now");
+#endif
+}
+
+void RaspiDAC::restartDevice()
+{
+    setGUIMode(RaspiDAC::RPI_Standby);
+    QString msg = QString("Systemstart wird ausgeführt!\n");
+    m_window->showMessage(msg, 0);
+    Delay::msleep(3000);
+#ifdef __rpi__
+    system("shutdown -r now");
 #endif
 }
 
