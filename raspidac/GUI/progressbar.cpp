@@ -34,7 +34,7 @@ void ProgressBar::setValue(int value)
     update();
 }
 
-void ProgressBar::paintEvent(QPaintEvent *event)
+void ProgressBar::paintEvent(QPaintEvent*)
 {
     QPainter m_painter(this);
     QColor m_color = QColor("#e0e0e0");

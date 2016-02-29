@@ -54,7 +54,7 @@ void Ticker::setSingleRun(bool single)
     m_singleRun = single;
 }
 
-void Ticker::paintEvent(QPaintEvent *event)
+void Ticker::paintEvent(QPaintEvent*)
 {
     QPainter m_painter(this);
     m_painter.setFont(*m_font);

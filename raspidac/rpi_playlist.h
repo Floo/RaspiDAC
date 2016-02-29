@@ -4,10 +4,10 @@
 #include <QObject>
 #include <QWidget>
 
-#include "playlist/playlist.h"
-#include "HelperStructs/MetaData.h"
-#include "HelperStructs/PlaylistMode.h"
-#include "../upqo/ohproduct_qo.h"
+#include "upplay/playlist/playlist.h"
+#include "upplay/HelperStructs/MetaData.h"
+#include "upplay/HelperStructs/PlaylistMode.h"
+#include "../upplay/upqo/ohproduct_qo.h"
 
 class Rpi_Playlist : public QWidget
 {

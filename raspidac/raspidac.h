@@ -5,9 +5,9 @@
 #include <QWidget>
 #include <QTime>
 
-#include "../HelperStructs/MetaData.h"
+#include "../upplay/HelperStructs/MetaData.h"
 #include "rpicontrol/helper.h"
-#include "../upqo/ohproduct_qo.h"
+#include "../upplay/upqo/ohproduct_qo.h"
 #ifdef __rpi__
     #include "rpicontrol/rpigpio.h"
 #endif

@@ -1,6 +1,6 @@
 #include "raspidac.h"
 #include "GUI/mainwindow.h"
-#include "application.h"
+#include "upplay/application.h"
 #include "rpicontrol/netapiserver.h"
 #include "rpi_playlist.h"
 #include "GUI/menu.h"
