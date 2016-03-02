@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QMutex>
 
 #include <lirc/lirc_client.h>
 #include <stdio.h>
@@ -21,6 +22,7 @@ public slots:
 
 private:
     int m_fd;
+    QMutex m_mutex;
 };
 
 #endif // LIRCSENDER_H

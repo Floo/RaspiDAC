@@ -1,4 +1,4 @@
-/* Copyright (C) 2014 J.F.Dockes
+/* Copyright (C) 2014 J.F.Dockes, 2016 J.Prager
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation; either version 2 of the License, or
@@ -46,13 +46,13 @@ static int    op_flags;
 #define OPT_v     0x40
 
 static const char usage [] =
-    "upplay [-h] [-v] : options: get help and version\n"
+    "RaspiDAC [-h] [-v] : options: get help and version\n"
     ;
 
 static void
 versionInfo(FILE *fp)
 {
-    fprintf(fp, "Upplay %s %s\n",
+    fprintf(fp, "RaspiDAC %s %s\n",
            UPPLAY_VERSION, LibUPnP::versionString().c_str());
 }
 
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName("Upmpd.org");
-    QCoreApplication::setApplicationName("upplay");
+    QCoreApplication::setApplicationName("RaspiDAC");
 
 
     QStringList params;
@@ -124,16 +124,16 @@ int main(int argc, char **argv)
         if (mylib)
             cerr << mylib->errAsString("main", mylib->getInitError()) << endl;
         if (ifname.empty()) {
-            QMessageBox::warning(0, "Upplay", app.tr("Lib init failed"));
+            QMessageBox::warning(0, "RaspiDAC", app.tr("Lib init failed"));
             return 1;
         } else {
-            QMessageBox::warning(0, "Upplay",
+            QMessageBox::warning(0, "RaspiDAC",
                                  app.tr("Lib init failed for ") +
                                  settings.value("netifname").toString() +
                                  app.tr(". Retrying with null interface"));
             mylib = LibUPnP::getLibUPnP();
             if (!mylib || !mylib->ok()) {
-                QMessageBox::warning(0, "Upplay", app.tr("Lib init failed"));
+                QMessageBox::warning(0, "RaspiDAC", app.tr("Lib init failed"));
                 return 1;
             }
         }

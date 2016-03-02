@@ -8,6 +8,7 @@
 #include "../upplay/HelperStructs/MetaData.h"
 #include "rpicontrol/helper.h"
 #include "../upplay/upqo/ohproduct_qo.h"
+#include "rpicontrol/lirccontrol.h"
 #ifdef __rpi__
     #include "rpicontrol/rpigpio.h"
 #endif
@@ -79,6 +80,7 @@ signals:
     //-----Ende Interface
 
     void datagramm(UDPDatagram&);
+    void sendIRKey(LircControl::commandCode);
 
 public slots:
     //-----Interface zu upplay

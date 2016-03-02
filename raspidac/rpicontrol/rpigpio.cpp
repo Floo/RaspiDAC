@@ -231,3 +231,26 @@ void RPiGPIO::getCS8416Reg(int reg)
     qDebug() << "I2C CS8416 Register " << reg << ": " << ret;
 }
 
+void RPiGPIO::tsl2591Setup()
+{
+    if ((fd_tsl2591 = wiringPiI2CSetup (TSL2591_ADDR)) < 0)
+    {
+        qDebug() << "I2C TSL2591 konnte nicht initialisiert werden.";
+        return;
+    }
+
+    wiringPiI2CWriteReg8(fd_tsl2591, TSL2591_CONFIG_RW, TSL2591_DEVICE_RESET_VALUE);
+    int ret = wiringPiI2CReadReg8(fd_tsl2591, TSL2591_ID_R);
+    if (ret != TSL2591_DEVICE_ID_VALUE)
+    {
+        qDebug() << "RPiGPIO::tsl2591Setup: Error reading DeviceID";
+    }
+}
+
+void RPiGPIO::getTSL2591(int value)
+{
+    value = wiringPiI2CReadReg16(fd_tsl2591, TSL2591_C0DATAL_R);
+    value = wiringPiI2CReadReg16(fd_tsl2591, TSL2591_C1DATAL_R);
+
+}
+

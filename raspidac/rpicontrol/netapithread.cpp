@@ -5,6 +5,24 @@
 NetAPIThread::NetAPIThread(int socketDescriptor, NetAPIServer *parent)
     : QThread(parent), socketDescriptor(socketDescriptor), m_netapiserver(parent)
 {
+    m_commandList["rc5direct"] =  cmd_rc5direct;
+    m_commandList["standby"] =    cmd_standby;
+    m_commandList["dacinput"] =   cmd_dacinput;
+    m_commandList["mode"] =       cmd_mode;
+    m_commandList["pm8000"] =     cmd_pm8000;
+    m_commandList["radio"] =      cmd_radio;
+    m_commandList["backlight"] =  cmd_backlight;
+    m_commandList["spdifinput"] = cmd_spdifinput;
+    m_commandList["play"] =       cmd_play;
+    m_commandList["pause"] =      cmd_pause;
+    m_commandList["next"] =       cmd_next;
+    m_commandList["previous"] =   cmd_previous;
+    m_commandList["stop"] =       cmd_stop;
+    m_commandList["taster"] =     cmd_taster;
+    m_commandList["shutdown"] =   cmd_shutdown;
+    m_commandList["status"] =     cmd_status;
+    m_commandList["radiolist"] =  cmd_radiolist;
+    m_commandList["metadata"] =   cmd_metadata;
 }
 
 NetAPIThread::~NetAPIThread()
@@ -59,18 +77,11 @@ void NetAPIThread::run()
 QString NetAPIThread::parser(const QString &command)
 {
     QString reply = "Error";
-    int index, value;
-
-    QStringList set_commands;
-    QStringList get_commands;
-    set_commands << "rc5direct" << "standby" << "dacinput" << "mode" << "pm8000"
-                 << "radio" << "backlight" << "spdifinput" << "play" << "pause"
-                 << "next" << "previous" << "stop" << "taster" << "shutdown";
-    get_commands << "status" << "radiolist" << "metadata";
+    int value;
+    commandCode cmdcode;
 
     qDebug() << "NetAPIThread::parser: " << command;
 
-//    QStringList subcommand = command.split(" ");
     QStringList subcommand;
     QStringList tmpList = command.split(QRegExp("\"")); // Split by "
     bool inside = false;
@@ -88,118 +99,118 @@ QString NetAPIThread::parser(const QString &command)
     if(subcommand.size() < 2)
         return reply;
 
-    if (subcommand.at(0).compare("set", Qt::CaseInsensitive) == 0)
-    {
-        if((index = set_commands.indexOf(subcommand.at(1))) > -1)
-        {
-            switch (index)
-            {
-            case 0: //rc5direct
-                if((value = onoff(subcommand.at(2), true)) < 0)
-                {
-                    break;
-                }
-                else
-                {
-                    emit setRC5direct(value);
-                    reply = "OK";
-                }
-                break;
-            case 1: //standby
-            {
-                emit setMode(RaspiDAC::RPI_Standby);
-                reply = "OK";
-            }
-                break;
-            case 2:  //dacinput
-                if((value = onoff(subcommand.at(2), true)) < 0)
-                {
-                    break;
-                }
-                else
-                {
-                    emit setDACinput(value);
-                    reply = "OK";
-                }
-                break;
-            case 3: //mode
-                RaspiDAC::GUIMode md;
-                if((md = mode(subcommand.at(2))) > 3 || mode(subcommand.at(2)) < 1)
-                {
-                    break;
-                }
-                else
-                {
-                    emit setMode(md);
-                    reply = "OK";
-                }
-                break;
-            case 4://pm8000
+    cmdcode = m_commandList[subcommand.at(1)];
 
-                break;
-            case 5: //radio
-                emit setRadio(subcommand.at(2).toInt());
-                reply = "OK";
-                break;
-            case 6: //backlight
-                emit setBacklight(subcommand.at(2).toInt());
-                reply = "OK";
-                break;
-            case 7: //spdifinput
-                emit setSPDIFInput(subcommand.at(2).toInt());
-                reply = "OK";
-                break;
-            case 8: //play
-                emit setPlay();
-                reply = "OK";
-                break;
-            case 9: //pause
-                emit setPause();
-                reply = "OK";
-                break;
-            case 10: //next
-                emit setNext();
-                reply = "OK";
-                break;
-            case 11: //previous
-                emit setPrevious();
-                reply = "OK";
-                break;
-            case 12: //stop
-                emit setStop();
-                reply = "OK";
-                break;
-            case 13: //taster
-                emit taster(subcommand.at(2).toInt());
-                reply = "OK";
-                break;
-            case 14: //shutdown
-                emit tasterZweitbelegung(2);
-                reply = "OK";
+    if (subcommand.at(0).compare("set", Qt::CaseInsensitive) == 0)
+    {       
+        switch (cmdcode)
+        {
+        case cmd_rc5direct: //rc5direct
+            if((value = onoff(subcommand.at(2), true)) < 0)
+            {
                 break;
             }
+            else
+            {
+                emit setRC5direct(value);
+                reply = "OK";
+            }
+            break;
+        case cmd_standby: //standby
+        {
+            emit setMode(RaspiDAC::RPI_Standby);
+            reply = "OK";
+        }
+            break;
+        case cmd_dacinput:  //dacinput
+            if((value = onoff(subcommand.at(2), true)) < 0)
+            {
+                break;
+            }
+            else
+            {
+                emit setDACinput(value);
+                reply = "OK";
+            }
+            break;
+        case cmd_mode: //mode
+            RaspiDAC::GUIMode md;
+            if((md = mode(subcommand.at(2))) > 3 || mode(subcommand.at(2)) < 1)
+            {
+                break;
+            }
+            else
+            {
+                emit setMode(md);
+                reply = "OK";
+            }
+            break;
+        case cmd_pm8000://pm8000
+
+            break;
+        case cmd_radio: //radio
+            emit setRadio(subcommand.at(2).toInt());
+            reply = "OK";
+            break;
+        case cmd_backlight: //backlight
+            emit setBacklight(subcommand.at(2).toInt());
+            reply = "OK";
+            break;
+        case cmd_spdifinput: //spdifinput
+            emit setSPDIFInput(subcommand.at(2).toInt());
+            reply = "OK";
+            break;
+        case cmd_play: //play
+            emit setPlay();
+            reply = "OK";
+            break;
+        case cmd_pause: //pause
+            emit setPause();
+            reply = "OK";
+            break;
+        case cmd_next: //next
+            emit setNext();
+            reply = "OK";
+            break;
+        case cmd_previous: //previous
+            emit setPrevious();
+            reply = "OK";
+            break;
+        case cmd_stop: //stop
+            emit setStop();
+            reply = "OK";
+            break;
+        case cmd_taster: //taster
+            emit taster(subcommand.at(2).toInt());
+            reply = "OK";
+            break;
+        case cmd_shutdown: //shutdown
+            emit tasterZweitbelegung(2);
+            reply = "OK";
+            break;
+        default:
+            ;
         }
     }
     else if (subcommand.at(0).compare("get", Qt::CaseInsensitive) == 0)
     {
-        if((index = get_commands.indexOf(subcommand.at(1))) > -1)
+        switch (cmdcode)
         {
-            switch (index)
-            {
-                case 0: //status (struct UDPDatagram, für Initialisierung der Clienten)
-                    reply = "[RaspiDAC]";
-                    reply.append(static_cast<NetAPIServer*>(parent())->getDatagram());
-                break;
-                case 1: //radiolist
-                    //reply = static_cast<NetAPIServer*>(parent())->getRadioList();
-                    reply = "[radioList]";
-                    reply.append(m_netapiserver->getRadioList());
-                    break;
-            case 2: //metadata
-                    reply = "[MetaData]";
-                    reply.append(m_netapiserver->getMetaData());
-                break;
-            }
+        case cmd_status: //status (struct UDPDatagram, für Initialisierung der Clienten)
+            reply = "[RaspiDAC]";
+            reply.append(static_cast<NetAPIServer*>(parent())->getDatagram());
+            break;
+        case cmd_radiolist: //radiolist
+            //reply = static_cast<NetAPIServer*>(parent())->getRadioList();
+            reply = "[radioList]";
+            reply.append(m_netapiserver->getRadioList());
+            break;
+        case cmd_metadata: //metadata
+            reply = "[MetaData]";
+            reply.append(m_netapiserver->getMetaData());
+            break;
+        default:
+            ;
         }
     }
     return reply;

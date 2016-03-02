@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QTcpSocket>
+#include <QHash>
 
 #include "../raspidac.h"
 
@@ -46,6 +47,30 @@ private:
     RaspiDAC::GUIMode mode(const QString &cmd);
     QString parser(const QString &command);
     NetAPIServer *m_netapiserver;
+
+    enum commandCode
+    {
+        cmd_rc5direct,
+        cmd_standby,
+        cmd_dacinput,
+        cmd_mode,
+        cmd_pm8000,
+        cmd_radio,
+        cmd_backlight,
+        cmd_spdifinput,
+        cmd_play,
+        cmd_pause,
+        cmd_next,
+        cmd_previous,
+        cmd_stop,
+        cmd_taster,
+        cmd_shutdown,
+        cmd_status,
+        cmd_radiolist,
+        cmd_metadata
+    };
+
+    QHash<QString, commandCode> m_commandList;
 
 };
 

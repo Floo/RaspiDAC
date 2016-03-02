@@ -4,7 +4,6 @@
 #include "rpicontrol/netapiserver.h"
 #include "rpi_playlist.h"
 #include "GUI/menu.h"
-#include "rpicontrol/lirccontrol.h"
 
 RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false), m_port(8000)
@@ -51,6 +50,8 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     connect(m_lirc, SIGNAL(play()), this, SIGNAL(play()));
     connect(m_lirc, SIGNAL(pause()), this, SIGNAL(pause()));
     connect(m_lirc, SIGNAL(stop()), this, SIGNAL(stop()));
+    connect(this, SIGNAL(sendIRKey(LircControl::commandCode)),
+            m_lirc, SLOT(sendCommand(LircControl::commandCode)));
 }
 
 RaspiDAC::~RaspiDAC()
@@ -192,6 +193,8 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
     if((mode != RPI_Standby) &&
             (m_window->currentIndex() == RPI_Standby))
     {
+        // Geräte einschalten
+        emit sendIRKey(LircControl::cmd_powerOn);
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_ON);
         rpiGPIO->setLED(LED_ON);
@@ -245,13 +248,15 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 
     if(mode == RPI_Standby)
     {
+        // Geräte einschalten
         qDebug() << "***RaspiDAC::setGUIMode: emit pause()";
         emit pause();
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_OFF);
         rpiGPIO->setBacklight(BACKLIGHT_DIMM);
         rpiGPIO->setLED(LED_OFF);
-#endif
+#endif       
+        emit sendIRKey(LircControl::cmd_powerOff);
     }
     m_window->setCurrentIndex(mode);
     prepareDatagram();

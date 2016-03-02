@@ -51,6 +51,31 @@
 
 #define DEBOUNCE_TIME 25 //ms
 
+// TSL2591 Helligkeitssensor
+#define TSL2591_ADDR                0x29
+#define TSL2591_DEVICE_ID_VALUE     0x50
+#define TSL2591_DEVICE_RESET_VALUE  0x80
+#define TSL2591_COMMAND             0x80
+#define TSL2591_NORMAL_OP           0x20
+#define TSL2591_ENABLE_RW 	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x00)
+#define TSL2591_CONFIG_RW 	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x01)
+#define TSL2591_AILTL_RW  	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x04)
+#define TSL2591_AILTH_RW  	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x05)
+#define TSL2591_AIHTL_RW  	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x06)
+#define TSL2591_AIHTH_RW  	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x07)
+#define TSL2591_NPAILTL_RW	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x08)
+#define TSL2591_NPAILTH_RW	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x09)
+#define TSL2591_NPAIHTL_RW	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x0A)
+#define TSL2591_NPAIHTH_RW	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x0B)
+#define TSL2591_PERSIST_RW	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x0C)
+#define TSL2591_PID_R       (TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x11)
+#define TSL2591_ID_R        (TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x12)
+#define TSL2591_STATUS_R 	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x13)
+#define TSL2591_C0DATAL_R	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x14)
+#define TSL2591_C0DATAH_R	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x15)
+#define TSL2591_C1DATAL_R 	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x16)
+#define TSL2591_C1DATAH_R	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x17)
+
 class RPiGPIO;
 
 class RPiTaster : public QObject
@@ -88,6 +113,7 @@ public:
     int getInputSelect();
     void pca9530Setup();
     void cs8416Setup();
+    void tsl2591Setup();
 
 
 public slots:
@@ -100,6 +126,7 @@ public slots:
     void setCS8416InputSelect(int);
     void getCS8416ID();
     void getCS8416Reg(int);
+    void getTSL2591(int);
 
 signals:
     void taster(int);
@@ -110,6 +137,7 @@ private:
     Internal *m;
     int fd_pca9530 = 0;
     int fd_cs8416 = 0;
+    int fd_tsl2591 = 0;
 };
 
 #endif // RPIGPIO_H

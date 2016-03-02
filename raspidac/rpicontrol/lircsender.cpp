@@ -27,8 +27,11 @@ void LircSender::sendKey(const char *key)
      * liblirc_client and lirc_send_one() - which will be available in next lirc
      * release.
      */
+
     char *cmd;
     int ret;
+
+    m_mutex.lock();
 
     ret = asprintf (&cmd, "irsend SEND_ONCE RC8000PM %s", key);
     if (ret < 0)
@@ -41,39 +44,6 @@ void LircSender::sendKey(const char *key)
         qDebug() << "LircSender::sendKey: Error, can't send signal";
     }
     free (cmd);
+    m_mutex.unlock();
 }
-
-// * cmd_SendIR()
-// */
-//unsigned int
-//cmd_SendIR (struct libwebsocket *wsi, unsigned char *buffer, char *args)
-//{
-//  char *cmd;
-//  int ret;
-
-//  print_log (LOG_INFO, "(%p) (cmd_SendIR) processing request\n", wsi);
-
-//  ret = asprintf (&cmd, "irsend SEND_ONCE %s", args);
-//  if (ret < 0)
-//    {
-//      print_log (LOG_ERR, "(%p) (cmd_SendIR) can't prepare LIRC command\n", wsi);
-//      return send_error (buffer, "Can't prepare LIRC command");
-//    }
-
-//  /*
-//   * Invoking system() function is temporary solution - we'll switch soon to
-//   * liblirc_client and lirc_send_one() - which will be available in next lirc
-//   * release.
-//   */
-//  ret = system (cmd);
-//  if (ret != 0)
-//    {
-//      print_log (LOG_ERR, "(%p) (cmd_SendIR) can't send signal\n", wsi);
-//      free (cmd);
-//      return send_error (buffer, "Can't send signal - please check server's log");
-//    }
-
-//  free (cmd);
-//  return 0;
-//}
 

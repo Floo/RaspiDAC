@@ -4,9 +4,6 @@
 #
 #-------------------------------------------------
 
-#QT       += core gui script webkit network xml
-#greaterThan(QT_MAJOR_VERSION, 4): QT += widgets webkitwidgets
-
 QT       += core gui script network xml
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -19,7 +16,6 @@ INSTALLS += target
 VERSION = 1.0.0
 
 QMAKE_CXXFLAGS += -std=c++0x  -DUPPLAY_VERSION=\\\"$$VERSION\\\" -Wno-psabi
-#QMAKE_CXXFLAGS += -DUSING_WEBENGINE
 
 target.path = /home/pi/RaspiDAC
 
