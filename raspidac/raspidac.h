@@ -19,6 +19,7 @@ class Rpi_Playlist;
 class Application;
 class Menu;
 class LircControl;
+class LircTest;
 
 class RaspiDAC : public QWidget
 {
@@ -126,6 +127,7 @@ private:
     bool m_initialized;
     quint16 m_port;
     LircControl *m_lirc;
+    LircTest *m_lirctest;
 
     void applySavedMetaData();
     void shutdownDevice();

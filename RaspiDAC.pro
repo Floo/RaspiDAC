@@ -52,7 +52,8 @@ SOURCES += \
     raspidac/rpicontrol/lircreceiver.cpp \
     raspidac/rpicontrol/lircsender.cpp \
     raspidac/rpicontrol/lirccontrol.cpp \
-    RaspiDAC.cpp
+    RaspiDAC.cpp \
+    raspidac/rpicontrol/lirctest.cpp
 
 HEADERS  += \
     upplay/GUI/songcast/songcastdlg.h \
@@ -103,7 +104,8 @@ HEADERS  += \
     raspidac/GUI/messagewindow.h \
     raspidac/rpicontrol/lircreceiver.h \
     raspidac/rpicontrol/lircsender.h \
-    raspidac/rpicontrol/lirccontrol.h
+    raspidac/rpicontrol/lirccontrol.h \
+    raspidac/rpicontrol/lirctest.h
 
 FORMS  += \
     raspidac/GUI/mainwindow.ui \

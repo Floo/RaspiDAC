@@ -4,6 +4,7 @@
 #include "rpicontrol/netapiserver.h"
 #include "rpi_playlist.h"
 #include "GUI/menu.h"
+#include "rpicontrol/lirctest.h"
 
 RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false), m_port(8000)
@@ -22,7 +23,9 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     m_menu = new Menu(m_window);
     m_menu->setInputList();
 
-    m_lirc = new LircControl();
+    //m_lirc = new LircControl();
+    m_lirctest = new LircTest();
+    m_lirctest->start();
 
     m_spdifInput = 0;
     m_shutdownPending = false;
@@ -47,11 +50,11 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     connect(rpiGPIO, SIGNAL(tasterZweitbelegung(int)),
             this, SLOT(onTasterZweitbelegung(int)));
 #endif
-    connect(m_lirc, SIGNAL(play()), this, SIGNAL(play()));
-    connect(m_lirc, SIGNAL(pause()), this, SIGNAL(pause()));
-    connect(m_lirc, SIGNAL(stop()), this, SIGNAL(stop()));
-    connect(this, SIGNAL(sendIRKey(LircControl::commandCode)),
-            m_lirc, SLOT(sendCommand(LircControl::commandCode)));
+//    connect(m_lirc, SIGNAL(play()), this, SIGNAL(play()));
+//    connect(m_lirc, SIGNAL(pause()), this, SIGNAL(pause()));
+//    connect(m_lirc, SIGNAL(stop()), this, SIGNAL(stop()));
+//    connect(this, SIGNAL(sendIRKey(LircControl::commandCode)),
+//            m_lirc, SLOT(sendCommand(LircControl::commandCode)));
 }
 
 RaspiDAC::~RaspiDAC()
