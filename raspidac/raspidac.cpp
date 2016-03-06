@@ -4,7 +4,6 @@
 #include "rpicontrol/netapiserver.h"
 #include "rpi_playlist.h"
 #include "GUI/menu.h"
-#include "rpicontrol/lirctest.h"
 
 RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false), m_port(8000)
@@ -23,9 +22,7 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     m_menu = new Menu(m_window);
     m_menu->setInputList();
 
-    //m_lirc = new LircControl();
-    m_lirctest = new LircTest();
-    m_lirctest->start();
+    m_lirc = new LircControl();
 
     m_spdifInput = 0;
     m_shutdownPending = false;
@@ -50,11 +47,16 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     connect(rpiGPIO, SIGNAL(tasterZweitbelegung(int)),
             this, SLOT(onTasterZweitbelegung(int)));
 #endif
-//    connect(m_lirc, SIGNAL(play()), this, SIGNAL(play()));
-//    connect(m_lirc, SIGNAL(pause()), this, SIGNAL(pause()));
-//    connect(m_lirc, SIGNAL(stop()), this, SIGNAL(stop()));
-//    connect(this, SIGNAL(sendIRKey(LircControl::commandCode)),
-//            m_lirc, SLOT(sendCommand(LircControl::commandCode)));
+    connect(m_lirc, &LircControl::play, this, &RaspiDAC::play);
+    connect(m_lirc, &LircControl::pause, this, &RaspiDAC::pause);
+    connect(m_lirc, &LircControl::stop, this, &RaspiDAC::stop);
+    connect(m_lirc, &LircControl::key, this, &RaspiDAC::setRadio);
+    connect(m_lirc, &LircControl::next, this, &RaspiDAC::forward);
+    connect(m_lirc, &LircControl::previous, this, &RaspiDAC::backward);
+    connect(m_lirc, &LircControl::mode, this, &RaspiDAC::toggleSPDIFInput);
+    connect(m_lirc, &LircControl::powerOn, this, &RaspiDAC::powerOn);
+    connect(m_lirc, &LircControl::powerOff, this, &RaspiDAC::powerOff);
+    connect(this, &RaspiDAC::sendIRKey, m_lirc, &LircControl::sendCode);
 }
 
 RaspiDAC::~RaspiDAC()
@@ -79,6 +81,23 @@ void RaspiDAC::setSPDIFInput(int value)
 #endif
     m_window->input(QString("Input %1").arg(m_spdifInput + 1));
     prepareDatagram();
+}
+
+void RaspiDAC::toggleSPDIFInput()
+{
+    if (getGUIMode() == RPI_Spdif)
+    {
+        if (m_spdifInput == 3)
+        {
+            setSPDIFInput(0);
+        } else {
+            setSPDIFInput(m_spdifInput + 1);
+        }
+    }
+    else
+    {
+        setSPDIFInput(m_spdifInput);
+    }
 }
 
 void RaspiDAC::setBacklight(int value)
@@ -166,6 +185,31 @@ void RaspiDAC::onTaster(int taster)
     }
 }
 
+void RaspiDAC::powerOn()
+{
+    if (!m_initialized)
+    {
+        QString msg = QString("Initialisierung fehlgeschlagen.\n\n"
+                              "Keine Verbindung zum Renderer: %1.")
+                .arg(m_rendererName);
+        m_window->showMessage(msg);
+        return;
+    }
+    if (getGUIMode() == RPI_Standby)
+    {
+        setGUIMode(m_lastMode);
+    }
+}
+
+void RaspiDAC::powerOff()
+{
+    if (getGUIMode() != RPI_Standby)
+    {
+        m_lastMode = (GUIMode)m_window->currentIndex();
+        setGUIMode(RPI_Standby);
+    }
+}
+
 void RaspiDAC::onTasterZweitbelegung(int taster)
 {
     if (taster == 1) //PLAY/PAUSE/SELECT
@@ -197,7 +241,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
             (m_window->currentIndex() == RPI_Standby))
     {
         // Geräte einschalten
-        emit sendIRKey(LircControl::cmd_powerOn);
+        emit sendIRKey(LircControl::cmd_sysPowerOn);
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_ON);
         rpiGPIO->setLED(LED_ON);
@@ -259,7 +303,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
         rpiGPIO->setBacklight(BACKLIGHT_DIMM);
         rpiGPIO->setLED(LED_OFF);
 #endif       
-        emit sendIRKey(LircControl::cmd_powerOff);
+        emit sendIRKey(LircControl::cmd_sysPowerOff);
     }
     m_window->setCurrentIndex(mode);
     prepareDatagram();

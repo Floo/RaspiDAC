@@ -81,7 +81,7 @@ signals:
     //-----Ende Interface
 
     void datagramm(UDPDatagram&);
-    void sendIRKey(LircControl::commandCode);
+    void sendIRKey(LircControl::sysCommandCode);
 
 public slots:
     //-----Interface zu upplay
@@ -104,11 +104,14 @@ public slots:
 
     void setDACInput(int);
     void setSPDIFInput(int);
+    void toggleSPDIFInput();
     void setGUIMode(RaspiDAC::GUIMode mode);
     void setBacklight(int);
     void onTaster(int);
     void onTasterZweitbelegung(int);
     void setRadio(int);
+    void powerOn();
+    void powerOff();
 
 private:
     Application *m_upapp;
@@ -127,7 +130,6 @@ private:
     bool m_initialized;
     quint16 m_port;
     LircControl *m_lirc;
-    LircTest *m_lirctest;
 
     void applySavedMetaData();
     void shutdownDevice();

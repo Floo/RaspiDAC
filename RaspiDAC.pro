@@ -49,11 +49,9 @@ SOURCES += \
     raspidac/GUI/progressbar.cpp \
     raspidac/GUI/albumartloader.cpp \
     raspidac/GUI/messagewindow.cpp \
-    raspidac/rpicontrol/lircreceiver.cpp \
-    raspidac/rpicontrol/lircsender.cpp \
     raspidac/rpicontrol/lirccontrol.cpp \
     RaspiDAC.cpp \
-    raspidac/rpicontrol/lirctest.cpp
+    raspidac/rpicontrol/lircdevice.cpp
 
 HEADERS  += \
     upplay/GUI/songcast/songcastdlg.h \
@@ -102,10 +100,8 @@ HEADERS  += \
     raspidac/GUI/progressbar.h \
     raspidac/GUI/albumartloader.h \
     raspidac/GUI/messagewindow.h \
-    raspidac/rpicontrol/lircreceiver.h \
-    raspidac/rpicontrol/lircsender.h \
     raspidac/rpicontrol/lirccontrol.h \
-    raspidac/rpicontrol/lirctest.h
+    raspidac/rpicontrol/lircdevice.h
 
 FORMS  += \
     raspidac/GUI/mainwindow.ui \
