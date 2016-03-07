@@ -304,12 +304,12 @@ TORX173.pdf</description>
 <wire x1="1.27" y1="8.89" x2="1.27" y2="5.715" width="0.254" layer="27"/>
 <wire x1="1.27" y1="5.715" x2="0.635" y2="6.985" width="0.254" layer="27"/>
 <wire x1="1.905" y1="6.985" x2="1.27" y2="5.715" width="0.254" layer="27"/>
-<pad name="1" x="-3.81" y="0" drill="0.6" shape="octagon"/>
-<pad name="2" x="-1.27" y="0" drill="0.6" shape="octagon"/>
-<pad name="3" x="1.27" y="0" drill="0.6" shape="octagon"/>
-<pad name="4" x="3.81" y="0" drill="0.6" shape="octagon"/>
-<pad name="6" x="-5.2" y="4.5" drill="0.7" shape="octagon"/>
-<pad name="5" x="5.2" y="4.5" drill="0.7" shape="octagon"/>
+<pad name="1" x="-3.81" y="0" drill="0.7" diameter="1.4224"/>
+<pad name="2" x="-1.27" y="0" drill="0.7" diameter="1.4224"/>
+<pad name="3" x="1.27" y="0" drill="0.7" diameter="1.4224"/>
+<pad name="4" x="3.81" y="0" drill="0.7" diameter="1.4224"/>
+<pad name="6" x="-5.2" y="4.5" drill="0.7" diameter="1.4224"/>
+<pad name="5" x="5.2" y="4.5" drill="0.7" diameter="1.4224"/>
 <text x="-6.985" y="-2.54" size="1.27" layer="25" rot="R90">&gt;NAME</text>
 <text x="8.255" y="-2.54" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
 </package>
@@ -17698,94 +17698,40 @@ TR5, Wickmann</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="MAX1724">
-<packages>
-<package name="SOT23-5L">
-<description>&lt;b&gt;Small Outline Transistor&lt;/b&gt;</description>
-<wire x1="1.422" y1="0.81" x2="1.422" y2="-0.81" width="0.1524" layer="21"/>
-<wire x1="1.422" y1="-0.81" x2="-1.422" y2="-0.81" width="0.1524" layer="51"/>
-<wire x1="-1.422" y1="-0.81" x2="-1.422" y2="0.81" width="0.1524" layer="21"/>
-<wire x1="-1.422" y1="0.81" x2="1.422" y2="0.81" width="0.1524" layer="51"/>
-<wire x1="-0.522" y1="0.81" x2="0.522" y2="0.81" width="0.1524" layer="21"/>
-<wire x1="-0.428" y1="-0.81" x2="-0.522" y2="-0.81" width="0.1524" layer="21"/>
-<wire x1="0.522" y1="-0.81" x2="0.428" y2="-0.81" width="0.1524" layer="21"/>
-<wire x1="-1.328" y1="-0.81" x2="-1.422" y2="-0.81" width="0.1524" layer="21"/>
-<wire x1="1.422" y1="-0.81" x2="1.328" y2="-0.81" width="0.1524" layer="21"/>
-<wire x1="1.328" y1="0.81" x2="1.422" y2="0.81" width="0.1524" layer="21"/>
-<wire x1="-1.422" y1="0.81" x2="-1.328" y2="0.81" width="0.1524" layer="21"/>
-<smd name="1" x="-0.95" y="-1.3" dx="0.55" dy="1.2" layer="1"/>
-<smd name="2" x="0" y="-1.3" dx="0.55" dy="1.2" layer="1"/>
-<smd name="3" x="0.95" y="-1.3" dx="0.55" dy="1.2" layer="1"/>
-<smd name="4" x="0.95" y="1.3" dx="0.55" dy="1.2" layer="1"/>
-<smd name="5" x="-0.95" y="1.3" dx="0.55" dy="1.2" layer="1"/>
-<text x="-1.905" y="1.905" size="1.27" layer="25">&gt;NAME</text>
-<text x="-1.905" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-1.2" y1="-1.5" x2="-0.7" y2="-0.85" layer="51"/>
-<rectangle x1="-0.25" y1="-1.5" x2="0.25" y2="-0.85" layer="51"/>
-<rectangle x1="0.7" y1="-1.5" x2="1.2" y2="-0.85" layer="51"/>
-<rectangle x1="0.7" y1="0.85" x2="1.2" y2="1.5" layer="51"/>
-<rectangle x1="-1.2" y1="0.85" x2="-0.7" y2="1.5" layer="51"/>
-</package>
-</packages>
-<symbols>
-<symbol name="MAX1724">
-<wire x1="-10.16" y1="7.62" x2="-10.16" y2="-10.16" width="0.254" layer="94"/>
-<wire x1="-10.16" y1="-10.16" x2="10.16" y2="-10.16" width="0.254" layer="94"/>
-<wire x1="10.16" y1="-10.16" x2="10.16" y2="7.62" width="0.254" layer="94"/>
-<wire x1="10.16" y1="7.62" x2="-10.16" y2="7.62" width="0.254" layer="94"/>
-<text x="-5.08" y="0" size="1.778" layer="94">MAX1724+</text>
-<pin name="BATT" x="-15.24" y="5.08" length="middle" direction="sup"/>
-<pin name="GND" x="0" y="-15.24" length="middle" direction="sup" rot="R90"/>
-<pin name="OUT" x="15.24" y="-5.08" length="middle" direction="out" rot="R180"/>
-<pin name="LX" x="15.24" y="5.08" length="middle" direction="in" rot="R180"/>
-<pin name="SHDN" x="-15.24" y="-5.08" length="middle" function="dot"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="MAX1724" prefix="U">
-<gates>
-<gate name="G$1" symbol="MAX1724" x="38.1" y="-2.54"/>
-</gates>
-<devices>
-<device name="" package="SOT23-5L">
-<connects>
-<connect gate="G$1" pin="BATT" pad="1"/>
-<connect gate="G$1" pin="GND" pad="2"/>
-<connect gate="G$1" pin="LX" pad="5"/>
-<connect gate="G$1" pin="OUT" pad="4"/>
-<connect gate="G$1" pin="SHDN" pad="3"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 <library name="inductor-coilcraft">
 <description>&lt;b&gt;Coilcraft SMD Inductors&lt;/b&gt;&lt;p&gt;
 &lt;author&gt;Created by librarian@cadsoft.de&lt;br&gt;
 Modified: by Eugene Sadovoi evgeni@eniks.com&lt;/author&gt;</description>
 <packages>
-<package name="DS1608">
+<package name="LPS4018">
 <description>POWER INDUCTOR</description>
-<wire x1="2.667" y1="0" x2="2.667" y2="-0.635" width="0" layer="47"/>
-<wire x1="2.667" y1="0.635" x2="2.667" y2="-0.635" width="0.254" layer="51"/>
-<wire x1="2.667" y1="-0.635" x2="1.7272" y2="-2.2352" width="0.254" layer="51"/>
-<wire x1="1.7272" y1="-2.2352" x2="-1.7272" y2="-2.2352" width="0.254" layer="21"/>
-<wire x1="-1.7272" y1="-2.2352" x2="-2.667" y2="-0.635" width="0.254" layer="51"/>
-<wire x1="-2.667" y1="-0.635" x2="-2.667" y2="0.635" width="0.254" layer="51"/>
-<wire x1="-2.667" y1="0.635" x2="-1.7272" y2="2.2352" width="0.254" layer="51"/>
-<wire x1="-1.7272" y1="2.2352" x2="1.7272" y2="2.2352" width="0.254" layer="21"/>
-<wire x1="1.7272" y1="2.2352" x2="2.667" y2="0.635" width="0.254" layer="51"/>
-<wire x1="-2.159" y1="-1.4732" x2="-2.159" y2="1.4732" width="0.254" layer="51"/>
-<wire x1="2.159" y1="1.4732" x2="2.159" y2="-1.4732" width="0.254" layer="51"/>
-<circle x="0" y="0" radius="2.032" width="0.254" layer="51"/>
-<smd name="1" x="-2.7432" y="0" dx="1.397" dy="3.556" layer="1"/>
-<smd name="2" x="2.7432" y="0" dx="1.397" dy="3.556" layer="1"/>
-<text x="-1.5875" y="2.8575" size="1.016" layer="25" ratio="18">&gt;NAME</text>
-<text x="-1.5875" y="-3.4925" size="0.8128" layer="27" ratio="10">&gt;VALUE</text>
+<wire x1="-1.95" y1="1.6325" x2="-1.6325" y2="1.95" width="0.2032" layer="51"/>
+<wire x1="-1.6325" y1="1.95" x2="1.6325" y2="1.95" width="0.2032" layer="51"/>
+<wire x1="1.6325" y1="1.95" x2="1.95" y2="1.6325" width="0.2032" layer="51"/>
+<wire x1="1.95" y1="1.6325" x2="1.95" y2="-1.6325" width="0.2032" layer="51"/>
+<wire x1="1.95" y1="-1.6325" x2="1.6325" y2="-1.95" width="0.2032" layer="51"/>
+<wire x1="1.6325" y1="-1.95" x2="-1.6325" y2="-1.95" width="0.2032" layer="51"/>
+<wire x1="-1.6325" y1="-1.95" x2="-1.95" y2="-1.6325" width="0.2032" layer="51"/>
+<wire x1="-1.95" y1="-1.6325" x2="-1.95" y2="1.6325" width="0.2032" layer="51"/>
+<wire x1="-0.6" y1="1.95" x2="0.6" y2="1.95" width="0.2032" layer="21"/>
+<wire x1="-0.6" y1="-1.95" x2="0.6" y2="-1.95" width="0.2032" layer="21"/>
+<circle x="-1.05" y="0" radius="0.2061" width="0" layer="21"/>
+<smd name="1" x="-1.5" y="0" dx="4.4" dy="1.45" layer="1" rot="R90" stop="no" thermals="no" cream="no"/>
+<smd name="2" x="1.5" y="0" dx="4.4" dy="1.45" layer="1" rot="R90" stop="no" thermals="no" cream="no"/>
+<text x="-2" y="2.25" size="1.016" layer="25" ratio="18">&gt;NAME</text>
+<text x="-2" y="-3" size="0.8128" layer="27" ratio="10">&gt;VALUE</text>
+<rectangle x1="-2.2" y1="-0.85" x2="-1.5" y2="0.9" layer="29"/>
+<rectangle x1="-2.2" y1="0.9" x2="-0.85" y2="2.15" layer="29" rot="R180"/>
+<rectangle x1="-2.2" y1="-2.15" x2="-0.85" y2="-0.85" layer="29" rot="R180"/>
+<rectangle x1="0.85" y1="0.85" x2="2.2" y2="2.15" layer="29" rot="R180"/>
+<rectangle x1="0.85" y1="-2.15" x2="2.2" y2="-0.85" layer="29" rot="R180"/>
+<rectangle x1="1.5" y1="-0.85" x2="2.2" y2="0.85" layer="29"/>
+<rectangle x1="-2.15" y1="-0.9" x2="-1.55" y2="0.95" layer="31"/>
+<rectangle x1="-2.15" y1="0.95" x2="-0.9" y2="2.1" layer="31" rot="R180"/>
+<rectangle x1="-2.15" y1="-2.1" x2="-0.9" y2="-0.9" layer="31" rot="R180"/>
+<rectangle x1="1.55" y1="-0.95" x2="2.15" y2="0.9" layer="31" rot="R180"/>
+<rectangle x1="0.9" y1="-2.1" x2="2.15" y2="-0.95" layer="31"/>
+<rectangle x1="0.9" y1="0.9" x2="2.15" y2="2.1" layer="31"/>
 </package>
 </packages>
 <symbols>
@@ -17807,13 +17753,13 @@ Modified: by Eugene Sadovoi evgeni@eniks.com&lt;/author&gt;</description>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="DS1608" prefix="L" uservalue="yes">
-<description>SMT Power Inductor</description>
+<deviceset name="LPS4018" prefix="L">
+<description>POWER INDUCTOR</description>
 <gates>
 <gate name="G$1" symbol="LI" x="0" y="0"/>
 </gates>
 <devices>
-<device name="C" package="DS1608">
+<device name="" package="LPS4018">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
@@ -18465,25 +18411,13 @@ Source: http://www.produktinfo.conrad.com/datenblaetter/725000-749999/736880-da-
 <wire x1="-11.92" y1="3.75" x2="-5.42" y2="3.75" width="0.4096" layer="21"/>
 <wire x1="-4.92" y1="4.25" x2="-5.42" y2="3.75" width="0.4096" layer="21" curve="-90"/>
 <wire x1="-5.42" y1="-3.5" x2="-4.92" y2="-4" width="0.4096" layer="21" curve="-90"/>
-<pad name="1" x="-3.92" y="0" drill="1" diameter="2.2" shape="long"/>
-<pad name="1@2" x="5.08" y="5.5" drill="1" diameter="2.2" shape="long"/>
-<pad name="1@1" x="5.08" y="-5.5" drill="1" diameter="2.2" shape="long"/>
+<pad name="1" x="-3.92" y="0" drill="1.6" diameter="2" shape="long"/>
+<pad name="1@2" x="5.08" y="5.5" drill="1.6" diameter="2" shape="long"/>
+<pad name="1@1" x="5.08" y="-5.5" drill="1.6" diameter="2" shape="long"/>
 <text x="2.54" y="1.27" size="1.27" layer="25">&gt;NAME</text>
 <text x="2.54" y="-2.54" size="1.27" layer="27">&gt;VALUE</text>
-<pad name="2" x="3.58" y="0" drill="1.8" diameter="3"/>
-<wire x1="3.975" y1="6" x2="6.275" y2="6" width="0" layer="46"/>
-<wire x1="6.275" y1="6" x2="6.275" y2="5" width="0" layer="46"/>
-<wire x1="6.275" y1="5" x2="3.975" y2="5" width="0" layer="46"/>
-<wire x1="3.975" y1="5" x2="3.975" y2="6" width="0" layer="46"/>
+<pad name="2" x="3.58" y="0" drill="1.8" diameter="3.6"/>
 <wire x1="6.08" y1="5.5" x2="2.08" y2="5.5" width="0.4096" layer="51"/>
-<wire x1="3.975" y1="-5" x2="6.275" y2="-5" width="0" layer="46"/>
-<wire x1="6.275" y1="-5" x2="6.275" y2="-6" width="0" layer="46"/>
-<wire x1="6.275" y1="-6" x2="3.975" y2="-6" width="0" layer="46"/>
-<wire x1="3.975" y1="-6" x2="3.975" y2="-5" width="0" layer="46"/>
-<wire x1="-5.025" y1="0.5" x2="-2.725" y2="0.5" width="0" layer="46"/>
-<wire x1="-2.725" y1="0.5" x2="-2.725" y2="-0.5" width="0" layer="46"/>
-<wire x1="-2.725" y1="-0.5" x2="-5.025" y2="-0.5" width="0" layer="46"/>
-<wire x1="-5.025" y1="-0.5" x2="-5.025" y2="0.5" width="0" layer="46"/>
 </package>
 </packages>
 <symbols>
@@ -18512,6 +18446,212 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <connects>
 <connect gate="G$1" pin="1" pad="1 1@1 1@2"/>
 <connect gate="G$1" pin="2" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
+<library name="maxim-5">
+<description>&lt;b&gt;Maxim Components&lt;/b&gt;&lt;p&gt;
+
+&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+<package name="SOT23-6L">
+<description>&lt;b&gt;Small Outline Transistor&lt;/b&gt;</description>
+<wire x1="1.422" y1="0.81" x2="1.422" y2="-0.81" width="0.1524" layer="21"/>
+<wire x1="1.422" y1="-0.81" x2="-1.422" y2="-0.81" width="0.1524" layer="51"/>
+<wire x1="-1.422" y1="-0.81" x2="-1.422" y2="0.81" width="0.1524" layer="21"/>
+<wire x1="-1.422" y1="0.81" x2="1.422" y2="0.81" width="0.1524" layer="51"/>
+<wire x1="-0.428" y1="-0.81" x2="-0.522" y2="-0.81" width="0.1524" layer="21"/>
+<wire x1="0.522" y1="-0.81" x2="0.428" y2="-0.81" width="0.1524" layer="21"/>
+<wire x1="-1.328" y1="-0.81" x2="-1.422" y2="-0.81" width="0.1524" layer="21"/>
+<wire x1="1.422" y1="-0.81" x2="1.328" y2="-0.81" width="0.1524" layer="21"/>
+<wire x1="1.328" y1="0.81" x2="1.422" y2="0.81" width="0.1524" layer="21"/>
+<wire x1="-1.422" y1="0.81" x2="-1.328" y2="0.81" width="0.1524" layer="21"/>
+<wire x1="0.428" y1="0.81" x2="0.522" y2="0.81" width="0.1524" layer="21"/>
+<wire x1="-0.522" y1="0.81" x2="-0.428" y2="0.81" width="0.1524" layer="21"/>
+<circle x="-1" y="-0.45" radius="0.1" width="0.1524" layer="21"/>
+<smd name="1" x="-0.95" y="-1.3" dx="0.55" dy="1.2" layer="1"/>
+<smd name="2" x="0" y="-1.3" dx="0.55" dy="1.2" layer="1"/>
+<smd name="3" x="0.95" y="-1.3" dx="0.55" dy="1.2" layer="1"/>
+<smd name="4" x="0.95" y="1.3" dx="0.55" dy="1.2" layer="1"/>
+<smd name="5" x="0" y="1.3" dx="0.55" dy="1.2" layer="1"/>
+<smd name="6" x="-0.95" y="1.3" dx="0.55" dy="1.2" layer="1"/>
+<text x="-1.905" y="1.905" size="1.27" layer="25">&gt;NAME</text>
+<text x="-1.905" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
+<rectangle x1="-1.2" y1="-1.5" x2="-0.7" y2="-0.85" layer="51"/>
+<rectangle x1="-0.25" y1="-1.5" x2="0.25" y2="-0.85" layer="51"/>
+<rectangle x1="0.7" y1="-1.5" x2="1.2" y2="-0.85" layer="51"/>
+<rectangle x1="0.7" y1="0.85" x2="1.2" y2="1.5" layer="51"/>
+<rectangle x1="-0.25" y1="0.85" x2="0.25" y2="1.5" layer="51"/>
+<rectangle x1="-1.2" y1="0.85" x2="-0.7" y2="1.5" layer="51"/>
+</package>
+</packages>
+<symbols>
+<symbol name="MAX1836">
+<wire x1="-7.62" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="7.62" x2="7.62" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-7.62" x2="-7.62" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="-7.62" x2="-7.62" y2="7.62" width="0.254" layer="94"/>
+<text x="5.08" y="10.16" size="2.54" layer="95" rot="R180">&gt;NAME</text>
+<text x="-2.54" y="-10.16" size="1.27" layer="96">&gt;VALUE</text>
+<pin name="FB" x="-12.7" y="5.08" length="middle" direction="in"/>
+<pin name="GND" x="-12.7" y="0" length="middle" direction="pwr"/>
+<pin name="IN" x="-12.7" y="-5.08" length="middle" direction="in"/>
+<pin name="LX" x="12.7" y="-5.08" length="middle" direction="out" rot="R180"/>
+<pin name="/SHDN" x="12.7" y="0" length="middle" direction="in" rot="R180"/>
+<pin name="OUT" x="12.7" y="5.08" length="middle" direction="out" rot="R180"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="MAX1836">
+<gates>
+<gate name="G$1" symbol="MAX1836" x="0" y="0"/>
+</gates>
+<devices>
+<device name="SOT23" package="SOT23-6L">
+<connects>
+<connect gate="G$1" pin="/SHDN" pad="5"/>
+<connect gate="G$1" pin="FB" pad="1"/>
+<connect gate="G$1" pin="GND" pad="2"/>
+<connect gate="G$1" pin="IN" pad="3"/>
+<connect gate="G$1" pin="LX" pad="4"/>
+<connect gate="G$1" pin="OUT" pad="6"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
+<library name="dp_devices">
+<description>Dangerous Prototypes Standard PCB sizes
+http://dangerousprototypes.com</description>
+<packages>
+<package name="DO323">
+<wire x1="-1" y1="0.7" x2="1" y2="0.7" width="0.1524" layer="51"/>
+<wire x1="1" y1="0.7" x2="1" y2="-0.7" width="0.1524" layer="51"/>
+<wire x1="1" y1="-0.7" x2="-1" y2="-0.7" width="0.1524" layer="51"/>
+<wire x1="-1" y1="-0.7" x2="-1" y2="0.7" width="0.1524" layer="51"/>
+<wire x1="-0.5" y1="0" x2="0.1" y2="0.4" width="0.1524" layer="51"/>
+<wire x1="0.1" y1="0.4" x2="0.1" y2="-0.4" width="0.1524" layer="51"/>
+<wire x1="0.1" y1="-0.4" x2="-0.5" y2="0" width="0.1524" layer="51"/>
+<smd name="C" x="-1.1" y="0" dx="0.6" dy="0.6" layer="1"/>
+<smd name="A" x="1.1" y="0" dx="0.6" dy="0.6" layer="1"/>
+<text x="-2.54" y="0.9525" size="1.27" layer="25" font="vector" ratio="10">&gt;NAME</text>
+<text x="-2.54" y="-2.2225" size="1.27" layer="27" font="vector" ratio="10">&gt;VALUE</text>
+<rectangle x1="-0.7" y1="-0.7" x2="-0.5" y2="0.7" layer="51"/>
+</package>
+<package name="SOT-23">
+<wire x1="1.4224" y1="0.6604" x2="1.4224" y2="-0.6604" width="0.1524" layer="51"/>
+<wire x1="1.4224" y1="-0.6604" x2="-1.4224" y2="-0.6604" width="0.1524" layer="51"/>
+<wire x1="-1.4224" y1="-0.6604" x2="-1.4224" y2="0.6604" width="0.1524" layer="51"/>
+<wire x1="-1.4224" y1="0.6604" x2="1.4224" y2="0.6604" width="0.1524" layer="51"/>
+<wire x1="-1.4224" y1="-0.1524" x2="-1.4224" y2="0.6604" width="0.1524" layer="21"/>
+<wire x1="-1.4224" y1="0.6604" x2="-0.8636" y2="0.6604" width="0.1524" layer="21"/>
+<wire x1="1.4224" y1="0.6604" x2="1.4224" y2="-0.1524" width="0.1524" layer="21"/>
+<wire x1="0.8636" y1="0.6604" x2="1.4224" y2="0.6604" width="0.1524" layer="21"/>
+<smd name="3" x="0" y="1.1" dx="1" dy="1.4" layer="1"/>
+<smd name="2" x="0.95" y="-1.1" dx="1" dy="1.4" layer="1"/>
+<smd name="1" x="-0.95" y="-1.1" dx="1" dy="1.4" layer="1"/>
+<text x="-1.905" y="2.2225" size="1.27" layer="25" font="vector" ratio="10">&gt;NAME</text>
+<text x="-1.905" y="-3.4925" size="1.27" layer="27" font="vector" ratio="10">&gt;VALUE</text>
+<rectangle x1="-0.2286" y1="0.7112" x2="0.2286" y2="1.2954" layer="51"/>
+<rectangle x1="0.7112" y1="-1.2954" x2="1.1684" y2="-0.7112" layer="51"/>
+<rectangle x1="-1.1684" y1="-1.2954" x2="-0.7112" y2="-0.7112" layer="51"/>
+</package>
+<package name="SOD-123">
+<description>SOD-123 0.91x1.22 mm pad</description>
+<wire x1="-0.1825" y1="0" x2="0.4175" y2="0.4" width="0.127" layer="21"/>
+<wire x1="0.4175" y1="0.4" x2="0.4175" y2="-0.4" width="0.127" layer="21"/>
+<wire x1="0.4175" y1="-0.4" x2="-0.1825" y2="0" width="0.127" layer="21"/>
+<wire x1="-1.345" y1="0.8" x2="1.345" y2="0.8" width="0.127" layer="21"/>
+<wire x1="1.345" y1="-0.8" x2="-1.345" y2="-0.8" width="0.127" layer="21"/>
+<wire x1="1.345" y1="-0.8" x2="1.345" y2="0.8" width="0.127" layer="51"/>
+<wire x1="-1.345" y1="-0.8" x2="-1.345" y2="0.8" width="0.127" layer="51"/>
+<smd name="A" x="1.635" y="0" dx="0.91" dy="1.22" layer="1"/>
+<smd name="C" x="-1.635" y="0" dx="0.91" dy="1.22" layer="1"/>
+<text x="-1.27" y="1.27" size="1.27" layer="25" font="vector" ratio="10">&gt;NAME</text>
+<text x="-1.27" y="-2.54" size="1.27" layer="27" font="vector" ratio="10">&gt;VALUE</text>
+<rectangle x1="1.345" y1="-0.305" x2="1.84" y2="0.305" layer="51"/>
+<rectangle x1="-1.84" y1="-0.305" x2="-1.345" y2="0.305" layer="51"/>
+<rectangle x1="-0.9275" y1="-0.8" x2="-0.4275" y2="0.8" layer="21"/>
+</package>
+<package name="SOD-323F">
+<description>SOD-323F 0.8x0.8 mm pad</description>
+<wire x1="0.85" y1="0.65" x2="0.85" y2="-0.65" width="0.127" layer="51"/>
+<wire x1="-0.85" y1="-0.65" x2="-0.85" y2="0.65" width="0.127" layer="51"/>
+<wire x1="-0.85" y1="0.65" x2="0.85" y2="0.65" width="0.127" layer="21"/>
+<wire x1="-0.85" y1="-0.65" x2="0.85" y2="-0.65" width="0.127" layer="21"/>
+<wire x1="-0.5" y1="0" x2="0.1" y2="0.4" width="0.127" layer="21"/>
+<wire x1="0.1" y1="0.4" x2="0.1" y2="-0.4" width="0.127" layer="21"/>
+<wire x1="0.1" y1="-0.4" x2="-0.5" y2="0" width="0.127" layer="21"/>
+<smd name="A" x="1.125" y="0" dx="0.8" dy="0.8" layer="1"/>
+<smd name="C" x="-1.125" y="0" dx="0.8" dy="0.8" layer="1"/>
+<text x="-1.1" y="1" size="1.27" layer="25" font="vector" ratio="10">&gt;NAME</text>
+<text x="-1.1" y="-2.3" size="1.27" layer="27" font="vector" ratio="10">&gt;VALUE</text>
+<rectangle x1="-0.7" y1="-0.7" x2="-0.5" y2="0.7" layer="51"/>
+<rectangle x1="-1.25" y1="-0.16" x2="-0.85" y2="0.16" layer="51"/>
+<rectangle x1="0.85" y1="-0.16" x2="1.25" y2="0.16" layer="51"/>
+</package>
+</packages>
+<symbols>
+<symbol name="DIODE">
+<wire x1="-1.27" y1="-1.27" x2="1.27" y2="0" width="0.254" layer="94"/>
+<wire x1="1.27" y1="0" x2="-1.27" y2="1.27" width="0.254" layer="94"/>
+<wire x1="1.27" y1="1.27" x2="1.27" y2="0" width="0.254" layer="94"/>
+<wire x1="-1.27" y1="1.27" x2="-1.27" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="1.27" y1="0" x2="1.27" y2="-1.27" width="0.254" layer="94"/>
+<text x="2.54" y="0.4826" size="1.778" layer="95">&gt;NAME</text>
+<text x="2.54" y="-2.3114" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="A" x="-2.54" y="0" visible="off" length="short" direction="pas"/>
+<pin name="C" x="2.54" y="0" visible="off" length="short" direction="pas" rot="R180"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="DIODE" prefix="D" uservalue="yes">
+<description>Various Diode Packages</description>
+<gates>
+<gate name="G$1" symbol="DIODE" x="0" y="0"/>
+</gates>
+<devices>
+<device name="-DO323" package="DO323">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-SOT23" package="SOT-23">
+<connects>
+<connect gate="G$1" pin="A" pad="1"/>
+<connect gate="G$1" pin="C" pad="3"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-SOD-123" package="SOD-123">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-SOD-323" package="SOD-323F">
+<connects>
+<connect gate="G$1" pin="A" pad="A"/>
+<connect gate="G$1" pin="C" pad="C"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -18671,8 +18811,7 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <part name="+3V10" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V11" library="supply1" deviceset="+3V3" device=""/>
 <part name="+3V12" library="supply1" deviceset="+3V3" device=""/>
-<part name="IC6" library="MAX1724" deviceset="MAX1724" device=""/>
-<part name="L3" library="inductor-coilcraft" deviceset="DS1608" device="C" value="10µ"/>
+<part name="L3" library="inductor-coilcraft" deviceset="LPS4018" device="" value="10µ"/>
 <part name="C4" library="rcl" deviceset="CPOL-EU" device="CT3528" value="47µ"/>
 <part name="C8" library="rcl" deviceset="CPOL-EU" device="CT3528" value="47µ"/>
 <part name="C16" library="rcl" deviceset="CPOL-EU" device="CT3216" value="10µ"/>
@@ -18699,6 +18838,9 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <part name="GND44" library="supply1" deviceset="GND" device=""/>
 <part name="P+4" library="supply1" deviceset="+5V" device=""/>
 <part name="JP5" library="pinhead" deviceset="PINHD-1X2" device=""/>
+<part name="IC6" library="maxim-5" deviceset="MAX1836" device="SOT23" value="MAX1836"/>
+<part name="GND45" library="supply1" deviceset="GND" device=""/>
+<part name="D7" library="dp_devices" deviceset="DIODE" device="-SOD-323" value="BAT165"/>
 </parts>
 <sheets>
 <sheet>
@@ -18712,7 +18854,7 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <instance part="IC2" gate="G$1" x="154.94" y="144.78"/>
 <instance part="CON1" gate="G$1" x="165.1" y="106.68" rot="R180"/>
 <instance part="CON2" gate="G$1" x="165.1" y="27.94" rot="R180"/>
-<instance part="IC3" gate="G$1" x="12.7" y="137.16"/>
+<instance part="IC3" gate="G$1" x="12.7" y="129.54"/>
 <instance part="+3V1" gate="G$1" x="124.46" y="160.02" rot="R90"/>
 <instance part="P+1" gate="1" x="22.86" y="114.3"/>
 <instance part="P+2" gate="1" x="22.86" y="81.28"/>
@@ -18722,8 +18864,8 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <instance part="C2" gate="G$1" x="22.86" y="88.9"/>
 <instance part="R1" gate="G$1" x="185.42" y="167.64" rot="R90"/>
 <instance part="C1" gate="G$1" x="22.86" y="55.88"/>
-<instance part="P+3" gate="1" x="43.18" y="152.4"/>
-<instance part="C3" gate="G$1" x="43.18" y="144.78"/>
+<instance part="P+3" gate="1" x="43.18" y="144.78"/>
+<instance part="C3" gate="G$1" x="43.18" y="137.16"/>
 <instance part="GND1" gate="1" x="43.18" y="121.92"/>
 <instance part="GND5" gate="1" x="106.68" y="45.72" rot="R270"/>
 <instance part="C5" gate="G$1" x="27.94" y="99.06" rot="R90"/>
@@ -18731,18 +18873,21 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <instance part="IC5" gate="G$1" x="68.58" y="20.32" rot="MR0"/>
 <instance part="+3V2" gate="G$1" x="81.28" y="25.4"/>
 <instance part="GND6" gate="1" x="68.58" y="7.62"/>
-<instance part="GND7" gate="1" x="73.66" y="121.92"/>
-<instance part="+3V3" gate="G$1" x="101.6" y="142.24"/>
-<instance part="C7" gate="G$1" x="93.98" y="132.08"/>
-<instance part="GND8" gate="1" x="93.98" y="121.92"/>
-<instance part="GND9" gate="1" x="101.6" y="121.92"/>
+<instance part="GND7" gate="1" x="55.88" y="121.92"/>
+<instance part="+3V3" gate="G$1" x="106.68" y="144.78"/>
+<instance part="C7" gate="G$1" x="99.06" y="134.62"/>
+<instance part="GND8" gate="1" x="99.06" y="121.92"/>
+<instance part="GND9" gate="1" x="106.68" y="121.92"/>
 <instance part="GND10" gate="1" x="50.8" y="121.92"/>
-<instance part="R2" gate="G$1" x="139.7" y="152.4" rot="R90"/>
+<instance part="R2" gate="G$1" x="139.7" y="152.4" smashed="yes" rot="R90">
+<attribute name="NAME" x="141.478" y="149.8346" size="1.778" layer="95"/>
+<attribute name="VALUE" x="141.478" y="147.828" size="1.778" layer="96"/>
+</instance>
 <instance part="GND11" gate="1" x="177.8" y="165.1"/>
 <instance part="+3V4" gate="G$1" x="185.42" y="177.8"/>
 <instance part="K1" gate="1" x="30.48" y="167.64" rot="R180"/>
 <instance part="K1" gate="2" x="15.24" y="165.1" smashed="yes">
-<attribute name="PART" x="17.78" y="165.1" size="1.778" layer="95"/>
+<attribute name="PART" x="22.86" y="167.64" size="1.778" layer="95"/>
 </instance>
 <instance part="K1" gate="3" x="15.24" y="180.34" smashed="yes">
 <attribute name="PART" x="17.78" y="180.34" size="1.778" layer="95"/>
@@ -18789,10 +18934,13 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <instance part="JP1" gate="A" x="157.48" y="68.58" rot="R180"/>
 <instance part="GND15" gate="1" x="162.56" y="53.34"/>
 <instance part="T5" gate="G$1" x="48.26" y="167.64" smashed="yes" rot="MR0">
-<attribute name="NAME" x="44.45" y="166.37" size="1.778" layer="95" rot="MR90"/>
-<attribute name="VALUE" x="42.672" y="169.672" size="1.778" layer="96" rot="MR270"/>
+<attribute name="NAME" x="46.99" y="174.244" size="1.778" layer="95" rot="MR180"/>
+<attribute name="VALUE" x="46.99" y="171.958" size="1.778" layer="96" rot="MR180"/>
 </instance>
-<instance part="D5" gate="1" x="40.64" y="167.64" rot="R270"/>
+<instance part="D5" gate="1" x="40.64" y="167.64" smashed="yes" rot="R270">
+<attribute name="NAME" x="42.545" y="169.926" size="1.778" layer="95" rot="R270"/>
+<attribute name="VALUE" x="37.211" y="169.926" size="1.778" layer="96" rot="R270"/>
+</instance>
 <instance part="R14" gate="G$1" x="55.88" y="167.64" rot="R180"/>
 <instance part="GND16" gate="1" x="45.72" y="157.48"/>
 <instance part="P+8" gate="1" x="175.26" y="137.16"/>
@@ -18850,9 +18998,18 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <instance part="P+12" gate="1" x="0" y="205.74"/>
 <instance part="+3V7" gate="G$1" x="0" y="195.58" rot="R180"/>
 <instance part="GND34" gate="1" x="157.48" y="190.5"/>
-<instance part="R25" gate="G$1" x="139.7" y="223.52" rot="R270"/>
-<instance part="R26" gate="G$1" x="134.62" y="223.52" rot="R270"/>
-<instance part="R27" gate="G$1" x="129.54" y="223.52" rot="R270"/>
+<instance part="R25" gate="G$1" x="139.7" y="223.52" smashed="yes" rot="R270">
+<attribute name="NAME" x="141.732" y="224.0026" size="1.778" layer="95"/>
+<attribute name="VALUE" x="141.732" y="221.742" size="1.778" layer="96"/>
+</instance>
+<instance part="R26" gate="G$1" x="134.62" y="223.52" smashed="yes" rot="R270">
+<attribute name="NAME" x="135.128" y="218.1606" size="1.778" layer="95"/>
+<attribute name="VALUE" x="134.874" y="215.9" size="1.778" layer="96"/>
+</instance>
+<instance part="R27" gate="G$1" x="129.54" y="223.52" smashed="yes" rot="R270">
+<attribute name="NAME" x="123.698" y="223.7486" size="1.778" layer="95"/>
+<attribute name="VALUE" x="123.698" y="221.488" size="1.778" layer="96"/>
+</instance>
 <instance part="+3V8" gate="G$1" x="134.62" y="236.22"/>
 <instance part="GND35" gate="1" x="144.78" y="83.82" rot="R270"/>
 <instance part="C26" gate="G$1" x="129.54" y="203.2"/>
@@ -18861,11 +19018,11 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <instance part="GND19" gate="1" x="134.62" y="190.5"/>
 <instance part="JP4" gate="A" x="91.44" y="231.14"/>
 <instance part="GND36" gate="1" x="91.44" y="218.44"/>
-<instance part="IC1" gate="P" x="119.38" y="129.54"/>
-<instance part="GND37" gate="1" x="119.38" y="119.38"/>
-<instance part="C29" gate="G$1" x="109.22" y="132.08"/>
+<instance part="IC1" gate="P" x="124.46" y="132.08"/>
+<instance part="GND37" gate="1" x="124.46" y="121.92"/>
+<instance part="C29" gate="G$1" x="114.3" y="134.62"/>
 <instance part="C30" gate="G$1" x="132.08" y="154.94"/>
-<instance part="GND38" gate="1" x="109.22" y="121.92"/>
+<instance part="GND38" gate="1" x="114.3" y="121.92"/>
 <instance part="GND39" gate="1" x="132.08" y="147.32"/>
 <instance part="L1" gate="G$1" x="22.86" y="106.68"/>
 <instance part="L2" gate="G$1" x="22.86" y="73.66"/>
@@ -18874,10 +19031,12 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <instance part="+3V10" gate="G$1" x="76.2" y="236.22"/>
 <instance part="+3V11" gate="G$1" x="68.58" y="200.66" rot="R90"/>
 <instance part="+3V12" gate="G$1" x="114.3" y="195.58" rot="R270"/>
-<instance part="IC6" gate="G$1" x="73.66" y="142.24" smashed="yes"/>
-<instance part="L3" gate="G$1" x="73.66" y="154.94"/>
-<instance part="C4" gate="G$1" x="50.8" y="144.78"/>
-<instance part="C8" gate="G$1" x="101.6" y="132.08"/>
+<instance part="L3" gate="G$1" x="91.44" y="139.7" smashed="yes">
+<attribute name="NAME" x="90.17" y="143.51" size="1.778" layer="95"/>
+<attribute name="VALUE" x="90.17" y="137.16" size="1.778" layer="96"/>
+</instance>
+<instance part="C4" gate="G$1" x="50.8" y="137.16"/>
+<instance part="C8" gate="G$1" x="106.68" y="134.62"/>
 <instance part="C16" gate="G$1" x="81.28" y="99.06"/>
 <instance part="C13" gate="G$1" x="81.28" y="83.82"/>
 <instance part="C9" gate="G$1" x="91.44" y="185.42"/>
@@ -18908,6 +19067,15 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <instance part="GND44" gate="1" x="27.94" y="210.82"/>
 <instance part="P+4" gate="1" x="27.94" y="236.22"/>
 <instance part="JP5" gate="G$1" x="10.16" y="228.6" rot="R180"/>
+<instance part="IC6" gate="G$1" x="71.12" y="144.78" smashed="yes">
+<attribute name="NAME" x="63.754" y="152.654" size="1.778" layer="95"/>
+<attribute name="VALUE" x="66.04" y="134.62" size="1.778" layer="96"/>
+</instance>
+<instance part="GND45" gate="1" x="86.36" y="121.92"/>
+<instance part="D7" gate="G$1" x="86.36" y="132.08" smashed="yes" rot="R90">
+<attribute name="NAME" x="83.82" y="131.5974" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="83.82" y="129.3114" size="1.778" layer="96" rot="R180"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -19172,10 +19340,10 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <segment>
 <pinref part="IC3" gate="G$1" pin="VOUT-"/>
 <pinref part="C3" gate="G$1" pin="2"/>
-<wire x1="38.1" y1="139.7" x2="43.18" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="132.08" x2="43.18" y2="132.08" width="0.1524" layer="91"/>
 <pinref part="GND1" gate="1" pin="GND"/>
-<wire x1="43.18" y1="124.46" x2="43.18" y2="139.7" width="0.1524" layer="91"/>
-<junction x="43.18" y="139.7"/>
+<wire x1="43.18" y1="124.46" x2="43.18" y2="132.08" width="0.1524" layer="91"/>
+<junction x="43.18" y="132.08"/>
 </segment>
 <segment>
 <pinref part="GND4" gate="1" pin="GND"/>
@@ -19194,22 +19362,27 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 </segment>
 <segment>
 <pinref part="GND7" gate="1" pin="GND"/>
-<wire x1="73.66" y1="124.46" x2="73.66" y2="127" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="124.46" x2="55.88" y2="144.78" width="0.1524" layer="91"/>
 <pinref part="IC6" gate="G$1" pin="GND"/>
+<wire x1="55.88" y1="144.78" x2="58.42" y2="144.78" width="0.1524" layer="91"/>
+<pinref part="IC6" gate="G$1" pin="FB"/>
+<wire x1="58.42" y1="149.86" x2="55.88" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="149.86" x2="55.88" y2="144.78" width="0.1524" layer="91"/>
+<junction x="55.88" y="144.78"/>
 </segment>
 <segment>
 <pinref part="GND8" gate="1" pin="GND"/>
 <pinref part="C7" gate="G$1" pin="2"/>
-<wire x1="93.98" y1="124.46" x2="93.98" y2="127" width="0.1524" layer="91"/>
+<wire x1="99.06" y1="124.46" x2="99.06" y2="129.54" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="GND9" gate="1" pin="GND"/>
-<wire x1="101.6" y1="124.46" x2="101.6" y2="127" width="0.1524" layer="91"/>
+<wire x1="106.68" y1="124.46" x2="106.68" y2="129.54" width="0.1524" layer="91"/>
 <pinref part="C8" gate="G$1" pin="-"/>
 </segment>
 <segment>
 <pinref part="GND10" gate="1" pin="GND"/>
-<wire x1="50.8" y1="124.46" x2="50.8" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="124.46" x2="50.8" y2="132.08" width="0.1524" layer="91"/>
 <pinref part="C4" gate="G$1" pin="-"/>
 </segment>
 <segment>
@@ -19443,7 +19616,7 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <segment>
 <pinref part="C29" gate="G$1" pin="2"/>
 <pinref part="GND38" gate="1" pin="GND"/>
-<wire x1="109.22" y1="127" x2="109.22" y2="124.46" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="129.54" x2="114.3" y2="124.46" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="IC1" gate="A" pin="3B"/>
@@ -19475,28 +19648,30 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <pinref part="T7" gate="G$1" pin="E"/>
 <wire x1="27.94" y1="213.36" x2="27.94" y2="215.9" width="0.1524" layer="91"/>
 </segment>
+<segment>
+<pinref part="D7" gate="G$1" pin="A"/>
+<pinref part="GND45" gate="1" pin="GND"/>
+<wire x1="86.36" y1="129.54" x2="86.36" y2="124.46" width="0.1524" layer="91"/>
+</segment>
 </net>
 <net name="+5V" class="0">
 <segment>
 <pinref part="IC3" gate="G$1" pin="VOUT+"/>
 <pinref part="C3" gate="G$1" pin="1"/>
-<wire x1="38.1" y1="147.32" x2="43.18" y2="147.32" width="0.1524" layer="91"/>
+<wire x1="38.1" y1="139.7" x2="43.18" y2="139.7" width="0.1524" layer="91"/>
 <pinref part="P+3" gate="1" pin="+5V"/>
-<wire x1="43.18" y1="147.32" x2="43.18" y2="149.86" width="0.1524" layer="91"/>
-<junction x="43.18" y="147.32"/>
-<wire x1="43.18" y1="147.32" x2="50.8" y2="147.32" width="0.1524" layer="91"/>
-<pinref part="IC6" gate="G$1" pin="BATT"/>
-<pinref part="IC6" gate="G$1" pin="SHDN"/>
-<wire x1="50.8" y1="147.32" x2="55.88" y2="147.32" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="147.32" x2="58.42" y2="147.32" width="0.1524" layer="91"/>
-<wire x1="58.42" y1="137.16" x2="55.88" y2="137.16" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="137.16" x2="55.88" y2="147.32" width="0.1524" layer="91"/>
-<junction x="55.88" y="147.32"/>
-<wire x1="55.88" y1="147.32" x2="55.88" y2="154.94" width="0.1524" layer="91"/>
-<pinref part="L3" gate="G$1" pin="1"/>
-<wire x1="55.88" y1="154.94" x2="68.58" y2="154.94" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="139.7" x2="43.18" y2="142.24" width="0.1524" layer="91"/>
+<junction x="43.18" y="139.7"/>
+<wire x1="43.18" y1="139.7" x2="50.8" y2="139.7" width="0.1524" layer="91"/>
 <pinref part="C4" gate="G$1" pin="+"/>
-<junction x="50.8" y="147.32"/>
+<pinref part="IC6" gate="G$1" pin="IN"/>
+<wire x1="50.8" y1="139.7" x2="58.42" y2="139.7" width="0.1524" layer="91"/>
+<junction x="50.8" y="139.7"/>
+<wire x1="50.8" y1="139.7" x2="50.8" y2="154.94" width="0.1524" layer="91"/>
+<pinref part="IC6" gate="G$1" pin="/SHDN"/>
+<wire x1="83.82" y1="144.78" x2="88.9" y2="144.78" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="154.94" x2="88.9" y2="154.94" width="0.1524" layer="91"/>
+<wire x1="88.9" y1="154.94" x2="88.9" y2="144.78" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="CON1" gate="G$1" pin="4"/>
@@ -19573,23 +19748,27 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <wire x1="81.28" y1="20.32" x2="78.74" y2="20.32" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<wire x1="93.98" y1="137.16" x2="101.6" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="99.06" y1="139.7" x2="106.68" y2="139.7" width="0.1524" layer="91"/>
 <pinref part="+3V3" gate="G$1" pin="+3V3"/>
-<wire x1="101.6" y1="137.16" x2="101.6" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="106.68" y1="139.7" x2="106.68" y2="142.24" width="0.1524" layer="91"/>
 <pinref part="C7" gate="G$1" pin="1"/>
-<wire x1="93.98" y1="134.62" x2="93.98" y2="137.16" width="0.1524" layer="91"/>
-<wire x1="101.6" y1="134.62" x2="101.6" y2="137.16" width="0.1524" layer="91"/>
-<junction x="101.6" y="137.16"/>
+<wire x1="99.06" y1="137.16" x2="99.06" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="106.68" y1="137.16" x2="106.68" y2="139.7" width="0.1524" layer="91"/>
+<junction x="106.68" y="139.7"/>
 <pinref part="IC1" gate="P" pin="VCC"/>
-<wire x1="101.6" y1="137.16" x2="109.22" y2="137.16" width="0.1524" layer="91"/>
-<wire x1="109.22" y1="137.16" x2="119.38" y2="137.16" width="0.1524" layer="91"/>
+<wire x1="106.68" y1="139.7" x2="114.3" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="139.7" x2="124.46" y2="139.7" width="0.1524" layer="91"/>
 <pinref part="C29" gate="G$1" pin="1"/>
-<pinref part="IC6" gate="G$1" pin="OUT"/>
-<wire x1="88.9" y1="137.16" x2="93.98" y2="137.16" width="0.1524" layer="91"/>
-<junction x="93.98" y="137.16"/>
-<wire x1="109.22" y1="134.62" x2="109.22" y2="137.16" width="0.1524" layer="91"/>
-<junction x="109.22" y="137.16"/>
+<junction x="99.06" y="139.7"/>
+<wire x1="114.3" y1="137.16" x2="114.3" y2="139.7" width="0.1524" layer="91"/>
+<junction x="114.3" y="139.7"/>
 <pinref part="C8" gate="G$1" pin="+"/>
+<pinref part="IC6" gate="G$1" pin="OUT"/>
+<wire x1="83.82" y1="149.86" x2="99.06" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="99.06" y1="149.86" x2="99.06" y2="139.7" width="0.1524" layer="91"/>
+<pinref part="L3" gate="G$1" pin="2"/>
+<wire x1="99.06" y1="139.7" x2="96.52" y2="139.7" width="0.1524" layer="91"/>
+<junction x="99.06" y="139.7"/>
 </segment>
 <segment>
 <pinref part="R1" gate="G$1" pin="2"/>
@@ -19736,7 +19915,7 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <wire x1="20.32" y1="162.56" x2="20.32" y2="170.18" width="0.1524" layer="91"/>
 <junction x="15.24" y="162.56"/>
 <pinref part="IC3" gate="G$1" pin="VAC(L)"/>
-<wire x1="7.62" y1="147.32" x2="7.62" y2="160.02" width="0.1524" layer="91"/>
+<wire x1="7.62" y1="139.7" x2="7.62" y2="160.02" width="0.1524" layer="91"/>
 <wire x1="7.62" y1="160.02" x2="15.24" y2="160.02" width="0.1524" layer="91"/>
 <wire x1="15.24" y1="160.02" x2="15.24" y2="162.56" width="0.1524" layer="91"/>
 <junction x="7.62" y="160.02"/>
@@ -20243,14 +20422,6 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <wire x1="147.32" y1="71.12" x2="152.4" y2="71.12" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$28" class="0">
-<segment>
-<pinref part="IC6" gate="G$1" pin="LX"/>
-<wire x1="88.9" y1="147.32" x2="88.9" y2="154.94" width="0.1524" layer="91"/>
-<pinref part="L3" gate="G$1" pin="2"/>
-<wire x1="88.9" y1="154.94" x2="78.74" y2="154.94" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="N$47" class="0">
 <segment>
 <pinref part="R28" gate="G$1" pin="2"/>
@@ -20298,9 +20469,9 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <net name="N$7" class="0">
 <segment>
 <pinref part="F1" gate="F" pin="1"/>
-<wire x1="2.54" y1="147.32" x2="2.54" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="2.54" y1="147.32" x2="2.54" y2="132.08" width="0.1524" layer="91"/>
 <pinref part="IC3" gate="G$1" pin="VAC(N)"/>
-<wire x1="2.54" y1="139.7" x2="7.62" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="2.54" y1="132.08" x2="7.62" y2="132.08" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$52" class="0">
@@ -20329,6 +20500,16 @@ Source: &lt;a href="http://www.conrad.de/ce/de/product/736880"&gt; Conrad &lt;/a
 <pinref part="R29" gate="G$1" pin="1"/>
 <wire x1="45.72" y1="220.98" x2="55.88" y2="220.98" width="0.1524" layer="91"/>
 <label x="48.26" y="220.98" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="N$28" class="0">
+<segment>
+<pinref part="IC6" gate="G$1" pin="LX"/>
+<pinref part="L3" gate="G$1" pin="1"/>
+<wire x1="83.82" y1="139.7" x2="86.36" y2="139.7" width="0.1524" layer="91"/>
+<junction x="86.36" y="139.7"/>
+<pinref part="D7" gate="G$1" pin="C"/>
+<wire x1="86.36" y1="134.62" x2="86.36" y2="139.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
