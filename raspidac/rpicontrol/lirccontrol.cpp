@@ -61,10 +61,10 @@ LircControl::~LircControl()
 
 void LircControl::receiveCode(int code)
 {
-    bool xRC5 = code & XRC5_MASK;
+    bool xRC5 = code & RC5X_MASK;
     bool toggle = xRC5 ? (code & RC5X_TOGGLE_MASK) : (code & RC5_TOGGLE_MASK);
 
-    code = xRC5 ? (code & ~(RC5X_STARTBIT_MASK | RC5X_TOGGLE_MASK | XRC5_MASK)) : (code & ~(RC5_STARTBIT_MASK | RC5_TOGGLE_MASK));
+    code = xRC5 ? (code & ~(RC5X_STARTBIT_MASK | RC5X_TOGGLE_MASK)) : (code & ~(RC5_STARTBIT_MASK | RC5_TOGGLE_MASK));
 
     //qDebug() << "LircControl::receiveCode: code = " << code << ", ADR = " << (code & RC5_ADR_MASK) << ", CMD = " << (code & RC5_CMD_MASK);
 

@@ -1,6 +1,7 @@
 #include "lircdevice.h"
 
-LircDevice::LircDevice(QObject *parent) : QObject(parent)
+LircDevice::LircDevice(QObject *parent) :
+	QObject(parent), m_lastToggle(false)
 {
 
 }
@@ -109,9 +110,9 @@ int LircDevice::decode(int data)
         }
         if ((!m_xRC5 && m_bitCount == 14) || (m_xRC5 && m_bitCount == 20))
         {
-            int ret = (m_xRC5 ? (m_code | XRC5_MASK) : m_code);
+            //int ret = (m_xRC5 ? (m_code | RC5X_MASK) : m_code);
             resetDecoder();
-            return ret;
+            return m_code;
         }
     }
     return 0;
@@ -128,35 +129,59 @@ void LircDevice::resetDecoder()
 
 int LircDevice::encode(int code, char *data)
 {
-    int bitCount = (code | XRC5_MASK) ? 22 : 14;
     bool lastBit = true;
-    int i = 0;
-    int pulseLength;
-    while (bitCount-- >= 0)
-    {
-        if ((code | XRC5_MASK) && (bitCount == 12))
-        {
-            pulseLength = 5 * PULSE_LENGTH;
-            memcpy(&pulseLength, data + i * sizeof(int), sizeof(int));
-            i++;
-            continue;
-        }
-        if ((code & (2^bitCount)) == lastBit)
-        {
-            pulseLength = PULSE_LENGTH;
-            memcpy(&pulseLength, data + i * sizeof(int), sizeof(int));
-            i++;
-            memcpy(&pulseLength, data + i * sizeof(int), sizeof(int));
-            i++;
-        }
-        else
-        {
-            lastBit = !lastBit;
-            pulseLength = 2 * PULSE_LENGTH;
-            memcpy(&pulseLength, data + i * sizeof(int), sizeof(int));
-            i++;
-        }
-    }
+    int i, j, pulseLength, bitFolge, bitCount;
+	
+	if (code & RC5X_MASK)
+	{
+		code = code | (RC5X_STARTBIT_MASK);
+		if (m_lastToggle)
+		{
+			code = code | (RC5X_TOGGLE_MASK);
+		}
+	} else {
+		code = code | (RC5_STARTBIT_MASK);
+		if (m_lastToggle)
+		{
+			code = code | (RC5_TOGGLE_MASK);
+		}
+	}
+	// zuerst eine Bitfolge erstellen
+	bitFolge = 0;
+	bitCount =  = (code & RC5X_MASK) ? 20 : 14;	
+	do {
+		bitCount--;
+		bitFolge = bitFolge << 2;
+		//bitFolge = bitFolge | ((code & (1 << bitCount)) ? 0b10 : 0b01);
+		if (code & (1 << bitCount))
+		{
+			bitFolge = bitFolge | 0b10;
+		} else {
+			bitFolge = bitFolge | 0b01;
+		}
+	} while (bitCount > 0);
+	// Zeiten zuordnen	
+	bitCount = (code & RC5X_MASK) ? 40 : 28;
+	bitCount--;
+	i = 0;
+	do {
+		j = 0;
+		do {
+			j++;
+			bitCount--;
+		} while ((bitFolge & (1 << bitCount)) == lastBit);
+		
+		lastBit = (bitFolge & (1 << bitCount));
+		
+		if ((code & RC5X_MASK) && (bitCount == 25)
+			pulseLength = 5 * PULSE_LENGTH;
+		else
+			pulseLength = j * PULSE_LENGTH;
+
+		memcpy(&pulseLength, data + i * sizeof(int), sizeof(int));
+        i++;
+	} while (bitCount > 0);
+
     return i;
 }
 
@@ -167,15 +192,16 @@ void LircDevice::sendCode(int code)
 
     char *data;
     int size;
-    if (code | XRC5_MASK)
+    if (code & RC5X_MASK)
     {
-        size = 44 * sizeof(int);
+        size = 40 * sizeof(int); //max 20 Bit
     }
     else
     {
-        size = 28 * sizeof(int);
+        size = 28 * sizeof(int); // max 14 Bit
     }
     data = (char*)malloc(size);
+	m_lastToggle = !m_lastToggle;
     int count = encode(code, data);
     write(m_fd, (void*)data, count);
     free(data);
