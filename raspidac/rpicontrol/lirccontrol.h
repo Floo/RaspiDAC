@@ -6,13 +6,6 @@
 #include <QThread>
 #include <QDebug>
 
-#define RC5_TOGGLE_MASK     0x0000800
-#define RC5X_TOGGLE_MASK    0x0020000
-#define RC5_STARTBIT_MASK   0x0002000
-#define RC5X_STARTBIT_MASK  0x0080000
-#define RC5_CMD_MASK        0x000003F
-#define RC5_ADR_MASK        0x00007C0
-
 class LircReceiver;
 class LircSender;
 

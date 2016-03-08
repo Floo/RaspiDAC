@@ -115,7 +115,8 @@ FORMS  += \
 RESOURCES += \
     raspidac/raspidac.qrc
 
-LIBS += -lupnpp -lmpdclient -llirc_client
+LIBS += -lupnpp -lmpdclient
+#-llirc_client
 
 contains(QT_ARCH,arm):{
     message("ARM System")

@@ -16,9 +16,12 @@ void LircDevice::initDevice()
     m_fd = open("/dev/lirc0", O_RDWR|O_NONBLOCK);
     if (m_fd == -1)
     {
-        qDebug() << "LircDevice::initDevice: FATAL, coulld not open device";
+        qDebug() << "LircDevice::initDevice: FATAL, could not open device";
         return;
     }
+//    if (ioctl(m_fd, LIRC_SET_SEND_CARRIER, 0) == -1)
+//        qDebug() << "LircDevice::initDevice: FATAL, could not set LIRC_SET_SEND_CARRIER";
+
     resetDecoder();
     m_readNotifier = new QSocketNotifier(m_fd, QSocketNotifier::Read, this);
     connect(m_readNotifier, SIGNAL(activated(int)), this, SLOT(handleRead()));
@@ -129,8 +132,10 @@ void LircDevice::resetDecoder()
 
 int LircDevice::encode(int code, char *data)
 {
-    bool lastBit = true;
-    int i, j, pulseLength, bitFolge, bitCount;
+    bool lastBit = false;
+    bool bit;
+    int i, j, pulseLength, bitCount;
+    u_int64_t bitFolge, mask;
 	
 	if (code & RC5X_MASK)
 	{
@@ -146,20 +151,22 @@ int LircDevice::encode(int code, char *data)
 			code = code | (RC5_TOGGLE_MASK);
 		}
 	}
+    qDebug() << "LircDevice::encode: Code = " << code;
 	// zuerst eine Bitfolge erstellen
 	bitFolge = 0;
-	bitCount =  = (code & RC5X_MASK) ? 20 : 14;	
+    bitCount = (code & RC5X_MASK) ? 20 : 14;
 	do {
 		bitCount--;
 		bitFolge = bitFolge << 2;
 		//bitFolge = bitFolge | ((code & (1 << bitCount)) ? 0b10 : 0b01);
 		if (code & (1 << bitCount))
 		{
-			bitFolge = bitFolge | 0b10;
+            bitFolge = bitFolge | 0b01;
 		} else {
-			bitFolge = bitFolge | 0b01;
+            bitFolge = bitFolge | 0b10;
 		}
 	} while (bitCount > 0);
+    qDebug() << "LircDevice::encode: Bitfolge = " << bitFolge;
 	// Zeiten zuordnen	
 	bitCount = (code & RC5X_MASK) ? 40 : 28;
 	bitCount--;
@@ -169,16 +176,19 @@ int LircDevice::encode(int code, char *data)
 		do {
 			j++;
 			bitCount--;
-		} while ((bitFolge & (1 << bitCount)) == lastBit);
+            mask = 1;
+            mask = (mask << bitCount);
+            bit = (bool)(bitFolge & mask);
+        } while (bit == lastBit);
 		
-		lastBit = (bitFolge & (1 << bitCount));
+        lastBit = bit;
 		
-		if ((code & RC5X_MASK) && (bitCount == 25)
+        if ((code & RC5X_MASK) && (bitCount == 25))
 			pulseLength = 5 * PULSE_LENGTH;
 		else
 			pulseLength = j * PULSE_LENGTH;
-
-		memcpy(&pulseLength, data + i * sizeof(int), sizeof(int));
+        qDebug() << "LircDevice::encode: Pulselength = " << pulseLength;
+        memcpy(data + i * sizeof(int), &pulseLength, sizeof(int));
         i++;
 	} while (bitCount > 0);
 
@@ -203,6 +213,6 @@ void LircDevice::sendCode(int code)
     data = (char*)malloc(size);
 	m_lastToggle = !m_lastToggle;
     int count = encode(code, data);
-    write(m_fd, (void*)data, count);
+    write(m_fd, (void*)data, count * sizeof(int));
     free(data);
 }
