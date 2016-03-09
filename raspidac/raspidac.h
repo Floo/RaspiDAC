@@ -128,6 +128,7 @@ private:
     QString m_rendererName;
     bool m_shutdownPending;
     bool m_initialized;
+    bool m_sendIRKey;
     quint16 m_port;
     LircControl *m_lirc;
 

@@ -81,7 +81,6 @@ private:
     bool m_lastToggle;
     int m_lastCode;
     void cmdParser(int);
-
 };
 
 

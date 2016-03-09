@@ -6,7 +6,8 @@
 #include "GUI/menu.h"
 
 RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
-    QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false), m_port(8000)
+    QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false),
+    m_sendIRKey(true), m_port(8000)
 {
 #ifdef __rpi__
     rpiGPIO = new RPiGPIO();
@@ -197,6 +198,7 @@ void RaspiDAC::powerOn()
     }
     if (getGUIMode() == RPI_Standby)
     {
+        m_sendIRKey = false;
         setGUIMode(m_lastMode);
     }
 }
@@ -205,6 +207,7 @@ void RaspiDAC::powerOff()
 {
     if (getGUIMode() != RPI_Standby)
     {
+        m_sendIRKey = false;
         m_lastMode = (GUIMode)m_window->currentIndex();
         setGUIMode(RPI_Standby);
     }
@@ -241,7 +244,8 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
             (m_window->currentIndex() == RPI_Standby))
     {
         // Geräte einschalten
-        emit sendIRKey(LircControl::cmd_sysPowerOn);
+        if (m_sendIRKey)
+            emit sendIRKey(LircControl::cmd_sysPowerOn);
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_ON);
         rpiGPIO->setLED(LED_ON);
@@ -302,11 +306,13 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
         rpiGPIO->setRelais(REL_OFF);
         rpiGPIO->setBacklight(BACKLIGHT_DIMM);
         rpiGPIO->setLED(LED_OFF);
-#endif       
-        emit sendIRKey(LircControl::cmd_sysPowerOff);
+#endif
+        if (m_sendIRKey)
+            emit sendIRKey(LircControl::cmd_sysPowerOff);
     }
     m_window->setCurrentIndex(mode);
     prepareDatagram();
+    m_sendIRKey = true;
 }
 
 void RaspiDAC::really_close(bool)

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QSocketNotifier>
+#include <QTimer>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -33,6 +34,8 @@ class LircDevice : public QObject
 public:
     explicit LircDevice(QObject *parent = 0);
     ~LircDevice();
+    bool recvEnabled() { return m_recvEnabled; }
+    void setRecvEnabled(bool enabled) { m_recvEnabled = enabled; }
 
 public slots:
     void initDevice();
@@ -47,6 +50,7 @@ signals:
 private:
     int m_fd;
     QSocketNotifier *m_readNotifier;
+    QTimer *m_disableRecvTimer;
     bool m_isSyncronized;
     int m_bitCount;
     bool m_xRC5;
@@ -54,6 +58,7 @@ private:
     int m_lastBit;
     int m_pulseCount;
 	bool m_lastToggle;
+    bool m_recvEnabled;
 
     int decode(int data);
     int encode(int code, char *data);
