@@ -1,13 +1,15 @@
 #include "netapiserver.h"
 #include "netapithread.h"
+#include "upplay/HelperStructs/CSettingsStorage.h"
 
 
 NetAPIServer::NetAPIServer(RaspiDAC *rpi_h, QObject *parent)
     : QTcpServer(parent), m_rpi(rpi_h)
 {
+	int port = CSettingStorage::getInstance()->getUdpDiscoveryPort();
     qRegisterMetaType<RaspiDAC::GUIMode>("RaspiDAC::GUIMode");
     m_udpSocket = new QUdpSocket();
-    m_udpSocket->bind(8002);
+    m_udpSocket->bind(port);
 
     connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(pendingUDPDatagram()));
 }
@@ -69,11 +71,12 @@ QString NetAPIServer::getRadioList()
 
 void NetAPIServer::sendDatagramm(UDPDatagram &dtg)
 {
+	int port = CSettingStorage::getInstance()->getUdpDatagramPort();
     //qDebug() << "NetAPIServer::sendDatagramm";
     m_datagram = dtg;
     QByteArray bytearray = QString("[RaspiDAC]").toUtf8();
     bytearray.append(dtg.toDatagram().toUtf8());
-    m_udpSocket->writeDatagram(bytearray, QHostAddress::Broadcast, 8001);
+    m_udpSocket->writeDatagram(bytearray, QHostAddress::Broadcast, port);
 }
 
 QString NetAPIServer::getMetaData()

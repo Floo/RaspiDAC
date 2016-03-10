@@ -75,6 +75,10 @@
 #define TSL2591_C0DATAH_R	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x15)
 #define TSL2591_C1DATAL_R 	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x16)
 #define TSL2591_C1DATAH_R	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x17)
+#define TSL2591_LUX_DF            408.0
+#define TSL2591_LUX_COEFB         1.64  // CH0 coefficient 
+#define TSL2591_LUX_COEFC         0.59  // CH1 coefficient A
+#define TSL2591_LUX_COEFD         0.86  // CH2 coefficient B
 
 class RPiGPIO;
 
@@ -106,15 +110,37 @@ class RPiGPIO : public QObject
 public:
     RPiGPIO();
     ~RPiGPIO();
-
-    int getLED();
+	
+	typedef enum
+	{
+		TSL2591_INTEGRATIONTIME_100MS     = 0x00,
+		TSL2591_INTEGRATIONTIME_200MS     = 0x01,
+		TSL2591_INTEGRATIONTIME_300MS     = 0x02,
+		TSL2591_INTEGRATIONTIME_400MS     = 0x03,
+		TSL2591_INTEGRATIONTIME_500MS     = 0x04,
+		TSL2591_INTEGRATIONTIME_600MS     = 0x05,
+	} tsl2591IntegrationTime_t;
+	
+	typedef enum
+	{
+		TSL2591_GAIN_LOW                  = 0x00,    // low gain (1x)
+		TSL2591_GAIN_MED                  = 0x10,    // medium gain (25x)
+		TSL2591_GAIN_HIGH                 = 0x20,    // medium gain (428x)
+		TSL2591_GAIN_MAX                  = 0x30,    // max gain (9876x)
+	} tsl2591Gain_t;
+	
+	int getLED();
     int getRC5direct();
     int getRelais();
     int getInputSelect();
     void pca9530Setup();
     void cs8416Setup();
+	int getCS8416ID();
+    int getCS8416Reg();
     void tsl2591Setup();
-
+	int getTSL2591Lux();
+	void setTSL2591IntegrationTime(tsl2591IntegrationTime_t);
+	void setTSL2591Gain(tsl2591Gain_t)
 
 public slots:
     void toggleLED();
@@ -124,9 +150,6 @@ public slots:
     void setInputSelect(int);
     void setBacklight(int);
     void setCS8416InputSelect(int);
-    void getCS8416ID();
-    void getCS8416Reg(int);
-    void getTSL2591(int);
 
 signals:
     void taster(int);

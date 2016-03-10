@@ -1,4 +1,5 @@
 #include "lircdevice.h"
+#include "upplay/HelperStructs/CSettingsStorage.h"
 
 LircDevice::LircDevice(QObject *parent) :
     QObject(parent), m_lastToggle(false), m_recvEnabled(true)
@@ -14,15 +15,13 @@ LircDevice::~LircDevice()
 
 void LircDevice::initDevice()
 {
-    m_fd = open("/dev/lirc0", O_RDWR|O_NONBLOCK);
+	QString dev = CSettingStorage::getInstance()->getLircDevice();
+    m_fd = open(dev.toUTF8(), O_RDWR|O_NONBLOCK);
     if (m_fd == -1)
     {
         qDebug() << "LircDevice::initDevice: FATAL, could not open device";
         return;
     }
-//    if (ioctl(m_fd, LIRC_SET_SEND_CARRIER, 0) == -1)
-//        qDebug() << "LircDevice::initDevice: FATAL, could not set LIRC_SET_SEND_CARRIER";
-
     resetDecoder();
     m_readNotifier = new QSocketNotifier(m_fd, QSocketNotifier::Read, this);
     connect(m_readNotifier, SIGNAL(activated(int)), this, SLOT(handleRead()));

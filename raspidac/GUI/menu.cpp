@@ -1,5 +1,6 @@
 #include "menu.h"
 #include "mainmenu.h"
+#include "upplay/HelperStructs/CSettingsStorage.h"
 
 Menu::Menu(QWidget *parent) :
     QObject(parent),  m_radioLevel(0), m_inputLevel(0),
@@ -71,7 +72,12 @@ void Menu::setInputList(QStringList &lst)
 void Menu::setInputList()
 {
     QStringList lst;
-    lst << "Input 1" << "Input 2" << "Input 3" << "Input 4";
+	lst = QSettingStorage::getInstance()->getSpdifInputNames();
+	if (lst.size() != 4)
+	{
+		lst.clear();
+		lst << "Input 1" << "Input 2" << "Input 3" << "Input 4";
+	}   
     setInputList(lst);
 }
 

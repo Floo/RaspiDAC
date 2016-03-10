@@ -219,16 +219,18 @@ void RPiGPIO::setCS8416InputSelect(int value)
     qDebug() << "I2C CS8416 input set to: " << value;
 }
 
-void RPiGPIO::getCS8416ID()
+int RPiGPIO::getCS8416ID()
 {
     int value = wiringPiI2CReadReg8(fd_cs8416, CS_CMD_IDVER);
     qDebug() << "I2C CS8416 ID: " << value;
+	return value;
 }
 
-void RPiGPIO::getCS8416Reg(int reg)
+int RPiGPIO::getCS8416Reg()
 {
     int ret = wiringPiI2CReadReg8(fd_cs8416, reg);
     qDebug() << "I2C CS8416 Register " << reg << ": " << ret;
+	return ret;
 }
 
 void RPiGPIO::tsl2591Setup()
@@ -247,10 +249,81 @@ void RPiGPIO::tsl2591Setup()
     }
 }
 
-void RPiGPIO::getTSL2591(int value)
+int RPiGPIO::getLuxTSL2591()
 {
-    value = wiringPiI2CReadReg16(fd_tsl2591, TSL2591_C0DATAL_R);
-    value = wiringPiI2CReadReg16(fd_tsl2591, TSL2591_C1DATAL_R);
+	float atime, again, cpl, lux1, lux2;
+		
+    int valueC0 = wiringPiI2CReadReg16(fd_tsl2591, TSL2591_C0DATAL_R);
+    int valueC1 = wiringPiI2CReadReg16(fd_tsl2591, TSL2591_C1DATAL_R);
+	
+	int conf = wiringPiI2CReadReg8(fd_tsl2591, TSL2591_CONFIG_RW);
+	tsl2591Gain_t gain = conf & 0x30;
+	tsl2591IntegrationTime_t integration = conf & 0x07;
 
+	switch (integration)
+	{
+	case TSL2591_INTEGRATIONTIME_100MS:
+		atime = 100;
+		break;
+	case TSL2591_INTEGRATIONTIME_200MS:
+		atime = 200;
+		break;
+	case TSL2591_INTEGRATIONTIME_300MS:
+		atime = 300;
+		break;
+	case TSL2591_INTEGRATIONTIME_400MS:
+		atime = 400;
+		break;
+	case TSL2591_INTEGRATIONTIME_500MS:
+		atime = 500;
+		break;
+	case TSL2591_INTEGRATIONTIME_600MS:
+		atime = 600;
+		break;
+	default:
+		atime = 100;
+		break;
+	}
+	switch (gain)
+	{
+	case TSL2591_GAIN_LOW:
+		again = 1;
+		break;
+	case TSL2591_GAIN_MED:
+		again = 25;
+		break;
+	case TSL2591_GAIN_LOW:
+		again = 428;
+		break;
+	case TSL2591_GAIN_LOW:
+		again = 9876;
+		break;
+	default:
+		again = 1;
+		break;
+	}
+	cpl = (atime * again) / TSL2591_LUX_DF;
+
+	lux1 = ( (float)valueC0 - (TSL2591_LUX_COEFB * (float)valueC1) ) / cpl;
+	lux2 = ( ( TSL2591_LUX_COEFC * (float)valueC0 ) - ( TSL2591_LUX_COEFD * (float)valueC1 ) ) / cpl;
+	return (int)(lux1 > lux2 ? lux1 : lux2);	
 }
+
+void RPiGPIO::setTSL2591Gain(tsl2591Gain_t gain)
+{
+	int conf = wiringPiI2CReadReg8(fd_tsl2591, TSL2591_CONFIG_RW);
+	conf = conf & 0x07;
+	conf = conf | gain;
+	wiringPiI2CWriteReg8(fd_tsl2591, TSL2591_CONFIG_RW, conf);
+}
+
+void RPiGPIO::setTSL2591IntegrationTime(tsl2591IntegrationTime_t time)
+{
+	int conf = wiringPiI2CReadReg8(fd_tsl2591, TSL2591_CONFIG_RW);
+	conf = conf & 0x30;
+	conf = conf | time;
+	wiringPiI2CWriteReg8(fd_tsl2591, TSL2591_CONFIG_RW, conf);
+}
+
+
 
