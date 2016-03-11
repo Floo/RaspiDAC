@@ -20,9 +20,6 @@ void LircDevice::initDevice()
         qDebug() << "LircDevice::initDevice: FATAL, could not open device";
         return;
     }
-//    if (ioctl(m_fd, LIRC_SET_SEND_CARRIER, 0) == -1)
-//        qDebug() << "LircDevice::initDevice: FATAL, could not set LIRC_SET_SEND_CARRIER";
-
     resetDecoder();
     m_readNotifier = new QSocketNotifier(m_fd, QSocketNotifier::Read, this);
     connect(m_readNotifier, SIGNAL(activated(int)), this, SLOT(handleRead()));
@@ -45,7 +42,7 @@ void LircDevice::handleRead()
             //qDebug() << "LircDevice::handleRead: " << ((pulseBit) ? "pulse" : "space") << pulseLength;
             if ((code = decode(data)) != 0)
             {
-                qDebug() << "LircDevice::handleRead: Code received " << code;
+                //qDebug() << "LircDevice::handleRead: Code received " << code;
                 emit codeReceived(code);
             }
         }
@@ -154,7 +151,7 @@ int LircDevice::encode(int code, char *data)
 			code = code | (RC5_TOGGLE_MASK);
 		}
 	}
-    qDebug() << "LircDevice::encode: Code = " << code;
+    //qDebug() << "LircDevice::encode: Code = " << code;
 	// zuerst eine Bitfolge erstellen
 	bitFolge = 0;
     bitCount = (code & RC5X_MASK) ? 20 : 14;
@@ -192,10 +189,9 @@ int LircDevice::encode(int code, char *data)
 		else
 		{
 			if (j == 1)
-				pulseLength = bit ? PULSE_LENGTH : SPACE_LENGTH;
+                pulseLength = bit ? SPACE_LENGTH : PULSE_LENGTH;
 			else
 				pulseLength = PULSE_LENGTH + SPACE_LENGTH;
-			//pulseLength = j * PULSE_LENGTH;
 		}
         //qDebug() << "LircDevice::encode: Pulselength = " << pulseLength;
         memcpy(data + i * sizeof(int), &pulseLength, sizeof(int));
