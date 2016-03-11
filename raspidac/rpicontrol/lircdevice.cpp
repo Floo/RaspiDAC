@@ -15,8 +15,8 @@ LircDevice::~LircDevice()
 
 void LircDevice::initDevice()
 {
-	QString dev = CSettingStorage::getInstance()->getLircDevice();
-    m_fd = open(dev.toUTF8(), O_RDWR|O_NONBLOCK);
+    QString dev = CSettingsStorage::getInstance()->getLircDevice();
+    m_fd = open(dev.toUtf8(), O_RDWR|O_NONBLOCK);
     if (m_fd == -1)
     {
         qDebug() << "LircDevice::initDevice: FATAL, could not open device";

@@ -136,11 +136,11 @@ public:
     void pca9530Setup();
     void cs8416Setup();
 	int getCS8416ID();
-    int getCS8416Reg();
+    int getCS8416Reg(int);
     void tsl2591Setup();
 	int getTSL2591Lux();
 	void setTSL2591IntegrationTime(tsl2591IntegrationTime_t);
-	void setTSL2591Gain(tsl2591Gain_t)
+    void setTSL2591Gain(tsl2591Gain_t);
 
 public slots:
     void toggleLED();

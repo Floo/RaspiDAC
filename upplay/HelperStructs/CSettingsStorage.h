@@ -81,7 +81,7 @@ public:
     enum SortKinds {SK_NOSORT=0, SK_MINIMFNORDER=1, SK_CUSTOM=2};
     GENDEC_VARIABLE(SortKind, int, Int);
     GENDEC_VARIABLE(SortCrits, QStringList, StringList);
-	GENDEC_VARIABLE(SpdifInputNames, QStringList, Stringlist);
+    GENDEC_VARIABLE(SpdifInputNames, QStringList, StringList);
 	GENDEC_VARIABLE(LircDevice, QString, String);
 	GENDEC_VARIABLE(TcpPort, int, Int);
 	GENDEC_VARIABLE(UdpDatagramPort, int, Int);

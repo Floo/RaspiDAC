@@ -9,7 +9,7 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     QWidget(parent), m_upapp(upapp), m_playlist(0), m_initialized(false),
     m_sendIRKey(true)
 {
-	m_port = CSettingStorage::getInstance()->getTcpPort();
+    m_port = CSettingsStorage::getInstance()->getTcpPort();
 #ifdef __rpi__
     rpiGPIO = new RPiGPIO();
 #endif

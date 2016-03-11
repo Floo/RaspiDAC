@@ -72,7 +72,7 @@ void Menu::setInputList(QStringList &lst)
 void Menu::setInputList()
 {
     QStringList lst;
-	lst = QSettingStorage::getInstance()->getSpdifInputNames();
+    lst = CSettingsStorage::getInstance()->getSpdifInputNames();
 	if (lst.size() != 4)
 	{
 		lst.clear();

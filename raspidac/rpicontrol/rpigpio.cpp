@@ -226,7 +226,7 @@ int RPiGPIO::getCS8416ID()
 	return value;
 }
 
-int RPiGPIO::getCS8416Reg()
+int RPiGPIO::getCS8416Reg(int reg)
 {
     int ret = wiringPiI2CReadReg8(fd_cs8416, reg);
     qDebug() << "I2C CS8416 Register " << reg << ": " << ret;
@@ -249,7 +249,7 @@ void RPiGPIO::tsl2591Setup()
     }
 }
 
-int RPiGPIO::getLuxTSL2591()
+int RPiGPIO::getTSL2591Lux()
 {
 	float atime, again, cpl, lux1, lux2;
 		
@@ -257,8 +257,8 @@ int RPiGPIO::getLuxTSL2591()
     int valueC1 = wiringPiI2CReadReg16(fd_tsl2591, TSL2591_C1DATAL_R);
 	
 	int conf = wiringPiI2CReadReg8(fd_tsl2591, TSL2591_CONFIG_RW);
-	tsl2591Gain_t gain = conf & 0x30;
-	tsl2591IntegrationTime_t integration = conf & 0x07;
+    tsl2591Gain_t gain = (tsl2591Gain_t)(conf & 0x30);
+    tsl2591IntegrationTime_t integration = (tsl2591IntegrationTime_t)(conf & 0x07);
 
 	switch (integration)
 	{
@@ -292,10 +292,10 @@ int RPiGPIO::getLuxTSL2591()
 	case TSL2591_GAIN_MED:
 		again = 25;
 		break;
-	case TSL2591_GAIN_LOW:
+    case TSL2591_GAIN_HIGH:
 		again = 428;
 		break;
-	case TSL2591_GAIN_LOW:
+    case TSL2591_GAIN_MAX:
 		again = 9876;
 		break;
 	default:
