@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QSocketNotifier>
 #include <QTimer>
+#include <QThread>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -21,9 +22,10 @@
 #define RC5_CMD_MASK        0x000003F
 #define RC5_ADR_MASK        0x00007C0
 
-//#define PULSE_LENGTH   889 // Bitdauer ist 1,778 ms
-#define PULSE_LENGTH 950
-#define EPS			   0.1 	// Relative Fehlertoleranz des empfangenen Signals 0.1 entspricht 10 %
+#define PULSE_LENGTH        880 // Bitdauer ist 1,778 ms
+#define SPACE_LENGTH        912
+#define RC5X_SPACE_LENGTH   4466
+#define EPS                 0.1 	// Relative Fehlertoleranz des empfangenen Signals 0.1 entspricht 10 %
 
 #define COMP_PULSE_LENGTH(a, length) ((a > (length * (1 - EPS))) && (a < (length * (1 + EPS))))
 
