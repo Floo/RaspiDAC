@@ -56,13 +56,14 @@ void LircDevice::handleRead()
 int LircDevice::decode(int data)
 {
     bool pulseBit = data & PULSE_BIT;
+	uint32_t length = pulseBit ? PULSE_LENGTH : SPACE_LENGTH;	
     uint32_t pulseLength = (uint32_t)(data & PULSE_MASK);
-    if (pulseLength > 6 * PULSE_LENGTH)
+    if (pulseLength > 6 * length)
     {
         resetDecoder();
         return 0;
     }
-    if (!m_isSyncronized && COMP_PULSE_LENGTH(pulseLength, PULSE_LENGTH) && pulseBit)
+    if (!m_isSyncronized && COMP_PULSE_LENGTH(pulseLength, length) && pulseBit)
     {
         m_isSyncronized = true;
         m_lastBit = 1;
@@ -71,18 +72,18 @@ int LircDevice::decode(int data)
     }
     if (m_isSyncronized)
     {
-        if (COMP_PULSE_LENGTH(pulseLength, 2 * PULSE_LENGTH))
+        if (COMP_PULSE_LENGTH(pulseLength, PULSE_LENGTH + SPACE_LENGTH))
         {
             m_lastBit = !m_lastBit;
             m_bitCount++;
             m_code = m_code << 1;
             m_code = m_code | m_lastBit;
         }
-        else if (COMP_PULSE_LENGTH(pulseLength, PULSE_LENGTH) && m_pulseCount == 0)
+        else if (COMP_PULSE_LENGTH(pulseLength, length) && m_pulseCount == 0)
         {
             m_pulseCount++;
         }
-        else if (COMP_PULSE_LENGTH(pulseLength, PULSE_LENGTH) && m_pulseCount == 1)
+        else if (COMP_PULSE_LENGTH(pulseLength, length) && m_pulseCount == 1)
         {
             m_pulseCount = 0;
             m_bitCount++;
@@ -93,7 +94,7 @@ int LircDevice::decode(int data)
         {
             resetDecoder();
         }
-        else if (COMP_PULSE_LENGTH(pulseLength, 5 * PULSE_LENGTH) && m_bitCount == 8)
+        else if (COMP_PULSE_LENGTH(pulseLength, RC5X_SPACE_LENGTH) && m_bitCount == 8)
         {
             m_xRC5 = true;
             if (m_pulseCount == 0)
@@ -184,12 +185,18 @@ int LircDevice::encode(int code, char *data)
             bit = (bool)(bitFolge & mask);
         } while ((bit == lastBit) && (bitCount > 0));
 		
-        lastBit = bit;
+        lastBit = bit; 
 		
         if ((code & RC5X_MASK) && (bitCount == 24))
-			pulseLength = 5 * PULSE_LENGTH;
+			pulseLength = RC5X_SPACE_LENGTH;
 		else
-			pulseLength = j * PULSE_LENGTH;
+		{
+			if (j == 1)
+				pulseLength = bit ? PULSE_LENGTH : SPACE_LENGTH;
+			else
+				pulseLength = PULSE_LENGTH + SPACE_LENGTH;
+			//pulseLength = j * PULSE_LENGTH;
+		}
         //qDebug() << "LircDevice::encode: Pulselength = " << pulseLength;
         memcpy(data + i * sizeof(int), &pulseLength, sizeof(int));
         i++;
@@ -202,13 +209,14 @@ int LircDevice::encode(int code, char *data)
 void LircDevice::sendCode(int code)
 {
     char *data;
+	int count;
     int size;
 
     if (code == -1)
         return;
 
     setRecvEnabled(false);
-    m_disableRecvTimer->singleShot(300, [=] {
+    m_disableRecvTimer->singleShot(400, [=] {
         setRecvEnabled(true);
     });
 
@@ -222,7 +230,11 @@ void LircDevice::sendCode(int code)
     }
     data = (char*)malloc(size);
 	m_lastToggle = !m_lastToggle;
-    int count = encode(code, data);
+    count = encode(code, data);
     write(m_fd, (void*)data, count * sizeof(int));
+	QThread::msleep(88);
+	write(m_fd, (void*)data, count * sizeof(int));
+	QThread::msleep(88);
+	write(m_fd, (void*)data, count * sizeof(int));
     free(data);
 }
