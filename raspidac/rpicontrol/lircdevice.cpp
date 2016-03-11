@@ -1,4 +1,5 @@
 #include "lircdevice.h"
+#include "upplay/HelperStructs/CSettingsStorage.h"
 
 LircDevice::LircDevice(QObject *parent) :
     QObject(parent), m_lastToggle(false), m_recvEnabled(true)
@@ -14,7 +15,8 @@ LircDevice::~LircDevice()
 
 void LircDevice::initDevice()
 {
-    m_fd = open("/dev/lirc0", O_RDWR|O_NONBLOCK);
+    QString dev = CSettingsStorage::getInstance()->getLircDevice();
+    m_fd = open(dev.toUtf8(), O_RDWR|O_NONBLOCK);
     if (m_fd == -1)
     {
         qDebug() << "LircDevice::initDevice: FATAL, could not open device";

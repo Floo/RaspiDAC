@@ -51,9 +51,8 @@ public:
     bool isRunFirstTime ();
 
 private:
-    CSettingsStorage(QObject *parent = 0) 
-        : QSettings (QCoreApplication::organizationName(),
-                     QCoreApplication::applicationName(), parent)
+    CSettingsStorage(QString filename, QObject *parent = 0) 
+        : QSettings (filename, QSettings::IniFormat, parent)
         {
         }
 
@@ -82,6 +81,11 @@ public:
     enum SortKinds {SK_NOSORT=0, SK_MINIMFNORDER=1, SK_CUSTOM=2};
     GENDEC_VARIABLE(SortKind, int, Int);
     GENDEC_VARIABLE(SortCrits, QStringList, StringList);
+    GENDEC_VARIABLE(SpdifInputNames, QStringList, StringList);
+	GENDEC_VARIABLE(LircDevice, QString, String);
+	GENDEC_VARIABLE(TcpPort, int, Int);
+	GENDEC_VARIABLE(UdpDatagramPort, int, Int);
+	GENDEC_VARIABLE(UdpDiscoveryPort, int, Int);
     // Special cases
     void setPlaylistMode(const Playlist_Mode&);
     Playlist_Mode getPlaylistMode();

@@ -29,7 +29,7 @@
 CSettingsStorage* CSettingsStorage::getInstance() {
     static CSettingsStorage* inst;
     if (inst == 0) {
-        inst = new CSettingsStorage();
+        inst = new CSettingsStorage("/home/pi/RaspiDAC/RaspiDAC.conf");
     }
     return inst;
 }
@@ -69,8 +69,13 @@ GENCODE_VARIABLE(NotifyNewVersion, bool,  Bool)
 GENCODE_VARIABLE(PlayerUID, QString, String)
 GENCODE_VARIABLE(LoadPlaylist, bool, Bool)
 GENCODE_VARIABLE(SplitterState, QByteArray, ByteArray)
-GENCODE_VARIABLE(SortKind, int, Int);
-GENCODE_VARIABLE(SortCrits, QStringList, StringList);
+GENCODE_VARIABLE(SortKind, int, Int)
+GENCODE_VARIABLE(SortCrits, QStringList, StringList)
+GENCODE_VARIABLE(SpdifInputNames, QStringList, StringList)
+GENCODE_VARIABLE(LircDevice, QString, String)
+GENCODE_VARIABLE(TcpPort, int, Int)
+GENCODE_VARIABLE(UdpDatagramPort, int, Int)
+GENCODE_VARIABLE(UdpDiscoveryPort, int, Int)
 
 bool CSettingsStorage::isRunFirstTime () 
 {
