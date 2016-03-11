@@ -112,7 +112,7 @@ RPiGPIO::RPiGPIO()
     setLED(LED_OFF);
     setInputSelect(INPUT_UPNP);
     setRelais(REL_OFF);
-    setRC5direct(RC5_DIRECT_OFF);
+    setRC5direct(RC5_DIRECT_ON);
 
     pca9530Setup();
     cs8416Setup();

@@ -33,16 +33,16 @@ void LircDevice::handleRead()
     ssize_t count = sizeof(int);
     ssize_t result;
     int data, code;
-    //int pulseBit = 0;
-    //uint32_t pulseLength;
+    int pulseBit = 0;
+    uint32_t pulseLength;
     m_readNotifier->setEnabled(false);
     do {
         result = read(m_fd, (void*)&data, count);
         if ((result == count) && m_recvEnabled)
         {
-            //pulseBit = data & PULSE_BIT;
-            //pulseLength = (uint32_t)(data & PULSE_MASK);
-            //qDebug() << "LircDevice::handleRead: " << ((pulseBit) ? "pulse" : "space") << pulseLength;
+            pulseBit = data & PULSE_BIT;
+            pulseLength = (uint32_t)(data & PULSE_MASK);
+            qDebug() << "LircDevice::handleRead: " << ((pulseBit) ? "pulse" : "space") << pulseLength;
             if ((code = decode(data)) != 0)
             {
                 qDebug() << "LircDevice::handleRead: Code received " << code;
