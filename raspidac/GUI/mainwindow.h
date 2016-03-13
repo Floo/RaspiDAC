@@ -5,6 +5,7 @@
 #include <QTimer>
 
 #include "../raspidac.h"
+#include "upplay/HelperStructs/CSettingsStorage.h"
 
 class StandbyWindow;
 class RadioWindow;
@@ -33,6 +34,7 @@ public:
     void paused();
     void stopped();
     void input(QString);
+    void spdifInput(int);
     void showMessage(QString &msg, int msec = 5000);
 
 signals:

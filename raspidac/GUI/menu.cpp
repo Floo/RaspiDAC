@@ -72,12 +72,16 @@ void Menu::setInputList(QStringList &lst)
 void Menu::setInputList()
 {
     QStringList lst;
-    lst = CSettingsStorage::getInstance()->getSpdifInputNames();
-	if (lst.size() != 4)
-	{
-		lst.clear();
-		lst << "Input 1" << "Input 2" << "Input 3" << "Input 4";
-	}   
+    QStringList lstnames = CSettingsStorage::getInstance()->getSpdifInputNames();
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (i < lstnames.size())
+            lst.append(QString("Input %1 (%2)").arg(i + 1).arg(lstnames.at(i)));
+        else
+            lst.append(QString("Input %1").arg(i + 1));
+    }
+
     setInputList(lst);
 }
 

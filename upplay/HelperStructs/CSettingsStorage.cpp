@@ -29,7 +29,8 @@
 CSettingsStorage* CSettingsStorage::getInstance() {
     static CSettingsStorage* inst;
     if (inst == 0) {
-        inst = new CSettingsStorage("/home/pi/RaspiDAC/RaspiDAC.conf");
+        QString path = QCoreApplication::applicationDirPath();
+        inst = new CSettingsStorage(QString("%1/RaspiDAC.conf").arg(path));
     }
     return inst;
 }

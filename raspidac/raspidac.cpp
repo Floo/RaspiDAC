@@ -18,6 +18,7 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     m_window = new MainWindow();
     m_window->setCurrentIndex(RPI_Standby);
     m_window->clearTrack();
+    setBacklight(BACKLIGHT_STANDBY);
 
     m_lastMode = RPI_Radio;
 
@@ -81,7 +82,8 @@ void RaspiDAC::setSPDIFInput(int value)
 #ifdef __rpi__
     rpiGPIO->setCS8416InputSelect(value);
 #endif
-    m_window->input(QString("Input %1").arg(m_spdifInput + 1));
+    //m_window->input(QString("Input %1").arg(m_spdifInput + 1));
+    m_window->spdifInput(m_spdifInput);
     prepareDatagram();
 }
 
@@ -104,7 +106,7 @@ void RaspiDAC::toggleSPDIFInput()
 
 void RaspiDAC::setBacklight(int value)
 {
-    if(value <= 255 && value >= 0)
+    if(value <= 255 && value >= -1)
     {
 #ifdef __rpi__
         rpiGPIO->setBacklight(value);
@@ -250,7 +252,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_ON);
         rpiGPIO->setLED(LED_ON);
-        rpiGPIO->setBacklight(BACKLIGHT_MAX);
+        rpiGPIO->setBacklight(BACKLIGHT_AUTO);
         rpiGPIO->setCS8416InputSelect(m_spdifInput);
 #endif
     }
@@ -295,7 +297,8 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
 #ifdef __rpi__
         rpiGPIO->setInputSelect(INPUT_DAC);
 #endif
-        m_window->input(QString("Input %1").arg(m_spdifInput + 1));
+        //m_window->input(QString("Input %1").arg(m_spdifInput + 1));
+        m_window->spdifInput(m_spdifInput);
     }
 
     if(mode == RPI_Standby)
@@ -305,7 +308,7 @@ void RaspiDAC::setGUIMode(RaspiDAC::GUIMode mode)
         emit pause();
 #ifdef __rpi__
         rpiGPIO->setRelais(REL_OFF);
-        rpiGPIO->setBacklight(BACKLIGHT_DIMM);
+        rpiGPIO->setBacklight(BACKLIGHT_STANDBY);
         rpiGPIO->setLED(LED_OFF);
 #endif
         if (m_sendIRKey)

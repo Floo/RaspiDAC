@@ -94,6 +94,7 @@ public:
     int Relais;
     int Input;
     int RC5direct;
+    int Output;
 };
 
 RPiGPIO::RPiGPIO()
@@ -109,13 +110,23 @@ RPiGPIO::RPiGPIO()
 
     m = new Internal();
 
+    m_backlightTimer = new QTimer;
+    m_outputTimer = new QTimer;
+    m_backlightTimer->setInterval(3000);
+    m_outputTimer->setSingleShot(true);
+    m_outputTimer->setInterval(2000);
+    connect(m_backlightTimer, &QTimer::timeout, this, &RPiGPIO::updateBacklight);
+    connect(m_outputTimer, &QTimer::timeout, [=](){ this->setAnalogOutput(REL_ON);});
+
     setLED(LED_OFF);
     setInputSelect(INPUT_UPNP);
     setRelais(REL_OFF);
-    setRC5direct(RC5_DIRECT_ON);
+    setAnalogOutput(REL_OFF);
+    setRC5direct(RC5_DIRECT_OFF);
 
     pca9530Setup();
     cs8416Setup();
+    tsl2591Setup();
 }
 
 RPiGPIO::~RPiGPIO()
@@ -143,8 +154,25 @@ void RPiGPIO::setRC5direct(int value)
 
 void RPiGPIO::setRelais(int value)
 {
+    if (value == REL_OFF)
+    {
+        m_outputTimer->stop();
+        setAnalogOutput(REL_OFF);
+    }
     m->Relais = value;
     digitalWrite(GPIO23, value);
+    if (value == REL_ON)
+    {
+        m_outputTimer->start();
+    }
+}
+
+void RPiGPIO::setAnalogOutput(int value)
+{
+    if ((value == REL_ON) && (m->Relais == REL_OFF))
+        return;
+    m->Output = value;
+    digitalWrite(GPIO12, value);
 }
 
 int RPiGPIO::getLED()
@@ -165,6 +193,11 @@ int RPiGPIO::getInputSelect()
 int RPiGPIO::getRelais()
 {
     return m->Relais;
+}
+
+int RPiGPIO::getAnalogOutput()
+{
+    return m->Output;
 }
 
 void RPiGPIO::toggleLED()
@@ -190,7 +223,16 @@ void RPiGPIO::pca9530Setup()
 
 void RPiGPIO::setBacklight(int value)
 {
-    wiringPiI2CWriteReg8(fd_pca9530, 0x02, value);
+    if ((value < -1) ||(value > BACKLIGHT_MIN))
+        return;
+    if (value == BACKLIGHT_AUTO)
+    {
+        updateBacklight();
+        m_backlightTimer->start();
+    } else {
+        m_backlightTimer->stop();
+        wiringPiI2CWriteReg8(fd_pca9530, 0x02, value);
+    }
 }
 
 void RPiGPIO::cs8416Setup()
@@ -246,6 +288,10 @@ void RPiGPIO::tsl2591Setup()
     if (ret != TSL2591_DEVICE_ID_VALUE)
     {
         qDebug() << "RPiGPIO::tsl2591Setup: Error reading DeviceID";
+    } else {
+        wiringPiI2CWriteReg8(fd_tsl2591, TSL2591_ENABLE_RW, TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN);
+        setTSL2591Gain(TSL2591_GAIN_MED);
+        setTSL2591IntegrationTime(TSL2591_INTEGRATIONTIME_300MS);
     }
 }
 
@@ -309,6 +355,14 @@ int RPiGPIO::getTSL2591Lux()
 	return (int)(lux1 > lux2 ? lux1 : lux2);	
 }
 
+int RPiGPIO::getTSL2591Helligkeit()
+{
+    int valueC0 = wiringPiI2CReadReg16(fd_tsl2591, TSL2591_C0DATAL_R);
+    int valueC1 = wiringPiI2CReadReg16(fd_tsl2591, TSL2591_C1DATAL_R);
+
+    return valueC0 -valueC1;
+}
+
 void RPiGPIO::setTSL2591Gain(tsl2591Gain_t gain)
 {
 	int conf = wiringPiI2CReadReg8(fd_tsl2591, TSL2591_CONFIG_RW);
@@ -323,6 +377,13 @@ void RPiGPIO::setTSL2591IntegrationTime(tsl2591IntegrationTime_t time)
 	conf = conf & 0x30;
 	conf = conf | time;
 	wiringPiI2CWriteReg8(fd_tsl2591, TSL2591_CONFIG_RW, conf);
+}
+
+void RPiGPIO::updateBacklight()
+{
+    int hell = getTSL2591Helligkeit();
+    //qDebug() << "RPiGPIO::updateBacklight: Helligkeit = " << hell;
+    wiringPiI2CWriteReg8(fd_pca9530, 0x02, BACKLIGHT_MAX);
 }
 
 

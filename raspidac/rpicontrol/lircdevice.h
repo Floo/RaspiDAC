@@ -6,6 +6,7 @@
 #include <QSocketNotifier>
 #include <QTimer>
 #include <QThread>
+#include <QMutex>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -62,6 +63,7 @@ private:
     int m_pulseCount;
 	bool m_lastToggle;
     bool m_recvEnabled;
+    QMutex m_sendMutex;
 
     int decode(int data);
     int encode(int code, char *data);

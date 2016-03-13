@@ -26,6 +26,7 @@
 #include <QPair>
 #include <QSize>
 #include <QPoint>
+#include <QDir>
 
 #include <vector>
 

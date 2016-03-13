@@ -121,6 +121,16 @@ void MainWindow::input(QString txt)
     m_spdifWindow->setInput(txt);
 }
 
+void MainWindow::spdifInput(int input)
+{
+    m_spdifWindow->setInput(QString("Input %1").arg(input + 1));
+    QStringList lst = CSettingsStorage::getInstance()->getSpdifInputNames();
+    if (input < lst.size())
+        m_spdifWindow->setInputName(lst.at(input));
+    else
+        m_spdifWindow->setInputName("");
+}
+
 void MainWindow::showMessage(QString &msg, int msec)
 {
     m_msgTimer->stop();

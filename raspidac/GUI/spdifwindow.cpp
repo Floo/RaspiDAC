@@ -17,3 +17,8 @@ void SpdifWindow::setInput(QString txt)
 {
     ui->lblInput->setText(txt);
 }
+
+void SpdifWindow::setInputName(QString txt)
+{
+    ui->lblInputName->setText(txt);
+}

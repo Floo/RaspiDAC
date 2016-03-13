@@ -6,6 +6,7 @@
 #include <wiringPiI2C.h>
 #include <QDebug>
 #include <QTime>
+#include <QTimer>
 #include <QMutex>
 
 #define GPIO04 4    //Input-Select
@@ -13,7 +14,7 @@
 #define GPIO05 5    //Taster1
 #define GPIO06 6    //Taster3
 #define GPIO13 13   //Taster2
-#define GPIO12 12   //Taster4
+#define GPIO12 12   //Taster4 oder Ausgangsrelais
 #define GPIO23 23   //Relais
 #define GPIO26 26   //LED_Power
 
@@ -35,19 +36,21 @@
 #define CS_CMD_REC_ERROR         0x0C
 #define CS_CMD_IRQ_STAT          0x0D
 
-#define LED_ON     0
-#define LED_OFF    1
-#define LED_BLINK  100
-#define REL_ON     1
-#define REL_OFF    0
-#define RC5_DIRECT_ON  1
-#define RC5_DIRECT_OFF 0
-#define INPUT_UPNP   1
-#define INPUT_DAC    0
+#define LED_ON          0
+#define LED_OFF         1
+#define LED_BLINK       100
+#define REL_ON          1
+#define REL_OFF         0
+#define RC5_DIRECT_ON   1
+#define RC5_DIRECT_OFF  0
+#define INPUT_UPNP      1
+#define INPUT_DAC       0
 
-#define BACKLIGHT_MAX   0
-#define BACKLIGHT_DIMM  200
-#define BACKLIGHT_MIN   255
+#define BACKLIGHT_MAX       0
+#define BACKLIGHT_DIMM      200
+#define BACKLIGHT_STANDBY   240
+#define BACKLIGHT_MIN       255
+#define BACKLIGHT_AUTO      -1
 
 #define DEBOUNCE_TIME 25 //ms
 
@@ -75,6 +78,9 @@
 #define TSL2591_C0DATAH_R	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x15)
 #define TSL2591_C1DATAL_R 	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x16)
 #define TSL2591_C1DATAH_R	(TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x17)
+#define TSL2591_ENABLE_POWEROFF   (0x00)
+#define TSL2591_ENABLE_POWERON    (0x01)
+#define TSL2591_ENABLE_AEN        (0x02)    // ALS Enable. This field activates ALS function. Writing a one activates the ALS. Writing a zero disables the ALS.
 #define TSL2591_LUX_DF            408.0
 #define TSL2591_LUX_COEFB         1.64  // CH0 coefficient 
 #define TSL2591_LUX_COEFC         0.59  // CH1 coefficient A
@@ -132,6 +138,7 @@ public:
 	int getLED();
     int getRC5direct();
     int getRelais();
+    int getAnalogOutput();
     int getInputSelect();
     void pca9530Setup();
     void cs8416Setup();
@@ -139,6 +146,7 @@ public:
     int getCS8416Reg(int);
     void tsl2591Setup();
 	int getTSL2591Lux();
+    int getTSL2591Helligkeit();
 	void setTSL2591IntegrationTime(tsl2591IntegrationTime_t);
     void setTSL2591Gain(tsl2591Gain_t);
 
@@ -150,6 +158,7 @@ public slots:
     void setInputSelect(int);
     void setBacklight(int);
     void setCS8416InputSelect(int);
+    void setAnalogOutput(int);
 
 signals:
     void taster(int);
@@ -161,6 +170,11 @@ private:
     int fd_pca9530 = 0;
     int fd_cs8416 = 0;
     int fd_tsl2591 = 0;
+    QTimer *m_backlightTimer;
+    QTimer *m_outputTimer;
+
+private slots:
+    void updateBacklight();
 };
 
 #endif // RPIGPIO_H
