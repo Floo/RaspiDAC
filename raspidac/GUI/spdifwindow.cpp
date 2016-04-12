@@ -22,3 +22,8 @@ void SpdifWindow::setInputName(QString txt)
 {
     ui->lblInputName->setText(txt);
 }
+
+void SpdifWindow::setCurrentTime()
+{
+    ui->lblUhrzeit->setText(QTime::currentTime().toString("hh:mm"));
+}

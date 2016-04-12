@@ -8,6 +8,8 @@ NetAPIServer::NetAPIServer(RaspiDAC *rpi_h, QObject *parent)
 {
     int port = CSettingsStorage::getInstance()->getUdpDiscoveryPort();
     qRegisterMetaType<RaspiDAC::GUIMode>("RaspiDAC::GUIMode");
+    qRegisterMetaType<LircControl::sysCommandCode>("LircControl::sysCommandCode");
+    qRegisterMetaType<LircControl::commandCode>("LircControl::commandCode");
     m_udpSocket = new QUdpSocket();
     m_udpSocket->bind(port);
 
@@ -36,6 +38,7 @@ void NetAPIServer::incomingConnection(qintptr socketDescriptor)
     connect(thread, SIGNAL(setRadio(int)), m_rpi, SLOT(setRadio(int)));
     connect(thread, SIGNAL(taster(int)), m_rpi, SLOT(onTaster(int)));
     connect(thread, SIGNAL(tasterZweitbelegung(int)), m_rpi, SLOT(onTasterZweitbelegung(int)));
+    connect(thread, &NetAPIThread::setPM8000, m_rpi, &RaspiDAC::sendIRKey);
 
     thread->start();
 }
@@ -67,6 +70,12 @@ QString NetAPIServer::getRadioList()
     QStringList *strlist = 0;
     strlist = m_rpi->getRadioList();
     return strlist->join(";");
+}
+
+QString NetAPIServer::getInputList()
+{
+    QStringList lst = CSettingsStorage::getInstance()->getSpdifInputNames();
+    return lst.join(";");
 }
 
 void NetAPIServer::sendDatagramm(UDPDatagram &dtg)

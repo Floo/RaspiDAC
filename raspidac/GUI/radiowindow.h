@@ -2,6 +2,7 @@
 #define RADIOWINDOW_H
 
 #include <QWidget>
+#include <QTime>
 #include "HelperStructs/MetaData.h"
 
 namespace Ui {

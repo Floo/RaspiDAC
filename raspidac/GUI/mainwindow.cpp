@@ -42,7 +42,13 @@ MainWindow::MainWindow(QWidget *parent) :
     m_msgTimer = new QTimer();
     m_msgTimer->setSingleShot(true);
 
-    connect(m_msgTimer, SIGNAL(timeout()), this, SLOT(hideMessage()));
+    connect(m_msgTimer, &QTimer::timeout, this, &MainWindow::hideMessage);
+
+    m_uhrzeitTimer = new QTimer();
+    m_uhrzeitTimer->setInterval(200);
+    connect(m_uhrzeitTimer, &QTimer::timeout, m_standbyWindow, &StandbyWindow::setCurrentTime);
+    connect(m_uhrzeitTimer, &QTimer::timeout, m_spdifWindow, &SpdifWindow::setCurrentTime);
+    m_uhrzeitTimer->start();
 }
 
 

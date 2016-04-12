@@ -19,6 +19,7 @@ public:
     ~NetAPIServer();
     QString getGUIMode();
     QString getRadioList();
+    QString getInputList();
     QString getMetaData();
     QString getDatagram();
     void setMetaData(MetaData &md);

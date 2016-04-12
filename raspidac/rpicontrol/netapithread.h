@@ -6,6 +6,7 @@
 #include <QHash>
 
 #include "../raspidac.h"
+#include "../rpicontrol/lirccontrol.h"
 
 class NetAPIServer;
 
@@ -40,6 +41,7 @@ signals:
     void setRadio(int id);
     void taster(int);
     void tasterZweitbelegung(int);
+    void setPM8000(LircControl::sysCommandCode);
 
 private:
     int socketDescriptor;
@@ -67,6 +69,7 @@ private:
         cmd_shutdown,
         cmd_status,
         cmd_radiolist,
+        cmd_inputlist,
         cmd_metadata
     };
 

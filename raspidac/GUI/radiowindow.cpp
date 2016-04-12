@@ -73,3 +73,5 @@ void RadioWindow::clear_track()
 
     ui->lblAlbumArt->setPixmap(QPixmap(QString(":/pics/resources/logo.png")));
 }
+
+

@@ -22,6 +22,7 @@ NetAPIThread::NetAPIThread(int socketDescriptor, NetAPIServer *parent)
     m_commandList["shutdown"] =   cmd_shutdown;
     m_commandList["status"] =     cmd_status;
     m_commandList["radiolist"] =  cmd_radiolist;
+    m_commandList["inputlist"] =  cmd_inputlist;
     m_commandList["metadata"] =   cmd_metadata;
 }
 
@@ -146,7 +147,12 @@ QString NetAPIThread::parser(const QString &command)
             }
             break;
         case cmd_pm8000://pm8000
-
+            if (subcommand.at(2).contains("vol+", Qt::CaseInsensitive))
+                emit setPM8000(LircControl::cmd_sysVolumeUp);
+            else if (subcommand.at(2).contains("vol-", Qt::CaseInsensitive))
+                emit setPM8000(LircControl::cmd_sysVolumeDown);
+            else if (subcommand.at(2).contains("mute", Qt::CaseInsensitive))
+                emit setPM8000(LircControl::cmd_sysMute);
             break;
         case cmd_radio: //radio
             emit setRadio(subcommand.at(2).toInt());
@@ -204,6 +210,10 @@ QString NetAPIThread::parser(const QString &command)
             //reply = static_cast<NetAPIServer*>(parent())->getRadioList();
             reply = "[radioList]";
             reply.append(m_netapiserver->getRadioList());
+            break;
+        case cmd_inputlist:
+            reply = "[inputList]";
+            reply.append(m_netapiserver->getInputList());
             break;
         case cmd_metadata: //metadata
             reply = "[MetaData]";

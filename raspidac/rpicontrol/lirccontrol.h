@@ -39,6 +39,7 @@ public:
         cmd_rewind,
         cmd_mode
     };
+    Q_ENUMS(commandCode)
 
     enum sysCommandCode
     {
@@ -57,6 +58,7 @@ public:
         cmd_sysTape,
         cmd_sysMD
     };
+    Q_ENUMS(sysCommandCode)
 
 signals:
     void play();

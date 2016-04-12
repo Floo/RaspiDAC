@@ -2,6 +2,7 @@
 #define SPDIFWINDOW_H
 
 #include <QWidget>
+#include <QTime>
 
 namespace Ui {
 class SpdifWindow;
@@ -16,6 +17,9 @@ public:
     ~SpdifWindow();
     void setInput(QString);
     void setInputName(QString);
+
+public slots:
+    void setCurrentTime();
 
 private:
     Ui::SpdifWindow *ui;

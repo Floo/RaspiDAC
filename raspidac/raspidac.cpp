@@ -18,8 +18,9 @@ RaspiDAC::RaspiDAC(Application *upapp, QWidget *parent) :
     m_window = new MainWindow();
     m_window->setCurrentIndex(RPI_Standby);
     m_window->clearTrack();
+#ifdef __rpi__
     setBacklight(BACKLIGHT_STANDBY);
-
+#endif
     m_lastMode = RPI_Radio;
 
     m_menu = new Menu(m_window);

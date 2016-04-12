@@ -56,6 +56,7 @@ private:
     int m_msgwID;
 
     QTimer *m_msgTimer;
+    QTimer *m_uhrzeitTimer;
 
     QFile *m_res;
     QFont *m_font;

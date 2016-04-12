@@ -234,8 +234,8 @@ void LircDevice::sendCode(int code)
     write(m_fd, (void*)data, count * sizeof(int));
 	QThread::msleep(88);
 	write(m_fd, (void*)data, count * sizeof(int));
-	QThread::msleep(88);
-	write(m_fd, (void*)data, count * sizeof(int));
+//	QThread::msleep(88);
+//	write(m_fd, (void*)data, count * sizeof(int));
     free(data);
     m_sendMutex.unlock();
 }

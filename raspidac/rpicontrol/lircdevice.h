@@ -26,7 +26,7 @@
 #define PULSE_LENGTH        880 // Bitdauer ist 1,778 ms
 #define SPACE_LENGTH        912
 #define RC5X_SPACE_LENGTH   4466
-#define EPS                 0.1 	// Relative Fehlertoleranz des empfangenen Signals 0.1 entspricht 10 %
+#define EPS                 0.3 	// Relative Fehlertoleranz des empfangenen Signals 0.1 entspricht 10 %
 
 #define COMP_PULSE_LENGTH(a, length) ((a > (length * (1 - EPS))) && (a < (length * (1 + EPS))))
 

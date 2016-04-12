@@ -36,6 +36,11 @@
 #define CS_CMD_REC_ERROR         0x0C
 #define CS_CMD_IRQ_STAT          0x0D
 
+#define CS_SPDIF_IN_1   2
+#define CS_SPDIF_IN_2   3
+#define CS_SPDIF_IN_3   1
+#define CS_SPDIF_IN_4   0
+
 #define LED_ON          0
 #define LED_OFF         1
 #define LED_BLINK       100
@@ -47,7 +52,7 @@
 #define INPUT_DAC       0
 
 #define BACKLIGHT_MAX       0
-#define BACKLIGHT_DIMM      200
+#define BACKLIGHT_DIMM      220
 #define BACKLIGHT_STANDBY   240
 #define BACKLIGHT_MIN       255
 #define BACKLIGHT_AUTO      -1

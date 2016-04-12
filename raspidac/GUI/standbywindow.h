@@ -19,9 +19,8 @@ public:
 
 private:
     Ui::StandbyWindow *ui;
-    QTimer *m_timer;
 
-private slots:
+public slots:
     void setCurrentTime();
 
 };

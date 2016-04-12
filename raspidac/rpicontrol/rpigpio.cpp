@@ -112,7 +112,7 @@ RPiGPIO::RPiGPIO()
 
     m_backlightTimer = new QTimer;
     m_outputTimer = new QTimer;
-    m_backlightTimer->setInterval(3000);
+    m_backlightTimer->setInterval(1000);
     m_outputTimer->setSingleShot(true);
     m_outputTimer->setInterval(2000);
     connect(m_backlightTimer, &QTimer::timeout, this, &RPiGPIO::updateBacklight);
@@ -251,10 +251,26 @@ void RPiGPIO::cs8416Setup()
     qDebug() << "I2C CS8416 initialisiert";
 }
 
-void RPiGPIO::setCS8416InputSelect(int value)
+void RPiGPIO::setCS8416InputSelect(int input)
 {
-    if ((value < 0) || (value > 3))
+    int value;
+    if ((input < 0) || (input > 3))
         return;
+    switch (input)
+    {
+    case 0:
+        value = CS_SPDIF_IN_1;
+        break;
+    case 1:
+        value = CS_SPDIF_IN_2;
+        break;
+    case 2:
+        value = CS_SPDIF_IN_3;
+        break;
+    case 3:
+        value = CS_SPDIF_IN_4;
+        break;
+    }
     int oldValue = wiringPiI2CReadReg8(fd_cs8416, CS_CMD_CONTROL4);
     int newValue = (oldValue & 0xC0) | (value << 3);
     wiringPiI2CWriteReg8(fd_cs8416, CS_CMD_CONTROL4, newValue);
@@ -291,7 +307,7 @@ void RPiGPIO::tsl2591Setup()
     } else {
         wiringPiI2CWriteReg8(fd_tsl2591, TSL2591_ENABLE_RW, TSL2591_ENABLE_POWERON | TSL2591_ENABLE_AEN);
         setTSL2591Gain(TSL2591_GAIN_MED);
-        setTSL2591IntegrationTime(TSL2591_INTEGRATIONTIME_300MS);
+        setTSL2591IntegrationTime(TSL2591_INTEGRATIONTIME_600MS);
     }
 }
 
@@ -383,7 +399,15 @@ void RPiGPIO::updateBacklight()
 {
     int hell = getTSL2591Helligkeit();
     //qDebug() << "RPiGPIO::updateBacklight: Helligkeit = " << hell;
-    wiringPiI2CWriteReg8(fd_pca9530, 0x02, BACKLIGHT_MAX);
+    if (hell > 630)
+        wiringPiI2CWriteReg8(fd_pca9530, 0x02, BACKLIGHT_MAX);
+    else if (hell < 30)
+        wiringPiI2CWriteReg8(fd_pca9530, 0x02, BACKLIGHT_DIMM);
+    else
+    {
+        int bl = ((100 - (hell - 30) / 6) * BACKLIGHT_DIMM) / 100;
+        wiringPiI2CWriteReg8(fd_pca9530, 0x02, bl);
+    }
 }
 
 
